@@ -52,14 +52,14 @@ feature {NONE} -- Initialization
 			-- Initialize.
 		do
 			Precursor {EG_LINK_FIGURE}
-			check attached model as al_model then -- FIXME: Implied by ...?
-				if al_model.is_reflexive then
+			check attached model as l_model then -- FIXME: Implied by ...?
+				if l_model.is_reflexive then
 					line.set_point_count (4)
 				else
 					line.pointer_button_press_actions.extend (agent pointer_button_pressed_on_a_line)
 					line.set_pointer_style (new_edge_cursor)
 				end
-				if al_model.is_directed then
+				if l_model.is_directed then
 					line.enable_end_arrow
 				end
 			end
@@ -437,8 +437,8 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			nx, ny: INTEGER
 		do
 			if attached source as l_source and then attached target as l_target then
-				check attached model as al_model then --FIXME: Implied by ...?
-					if not al_model.is_reflexive then
+				check attached model as l_model then --FIXME: Implied by ...?
+					if not l_model.is_reflexive then
 						if edge_move_handlers.count = 0 then
 							set_end_and_start_point_to_edge
 						else
@@ -516,9 +516,9 @@ feature {NONE} -- Implementation
 			l_pa := line.point_array
 			p1 := l_pa.item (1)
 
-			check attached source as al_source then -- FIXME: Implied by ...?
-				an_angle := line_angle (al_source.port_x, al_source.port_y, p1.x_precise, p1.y_precise)
-				al_source.update_edge_point (l_pa.item (0), an_angle)
+			check attached source as l_source then -- FIXME: Implied by ...?
+				an_angle := line_angle (l_source.port_x, l_source.port_y, p1.x_precise, p1.y_precise)
+				l_source.update_edge_point (l_pa.item (0), an_angle)
 			end
 		end
 
@@ -534,9 +534,9 @@ feature {NONE} -- Implementation
 			l_count := l_pa.count
 			p := l_pa.item (l_count - 2)
 
-			check attached target as al_target then -- FIXME: Implied by ...?			
-				an_angle := line_angle (al_target.port_x, al_target.port_y, p.x_precise, p.y_precise)
-				al_target.update_edge_point (l_pa.item (l_count - 1), an_angle)
+			check attached target as l_target then -- FIXME: Implied by ...?			
+				an_angle := line_angle (l_target.port_x, l_target.port_y, p.x_precise, p.y_precise)
+				l_target.update_edge_point (l_pa.item (l_count - 1), an_angle)
 			end
 		end
 
@@ -550,13 +550,13 @@ feature {NONE} -- Implementation
 		do
 			l_point_array := line.point_array
 			check
-				attached source as al_source and
-				attached target as al_target
+				attached source as l_source and
+				attached target as l_target
 			then -- FIXME: Implied by ...?
-				an_angle := line_angle (al_source.port_x, al_source.port_y, al_target.port_x, al_target.port_y)
-				al_source.update_edge_point (l_point_array.item (0), an_angle)
+				an_angle := line_angle (l_source.port_x, l_source.port_y, l_target.port_x, l_target.port_y)
+				l_source.update_edge_point (l_point_array.item (0), an_angle)
 				an_angle := pi + an_angle
-				al_source.update_edge_point (l_point_array.item (1), an_angle)
+				l_source.update_edge_point (l_point_array.item (1), an_angle)
 			end
 		end
 
@@ -631,8 +631,8 @@ feature {NONE} -- Implementation
 	on_is_directed_change
 			-- `model'.`is_directed' changed.
 		do
-			check attached model as al_model then -- FIXME: Implied by ...?
-				if al_model.is_directed then
+			check attached model as l_model then -- FIXME: Implied by ...?
+				if l_model.is_directed then
 					line.enable_end_arrow
 				else
 					line.disable_end_arrow
@@ -666,7 +666,7 @@ invariant
 	line_not_void: line /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

@@ -124,15 +124,15 @@ feature {NONE} -- Implementation
 			l_result: detachable like traverse_tree
 		do
 			if node.is_leaf then
-				check attached node.particle as al_particle then -- Implied by `is_leaf'
-					l_result := n_body_force (a_particle, al_particle)
+				check attached node.particle as l_particle then -- Implied by `is_leaf'
+					l_result := n_body_force (a_particle, l_particle)
 				end
 			else
 				cmp := node.center_of_mass_particle
 				region := node.region
 					-- Distance to center of mass
-				check attached cmp as al_cmp then --FIXME: Implied by ...
-					r := distance (a_particle.x, a_particle.y, al_cmp.x, al_cmp.y)
+				check attached cmp as l_cmp then --FIXME: Implied by ...
+					r := distance (a_particle.x, a_particle.y, l_cmp.x, l_cmp.y)
 				end
 					-- size of the cell
 				d := region.width.max (region.height)
@@ -145,8 +145,8 @@ feature {NONE} -- Implementation
 				end
 				if prop < theta then
 						-- Approximate
-					check attached cmp as al_cmp then --FIXME: Implied by ...
-						l_result := n_body_force (a_particle, al_cmp)
+					check attached cmp as l_cmp then --FIXME: Implied by ...
+						l_result := n_body_force (a_particle, l_cmp)
 					end
 				else
 						-- Inspect children
@@ -244,7 +244,7 @@ invariant
 	quad_tree_exists: quad_tree /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

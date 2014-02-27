@@ -40,8 +40,8 @@ feature -- Access
 		require
 			set: attached x
 		do
-			check attached x as al_x then -- Implied by precondition `set'
-				Result := al_x
+			check attached x as l_x then -- Implied by precondition `set'
+				Result := l_x
 			end
 		end
 
@@ -50,8 +50,8 @@ feature -- Access
 		require
 			set: attached y
 		do
-			check attached y as al_y then -- Implied by precondition `set'
-				Result := al_y
+			check attached y as l_y then -- Implied by precondition `set'
+				Result := l_y
 			end
 		end
 
@@ -144,7 +144,7 @@ feature -- Basic operations
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

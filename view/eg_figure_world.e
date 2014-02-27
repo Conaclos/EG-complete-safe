@@ -212,8 +212,8 @@ feature -- Access
 		require
 			set: attached model
 		do
-			check attached model as al_model then -- Implied by precondition `set'
-				Result := al_model
+			check attached model as l_model then -- Implied by precondition `set'
+				Result := l_model
 			end
 		ensure
 			not_void: Result /= Void
@@ -227,8 +227,8 @@ feature -- Access
 		require
 			set: attached factory
 		do
-			check attached factory as al_factory then -- Implied by precondition `set'
-				Result := al_factory
+			check attached factory as l_factory then -- Implied by precondition `set'
+				Result := l_factory
 			end
 		ensure
 			not_void: Result /= Void
@@ -1100,13 +1100,11 @@ feature {NONE} -- Implementation
 			-- Pointer was moved in world.
 		local
 			l_bbox, l_tmp_bbox: EV_RECTANGLE
-			l_rect: like multi_select_rectangle
 		do
 			if is_multiselection_mode then
-				l_rect := multi_select_rectangle
-				check attached multi_select_rectangle as al_rect then -- Implied by `is_multiselection_mode'
-					al_rect.set_point_b_position (ax, ay)
-					l_bbox := al_rect.bounding_box
+				check attached multi_select_rectangle as l_rect then -- Implied by `is_multiselection_mode'
+					l_rect.set_point_b_position (ax, ay)
+					l_bbox := l_rect.bounding_box
 				end
 				create l_tmp_bbox
 				if not ev_application.ctrl_pressed then
@@ -1136,8 +1134,8 @@ feature {NONE} -- Implementation
 			-- Pointer was released over world.
 		do
 			if is_multiselection_mode then
-				check attached multi_select_rectangle as al_rect then -- Implied by `is_multiselection_mode'
-					prune_all (al_rect)
+				check attached multi_select_rectangle as l_rect then -- Implied by `is_multiselection_mode'
+					prune_all (l_rect)
 				end
 				full_redraw
 				is_multiselection_mode := False
@@ -1220,7 +1218,7 @@ invariant
 	selected_figures_not_void: selected_figures /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

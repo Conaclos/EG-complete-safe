@@ -199,8 +199,8 @@ feature {NONE} -- Implementation
 	on_linkable_remove (a_linkable: EG_LINKABLE)
 			-- `a_linkable' was removed from the cluster.
 		do
-			if attached world as al_world then
-				if attached {EG_LINKABLE_FIGURE} al_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig then
+			if attached world as l_world then
+				if attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig then
 					l_linkable_fig.set_cluster (Void)
 					prune_all (l_linkable_fig)
 				end
@@ -209,7 +209,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

@@ -30,8 +30,8 @@ feature -- Access
 		require
 			set: name /= Void
 		do
-			check attached name as al_name then
-				Result := al_name
+			check attached name as l_name then
+				Result := l_name
 			end
 		end
 

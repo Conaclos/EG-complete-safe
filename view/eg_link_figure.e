@@ -71,8 +71,8 @@ feature -- Access
 			node.forth
 			node.forth
 			Precursor {EG_FIGURE} (node)
-			check attached model as al_model then -- FIXME: Implied by ...?
-				al_model.set_is_directed (xml_routines.xml_boolean (node, is_directed_string))
+			check attached model as l_model then -- FIXME: Implied by ...?
+				l_model.set_is_directed (xml_routines.xml_boolean (node, is_directed_string))
 			end
 		end
 
@@ -135,7 +135,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
