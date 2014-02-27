@@ -31,7 +31,7 @@ feature -- Access
 			-- The graph model `Current' is part of (if not Void).
 
 	id: INTEGER
-			-- Unique id.
+			-- Unique id
 		do
 			if internal_hash_id = 0  then
 				counter.put (counter.item + 1)
@@ -87,7 +87,7 @@ invariant
 	name_change_actions_not_void: name_change_actions /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
