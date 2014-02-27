@@ -38,14 +38,14 @@ feature {NONE} -- Initialization
 		require
 			model_not_void: model /= Void
 		do
-			check attached model as al_model then -- Implied by precondition `model_not_void'
-				if attached al_model.name as al_name then
-					set_name_label_text (al_name)
+			check attached model as l_model then -- Implied by precondition `model_not_void'
+				if attached l_model.name as l_name then
+					set_name_label_text (l_name)
 				else
 					name_label.set_text (once "")
 					name_label.hide
 				end
-				al_model.name_change_actions.extend (agent on_name_change)
+				l_model.name_change_actions.extend (agent on_name_change)
 			end
 		end
 
@@ -75,8 +75,8 @@ feature -- Access
 			l_xml_routines: like xml_routines
 		do
 			l_xml_routines := xml_routines
-			check attached model as al_model then -- FIXME: Implied by ...?
-				if attached al_model.name as l_name then
+			check attached model as l_model then -- FIXME: Implied by ...?
+				if attached l_model.name as l_name then
 					node.add_attribute (name_string, xml_namespace, l_name)
 				end
 			end
@@ -104,10 +104,10 @@ feature -- Access
 				check l_attribute /= Void then -- Implied by `has_attribute_by_name'
 					l_name := l_attribute.value
 				end
-				check attached model as al_model then -- FIXME: Implied by ...?
-					l_model_name := al_model.name
+				check attached model as l_model then -- FIXME: Implied by ...?
+					l_model_name := l_model.name
 					if (l_model_name = Void) or else not (l_model_name ~ (l_name)) then
-						al_model.set_name (l_name)
+						l_model.set_name (l_name)
 					end
 				end
 				node.forth

@@ -50,8 +50,8 @@ feature {NONE} -- Initialization
 			end
 			if a_model.is_reflexive then
 				prune_all (line)
-				check attached reflexive as al_reflexive then -- Implied by `is_reflexive'
-					extend (al_reflexive)
+				check attached reflexive as l_reflexive then -- Implied by `is_reflexive'
+					extend (l_reflexive)
 				end
 			end
 
@@ -105,8 +105,8 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			an_angle: DOUBLE
 			source_size: EV_RECTANGLE
 		do
-			check attached model as al_model then -- FIXME: Implied by ...?
-				if not al_model.is_reflexive then
+			check attached model as l_model then -- FIXME: Implied by ...?
+				if not l_model.is_reflexive then
 					if attached source as l_source and then attached target as l_target then
 						p1 := line.point_array.item (0)
 						p2 := line.point_array.item (1)
@@ -136,13 +136,13 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 				else
 					if attached source as l_source then
 						source_size := l_source.size
-						check attached reflexive as al_reflexive then -- FIXME: Implied by ...?
-							al_reflexive.set_x_y (source_size.right + al_reflexive.radius1, source_size.top + source_size.height // 2)
+						check attached reflexive as l_reflexive then -- FIXME: Implied by ...?
+							l_reflexive.set_x_y (source_size.right + l_reflexive.radius1, source_size.top + source_size.height // 2)
 						end
 					end
 					if is_label_shown then
-						check attached reflexive as al_reflexive then -- FIXME: Implied by ...?
-							name_label.set_point_position (al_reflexive.x + al_reflexive.radius1, al_reflexive.y)
+						check attached reflexive as l_reflexive then -- FIXME: Implied by ...?
+							name_label.set_point_position (l_reflexive.x + l_reflexive.radius1, l_reflexive.y)
 						end
 					end
 				end
@@ -167,8 +167,8 @@ feature {NONE} -- Implementation
 	on_is_directed_change
 			-- `model'.`is_directed' changed.
 		do
-			check attached model as al_model then -- FIXME: Implied by ...?
-				if al_model.is_directed then
+			check attached model as l_model then -- FIXME: Implied by ...?
+				if l_model.is_directed then
 					line.enable_end_arrow
 				else
 					line.disable_end_arrow
@@ -190,7 +190,7 @@ invariant
 	line_not_void: line /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

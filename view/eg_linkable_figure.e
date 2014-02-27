@@ -297,12 +297,12 @@ feature {EG_CLUSTER_FIGURE, EG_FIGURE_WORLD} -- Element change
 		require
 			ready: attached world
 		do
-			check attached world as al_world then -- Implied by precondition `ready'
+			check attached world as l_world then -- Implied by precondition `ready'
 				if a_cluster = Void then
-					al_world.root_cluster.extend (Current)
-					al_world.extend (Current)
+					l_world.root_cluster.extend (Current)
+					l_world.extend (Current)
 				else
-					al_world.root_cluster.prune_all (Current)
+					l_world.root_cluster.prune_all (Current)
 				end
 			end
 			if attached cluster as l_cluster then
@@ -394,7 +394,7 @@ invariant
 	links_not_void: links /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

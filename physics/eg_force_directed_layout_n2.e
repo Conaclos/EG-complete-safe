@@ -192,10 +192,8 @@ feature {NONE} -- Implementation
 	internal_stiffness: DOUBLE
 	internal_electrical_repulsion: DOUBLE
 
-
 	max_move: DOUBLE
 			-- Maximal move in x and y direction of a node.
-
 
 	tolerance: DOUBLE = 0.001
 	math: DOUBLE_MATH once create Result end
@@ -290,7 +288,6 @@ feature {NONE} -- Implementation
 							j := j + 1
 						end
 
-
 						recursive_energy (l_item, linkables)
 						move := (l_item.dt * l_item.dx).abs + (l_item.dt * l_item.dy).abs
 						if move > max_move then
@@ -301,8 +298,6 @@ feature {NONE} -- Implementation
 					end
 					i := i + 1
 				end
-
-
 			end
 		end
 

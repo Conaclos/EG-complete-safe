@@ -83,9 +83,9 @@ feature {NONE} -- Implementation
 			nodes: LIST [EG_NODE]
 			clusters: LIST [EG_CLUSTER]
 		do
-			check attached world as al_world then -- Implied by precondition `world_not_void'
+			check attached world as l_world then -- Implied by precondition `world_not_void'
 				from
-					nodes := al_world.attached_model.flat_nodes
+					nodes := l_world.attached_model.flat_nodes
 					nodes.start
 				until
 					nodes.after or else Result /= Void
@@ -97,7 +97,7 @@ feature {NONE} -- Implementation
 				end
 				if Result = Void then
 					from
-						clusters := al_world.attached_model.flat_clusters
+						clusters := l_world.attached_model.flat_clusters
 						clusters.start
 					until
 						clusters.after or else Result /= Void
@@ -112,7 +112,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
