@@ -67,7 +67,7 @@ feature {NONE} -- Initialization
 			real_grid_y := default_grid_y
 		end
 
-	make_with_model (a_model: like model)
+	make_with_model (a_model: attached like model)
 			-- Create a view for `a_model' using EG_SIMPLE_FACTORY.
 		require
 			a_model_not_void: a_model /= Void
@@ -77,7 +77,7 @@ feature {NONE} -- Initialization
 			set: model = a_model
 		end
 
-	make_with_model_and_factory (a_model: like model; a_factory: like factory)
+	make_with_model_and_factory (a_model: attached like model; a_factory: attached like factory)
 			-- Create a view for `a_model' using `a_factory'.
 		require
 			a_model_not_void: a_model /= Void
@@ -211,12 +211,10 @@ feature -- Access
 			-- Attached `model'
 		require
 			set: attached model
-		local
-			l_result: like model
 		do
-			l_result := model
-			check l_result /= Void end -- Implied by precondition `set'
-			Result := l_result
+			check attached model as al_model then -- Implied by precondition `set'
+				Result := al_model
+			end
 		ensure
 			not_void: Result /= Void
 		end
@@ -228,12 +226,10 @@ feature -- Access
 			-- Attached `factory'
 		require
 			set: attached factory
-		local
-			l_result: like factory
 		do
-			l_result := factory
-			check l_result /= Void end -- Implied by precondition `set'
-			Result := l_result
+			check attached factory as al_factory then -- Implied by precondition `set'
+				Result := al_factory
+			end
 		ensure
 			not_void: Result /= Void
 		end
@@ -405,7 +401,7 @@ feature -- Element change
 		end
 
 
-	set_factory (a_factory: like factory)
+	set_factory (a_factory: attached like factory)
 			-- Set `factory' to `a_factory'.
 		require
 			a_factory_not_Void: a_factory /= Void
@@ -525,8 +521,9 @@ feature -- Element change
 				a_cluster.linkables.after
 			loop
 				l_model := cluster_figure.model
-				check l_model /= Void end -- FIXME: Implied by ...?				
-				l_model.linkable_add_actions.call ([a_cluster.linkables.item])
+				check l_model /= Void then -- FIXME: Implied by ...?				
+					l_model.linkable_add_actions.call ([a_cluster.linkables.item])
+				end
 				a_cluster.linkables.forth
 			end
 
@@ -1071,13 +1068,13 @@ feature {NONE} -- Implementation
 			-- Pointer button was pressed somewhere in the world.
 			-- | Used for starting multiple selection.
 		local
-			l_rect: like multi_select_rectangle
+			l_rect: attached like multi_select_rectangle
 		do
 			if button = 1 and then not figure_was_selected and then ev_application.ctrl_pressed and then is_multiple_selection_enabled then
 				if is_multiselection_mode then
-					l_rect := multi_select_rectangle
-					check l_rect /= Void end -- Implied by `is_multiselection_mode'
-					prune_all (l_rect)
+					check attached multi_select_rectangle as al_rect then -- Implied by `is_multiselection_mode'
+						prune_all (al_rect)
+					end
 				end
 				create l_rect.make_with_positions (ax, ay, ax, ay)
 				multi_select_rectangle := l_rect
@@ -1107,9 +1104,10 @@ feature {NONE} -- Implementation
 		do
 			if is_multiselection_mode then
 				l_rect := multi_select_rectangle
-				check l_rect /= Void end -- Implied by `is_multiselection_mode'
-				l_rect.set_point_b_position (ax, ay)
-				l_bbox := l_rect.bounding_box
+				check attached multi_select_rectangle as al_rect then -- Implied by `is_multiselection_mode'
+					al_rect.set_point_b_position (ax, ay)
+					l_bbox := al_rect.bounding_box
+				end
 				create l_tmp_bbox
 				if not ev_application.ctrl_pressed then
 					deselect_all
@@ -1136,13 +1134,11 @@ feature {NONE} -- Implementation
 
 	on_pointer_button_release_on_world (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
 			-- Pointer was released over world.
-		local
-			l_rect: like multi_select_rectangle
 		do
 			if is_multiselection_mode then
-				l_rect := multi_select_rectangle
-				check l_rect /= Void end -- Implied by `is_multiselection_mode'
-				prune_all (l_rect)
+				check attached multi_select_rectangle as al_rect then -- Implied by `is_multiselection_mode'
+					prune_all (al_rect)
+				end
 				full_redraw
 				is_multiselection_mode := False
 				disable_capture

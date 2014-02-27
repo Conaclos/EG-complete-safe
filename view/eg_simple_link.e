@@ -37,8 +37,6 @@ feature {NONE} -- Initialization
 			-- Make a link using `a_model'.
 		require
 			a_model_not_void: a_model /= Void
-		local
-			l_reflexive: like reflexive
 		do
 			-- Satisfy invariant
 			create line
@@ -52,9 +50,9 @@ feature {NONE} -- Initialization
 			end
 			if a_model.is_reflexive then
 				prune_all (line)
-				l_reflexive := reflexive
-				check l_reflexive /= Void end -- Implied by `is_reflexive'
-				extend (l_reflexive)
+				check attached reflexive as al_reflexive then -- Implied by `is_reflexive'
+					extend (al_reflexive)
+				end
 			end
 
 			disable_moving
@@ -106,49 +104,47 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			p1, p2: EV_COORDINATE
 			an_angle: DOUBLE
 			source_size: EV_RECTANGLE
-			l_model: like model
-			l_reflexive: like reflexive
 		do
-			l_model := model
-			check l_model /= Void end -- FIXME: Implied by ...?
-			if not l_model.is_reflexive then
-				if attached source as l_source and then attached target as l_target then
-					p1 := line.point_array.item (0)
-					p2 := line.point_array.item (1)
+			check attached model as al_model then -- FIXME: Implied by ...?
+				if not al_model.is_reflexive then
+					if attached source as l_source and then attached target as l_target then
+						p1 := line.point_array.item (0)
+						p2 := line.point_array.item (1)
 
-					p1.set (l_source.port_x, l_source.port_y)
-					p2.set (l_target.port_x, l_target.port_y)
+						p1.set (l_source.port_x, l_source.port_y)
+						p2.set (l_target.port_x, l_target.port_y)
 
-					an_angle := line_angle (p1.x_precise, p1.y_precise, p2.x_precise, p2.y_precise)
-					l_source.update_edge_point (p1, an_angle)
-					an_angle := pi + an_angle
-					l_target.update_edge_point (p2, an_angle)
-				elseif attached source as l_source_2 then
-					p1 := line.point_array.item (0)
-					p1.set (l_source_2.port_x, l_source_2.port_y)
-					l_source_2.update_edge_point (p1, 0)
-				elseif attached target as l_target_2 then
-					p2 := line.point_array.item (1)
-					p2.set (l_target_2.port_x, l_target_2.port_y)
-					l_target_2.update_edge_point (p2, 0)
-				end
+						an_angle := line_angle (p1.x_precise, p1.y_precise, p2.x_precise, p2.y_precise)
+						l_source.update_edge_point (p1, an_angle)
+						an_angle := pi + an_angle
+						l_target.update_edge_point (p2, an_angle)
+					elseif attached source as l_source_2 then
+						p1 := line.point_array.item (0)
+						p1.set (l_source_2.port_x, l_source_2.port_y)
+						l_source_2.update_edge_point (p1, 0)
+					elseif attached target as l_target_2 then
+						p2 := line.point_array.item (1)
+						p2.set (l_target_2.port_x, l_target_2.port_y)
+						l_target_2.update_edge_point (p2, 0)
+					end
 
-				line.invalidate
-				line.center_invalidate
-				if is_label_shown then
-					name_label.set_point_position (line.x, line.y)
-				end
-			else
-				if attached source as l_source then
-					source_size := l_source.size
-					l_reflexive := reflexive
-					check l_reflexive /= Void end -- FIXME: Implied by ...?
-					l_reflexive.set_x_y (source_size.right + l_reflexive.radius1, source_size.top + source_size.height // 2)
-				end
-				if is_label_shown then
-					l_reflexive := reflexive
-					check l_reflexive /= Void end -- FIXME: Implied by ...?
-					name_label.set_point_position (l_reflexive.x + l_reflexive.radius1, l_reflexive.y)
+					line.invalidate
+					line.center_invalidate
+					if is_label_shown then
+						name_label.set_point_position (line.x, line.y)
+					end
+				else
+					if attached source as l_source then
+						source_size := l_source.size
+						check attached reflexive as al_reflexive then -- FIXME: Implied by ...?
+							al_reflexive.set_x_y (source_size.right + al_reflexive.radius1, source_size.top + source_size.height // 2)
+						end
+					end
+					if is_label_shown then
+						check attached reflexive as al_reflexive then -- FIXME: Implied by ...?
+							name_label.set_point_position (al_reflexive.x + al_reflexive.radius1, al_reflexive.y)
+						end
+					end
 				end
 			end
 			is_update_required := False
@@ -170,15 +166,13 @@ feature {NONE} -- Implementation
 
 	on_is_directed_change
 			-- `model'.`is_directed' changed.
-		local
-			l_model: like model
 		do
-			l_model := model
-			check l_model /= Void end -- FIXME: Implied by ...?
-			if l_model.is_directed then
-				line.enable_end_arrow
-			else
-				line.disable_end_arrow
+			check attached model as al_model then -- FIXME: Implied by ...?
+				if al_model.is_directed then
+					line.enable_end_arrow
+				else
+					line.disable_end_arrow
+				end
 			end
 			line.invalidate
 			line.center_invalidate

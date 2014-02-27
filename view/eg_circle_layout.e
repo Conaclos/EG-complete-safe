@@ -107,8 +107,9 @@ feature {NONE} -- Implementation
 					l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + center_x, (sine (angle) * level_radius).truncated_to_integer + center_y)
 				else
 					l_cluster := l_link.cluster
-					check l_cluster /= Void end -- FIXME: Implied by ...?
-					l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + l_cluster.port_x, (sine (angle) * level_radius).truncated_to_integer + l_cluster.port_y)
+					check l_cluster /= Void then -- FIXME: Implied by ...?
+						l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + l_cluster.port_x, (sine (angle) * level_radius).truncated_to_integer + l_cluster.port_y)
+					end
 				end
 				angle := angle + d_angle
 				i := i + 1

@@ -50,20 +50,18 @@ feature {NONE} -- Initialization
 
 	initialize
 			-- Initialize.
-		local
-			l_model: like model
 		do
 			Precursor {EG_LINK_FIGURE}
-			l_model := model
-			check l_model /= Void end -- FIXME: Implied by ...?
-			if l_model.is_reflexive then
-				line.set_point_count (4)
-			else
-				line.pointer_button_press_actions.extend (agent pointer_button_pressed_on_a_line)
-				line.set_pointer_style (new_edge_cursor)
-			end
-			if l_model.is_directed then
-				line.enable_end_arrow
+			check attached model as al_model then -- FIXME: Implied by ...?
+				if al_model.is_reflexive then
+					line.set_point_count (4)
+				else
+					line.pointer_button_press_actions.extend (agent pointer_button_pressed_on_a_line)
+					line.set_pointer_style (new_edge_cursor)
+				end
+				if al_model.is_directed then
+					line.enable_end_arrow
+				end
 			end
 		end
 
@@ -437,30 +435,29 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			-- Some properties may have changed.
 		local
 			nx, ny: INTEGER
-			l_model: like model
 		do
 			if attached source as l_source and then attached target as l_target then
-				l_model := model
-				check l_model /= Void end --FIXME: Implied by ...?
-				if not l_model.is_reflexive then
-					if edge_move_handlers.count = 0 then
-						set_end_and_start_point_to_edge
+				check attached model as al_model then --FIXME: Implied by ...?
+					if not al_model.is_reflexive then
+						if edge_move_handlers.count = 0 then
+							set_end_and_start_point_to_edge
+						else
+							set_start_point_to_edge
+							set_end_point_to_edge
+						end
 					else
-						set_start_point_to_edge
-						set_end_point_to_edge
-					end
-				else
-					nx := l_source.port_x
-					ny := l_source.port_y
-					if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
-						line.set_i_th_point_position (1, nx, ny)
-						line.set_i_th_point_position (line.point_count, nx, ny)
-						line.set_i_th_point_position (2, nx + 150, ny - 50)
-						line.set_i_th_point_position (3, nx + 150, ny + 50)
-						set_start_point_to_edge
-						set_end_point_to_edge
-						line.set_i_th_point_position (2, line.i_th_point_x (1) + reflexive_radius, line.i_th_point_y (1) - as_integer (reflexive_radius / 3))
-						line.set_i_th_point_position (3, line.i_th_point_x (4) + reflexive_radius, line.i_th_point_y (4) + as_integer (reflexive_radius / 3))
+						nx := l_source.port_x
+						ny := l_source.port_y
+						if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
+							line.set_i_th_point_position (1, nx, ny)
+							line.set_i_th_point_position (line.point_count, nx, ny)
+							line.set_i_th_point_position (2, nx + 150, ny - 50)
+							line.set_i_th_point_position (3, nx + 150, ny + 50)
+							set_start_point_to_edge
+							set_end_point_to_edge
+							line.set_i_th_point_position (2, line.i_th_point_x (1) + reflexive_radius, line.i_th_point_y (1) - as_integer (reflexive_radius / 3))
+							line.set_i_th_point_position (3, line.i_th_point_x (4) + reflexive_radius, line.i_th_point_y (4) + as_integer (reflexive_radius / 3))
+						end
 					end
 				end
 				invalidate
@@ -515,15 +512,14 @@ feature {NONE} -- Implementation
 			an_angle: DOUBLE
 			l_pa: like point_array
 			p1: EV_COORDINATE
-			l_source: like source
 		do
 			l_pa := line.point_array
 			p1 := l_pa.item (1)
 
-			l_source := source
-			check l_source /= Void end -- FIXME: Implied by ...?
-			an_angle := line_angle (l_source.port_x, l_source.port_y, p1.x_precise, p1.y_precise)
-			l_source.update_edge_point (l_pa.item (0), an_angle)
+			check attached source as al_source then -- FIXME: Implied by ...?
+				an_angle := line_angle (al_source.port_x, al_source.port_y, p1.x_precise, p1.y_precise)
+				al_source.update_edge_point (l_pa.item (0), an_angle)
+			end
 		end
 
 	set_end_point_to_edge
@@ -533,16 +529,15 @@ feature {NONE} -- Implementation
 			l_count: INTEGER
 			l_pa: like point_array
 			p: EV_COORDINATE
-			l_target: like target
 		do
 			l_pa := line.point_array
 			l_count := l_pa.count
 			p := l_pa.item (l_count - 2)
 
-			l_target := target
-			check l_target /= Void end -- FIXME: Implied by ...?			
-			an_angle := line_angle (l_target.port_x, l_target.port_y, p.x_precise, p.y_precise)
-			l_target.update_edge_point (l_pa.item (l_count - 1), an_angle)
+			check attached target as al_target then -- FIXME: Implied by ...?			
+				an_angle := line_angle (al_target.port_x, al_target.port_y, p.x_precise, p.y_precise)
+				al_target.update_edge_point (l_pa.item (l_count - 1), an_angle)
+			end
 		end
 
 	set_end_and_start_point_to_edge
@@ -552,18 +547,17 @@ feature {NONE} -- Implementation
 		local
 			an_angle: DOUBLE
 			l_point_array: like point_array
-			l_source: like source
-			l_target: like target
 		do
 			l_point_array := line.point_array
-			l_source := source
-			check l_source /= Void end -- FIXME: Implied by ...?
-			l_target := target
-			check l_target /= Void end -- FIXME: Implied by ...?
-			an_angle := line_angle (l_source.port_x, l_source.port_y, l_target.port_x, l_target.port_y)
-			l_source.update_edge_point (l_point_array.item (0), an_angle)
-			an_angle := pi + an_angle
-			l_target.update_edge_point (l_point_array.item (1), an_angle)
+			check
+				attached source as al_source and
+				attached target as al_target
+			then -- FIXME: Implied by ...?
+				an_angle := line_angle (al_source.port_x, al_source.port_y, al_target.port_x, al_target.port_y)
+				al_source.update_edge_point (l_point_array.item (0), an_angle)
+				an_angle := pi + an_angle
+				al_source.update_edge_point (l_point_array.item (1), an_angle)
+			end
 		end
 
 	pointer_button_pressed_on_a_line (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
@@ -636,15 +630,13 @@ feature {NONE} -- Implementation
 
 	on_is_directed_change
 			-- `model'.`is_directed' changed.
-		local
-			l_model: like model
 		do
-			l_model := model
-			check l_model /= Void end -- FIXME: Implied by ...?
-			if l_model.is_directed then
-				line.enable_end_arrow
-			else
-				line.disable_end_arrow
+			check attached model as al_model then -- FIXME: Implied by ...?
+				if al_model.is_directed then
+					line.enable_end_arrow
+				else
+					line.disable_end_arrow
+				end
 			end
 			request_update
 		end

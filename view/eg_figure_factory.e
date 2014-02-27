@@ -82,32 +82,31 @@ feature {NONE} -- Implementation
 		local
 			nodes: LIST [EG_NODE]
 			clusters: LIST [EG_CLUSTER]
-			l_world: like world
 		do
-			from
-				l_world := world
-				check l_world /= Void end -- Implied by precondition `world_not_void'
-				nodes := l_world.attached_model.flat_nodes
-				nodes.start
-			until
-				nodes.after or else Result /= Void
-			loop
-				if nodes.item.name ~ a_name then
-					Result := nodes.item
-				end
-				nodes.forth
-			end
-			if Result = Void then
+			check attached world as al_world then -- Implied by precondition `world_not_void'
 				from
-					clusters := l_world.attached_model.flat_clusters
-					clusters.start
+					nodes := al_world.attached_model.flat_nodes
+					nodes.start
 				until
-					clusters.after or else Result /= Void
+					nodes.after or else Result /= Void
 				loop
-					if clusters.item.name ~ a_name then
-						Result := clusters.item
+					if nodes.item.name ~ a_name then
+						Result := nodes.item
 					end
-					clusters.forth
+					nodes.forth
+				end
+				if Result = Void then
+					from
+						clusters := al_world.attached_model.flat_clusters
+						clusters.start
+					until
+						clusters.after or else Result /= Void
+					loop
+						if clusters.item.name ~ a_name then
+							Result := clusters.item
+						end
+						clusters.forth
+					end
 				end
 			end
 		end

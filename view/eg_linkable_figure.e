@@ -296,16 +296,14 @@ feature {EG_CLUSTER_FIGURE, EG_FIGURE_WORLD} -- Element change
 			-- set `cluster' to `a_cluster' without adding `Current' to `a_cluster'.
 		require
 			ready: attached world
-		local
-			l_world: like world
 		do
-			l_world := world
-			check l_world /= Void end -- Implied by precondition `ready'
-			if a_cluster = Void then
-				l_world.root_cluster.extend (Current)
-				l_world.extend (Current)
-			else
-				l_world.root_cluster.prune_all (Current)
+			check attached world as al_world then -- Implied by precondition `ready'
+				if a_cluster = Void then
+					al_world.root_cluster.extend (Current)
+					al_world.extend (Current)
+				else
+					al_world.root_cluster.prune_all (Current)
+				end
 			end
 			if attached cluster as l_cluster then
 				l_cluster.prune_all (Current)
