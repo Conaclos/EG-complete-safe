@@ -198,13 +198,9 @@ feature {NONE} -- Implementation
 
 	on_linkable_remove (a_linkable: EG_LINKABLE)
 			-- `a_linkable' was removed from the cluster.
-		local
-			l_world: like world
-			linkable_fig: detachable EG_LINKABLE_FIGURE
 		do
-			l_world := world
-			if l_world /= Void then
-				if attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig then
+			if attached world as al_world then
+				if attached {EG_LINKABLE_FIGURE} al_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig then
 					l_linkable_fig.set_cluster (Void)
 					prune_all (l_linkable_fig)
 				end

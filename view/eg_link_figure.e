@@ -24,13 +24,11 @@ feature {NONE} -- Initialization
 
 	initialize
 			-- Initialize `Current' (synchronize with `model')
-		local
-			l_model: like model
 		do
 			Precursor {EG_FIGURE}
-			l_model := model
-			check l_model /= Void end -- Implied by precondition `model_not_void'
-			l_model.is_directed_change_actions.extend (agent on_is_directed_change)
+			check attached model as l_model then -- Implied by precondition `model_not_void'
+				l_model.is_directed_change_actions.extend (agent on_is_directed_change)
+			end
 		end
 
 feature -- Status report
@@ -60,23 +58,22 @@ feature -- Access
 		do
 			l_model := model
 			Result := Precursor {EG_FIGURE} (node)
-			check l_model /= Void end -- FIXME: Implied by ...?
-			Result.add_attribute (once "SOURCE", xml_namespace, l_model.source.link_name)
-			Result.add_attribute (once "TARGET", xml_namespace, l_model.target.link_name)
-			Result.put_last (Xml_routines.xml_node (Result, is_directed_string, boolean_representation (l_model.is_directed)))
+			check l_model /= Void then -- FIXME: Implied by ...?
+				Result.add_attribute (once "SOURCE", xml_namespace, l_model.source.link_name)
+				Result.add_attribute (once "TARGET", xml_namespace, l_model.target.link_name)
+				Result.put_last (Xml_routines.xml_node (Result, is_directed_string, boolean_representation (l_model.is_directed)))
+			end
 		end
 
 	set_with_xml_element (node: like xml_element)
 			-- Retrive state from `node'.
-		local
-			l_model: like model
 		do
 			node.forth
 			node.forth
 			Precursor {EG_FIGURE} (node)
-			l_model := model
-			check l_model /= Void end -- FIXME: Implied by ...?
-			l_model.set_is_directed (xml_routines.xml_boolean (node, is_directed_string))
+			check attached model as al_model then -- FIXME: Implied by ...?
+				al_model.set_is_directed (xml_routines.xml_boolean (node, is_directed_string))
+			end
 		end
 
 	is_directed_string: STRING = "IS_DIRECTED"

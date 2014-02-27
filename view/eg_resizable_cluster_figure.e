@@ -136,8 +136,9 @@ feature -- Access
 			Precursor {EG_CLUSTER_FIGURE} (node)
 			if xml_routines.xml_boolean (node, is_user_sized_string) then
 				size_str := xml_routines.xml_string (node, user_size_string)
-				check size_str /= Void end -- FIXME: Implied by ...?
-				user_size := rectangle_from_string (size_str)
+				check size_str /= Void then -- FIXME: Implied by ...?
+					user_size := rectangle_from_string (size_str)
+				end
 			end
 		end
 

@@ -41,12 +41,13 @@ feature {NONE} -- Initialization
 			l_model: like model
 		do
 			l_model := model
-			check l_model /= Void end -- Implied by precondition `model_not_void'
-			if attached l_model.name as l_name then
-				set_name_label_text (l_name)
-			else
-				name_label.set_text (once "")
-				name_label.hide
+			check l_model /= Void then -- Implied by precondition `model_not_void'
+				if attached l_model.name as l_name then
+					set_name_label_text (l_name)
+				else
+					name_label.set_text (once "")
+					name_label.hide
+				end
 			end
 			l_model.name_change_actions.extend (agent on_name_change)
 		end
@@ -79,9 +80,10 @@ feature -- Access
 		do
 			l_xml_routines := xml_routines
 			l_model := model
-			check l_model /= Void end -- FIXME: Implied by ...?
-			if attached l_model.name as l_name then
-				node.add_attribute (name_string, xml_namespace, l_name)
+			check l_model /= Void then -- FIXME: Implied by ...?
+				if attached l_model.name as l_name then
+					node.add_attribute (name_string, xml_namespace, l_name)
+				end
 			end
 			node.put_last (l_xml_routines.xml_node (node, is_selected_string, boolean_representation (is_selected)))
 			node.put_last (l_xml_routines.xml_node (node, is_label_shown_string, boolean_representation (is_label_shown)))
@@ -105,11 +107,13 @@ feature -- Access
 			l_xml_routines := xml_routines
 			if node.has_attribute_by_name (name_string) then
 				l_attribute := node.attribute_by_name (name_string)
-				check l_attribute /= Void end -- Implied by `has_attribute_by_name'
-				l_name := l_attribute.value
+				check l_attribute /= Void then -- Implied by `has_attribute_by_name'
+					l_name := l_attribute.value
+				end
 				l_model := model
-				check l_model /= Void end -- FIXME: Implied by ...?
-				l_model_name := l_model.name
+				check l_model /= Void then -- FIXME: Implied by ...?
+					l_model_name := l_model.name
+				end
 				if (l_model_name = Void) or else not (l_model_name ~ (l_name)) then
 					l_model.set_name (l_name)
 				end
