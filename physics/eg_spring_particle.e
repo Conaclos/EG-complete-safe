@@ -81,10 +81,11 @@ feature {NONE} -- Implementation
 					else
 						l_other := l_item.source
 					end
-					check l_other /= Void end -- FXIME: Implied by ...?
-					if l_other.is_show_requested then
-						l_weight := stiffness * link_stiffness (l_item)
-						Result.set (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))
+					check l_other /= Void then -- FXIME: Implied by ...?
+						if l_other.is_show_requested then
+							l_weight := stiffness * link_stiffness (l_item)
+							Result.set (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))
+						end
 					end
 				end
 				i := i + 1
@@ -117,12 +118,13 @@ feature {NONE} -- Implementation
 			l_result: detachable like particle_type
 		do
 			check anchor_type_only: False end
-			check l_result /= Void end -- Satisfy void-safe compiler
-			Result := l_result
+			check l_result /= Void then -- Satisfy void-safe compiler
+				Result := l_result
+			end
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

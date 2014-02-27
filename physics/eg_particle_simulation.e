@@ -104,8 +104,9 @@ feature {NONE} -- Implementation
 			l_result: detachable like particle_type
 		do
 			check anchor_type_only: False end
-			check l_result /= Void end -- Satisfy void safe compiler
-			Result := l_result
+			check l_result /= Void then -- Satisfy void safe compiler
+				Result := l_result
+			end
 		end
 
 invariant

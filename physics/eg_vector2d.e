@@ -39,24 +39,20 @@ feature -- Access
 			-- Attached `x'
 		require
 			set: attached x
-		local
-			l_x: like x
 		do
-			l_x := x
-			check l_x /= Void end -- Implied by precondition `set'
-			Result := l_x
+			check attached x as al_x then -- Implied by precondition `set'
+				Result := al_x
+			end
 		end
 
 	attached_y: G
 			-- Attached `y'
 		require
 			set: attached y
-		local
-			l_y: like y
 		do
-			l_y := y
-			check l_y /= Void end -- Implied by precondition `set'
-			Result := l_y
+			check attached y as al_y then -- Implied by precondition `set'
+				Result := al_y
+			end
 		end
 
 	one: like Current
@@ -113,8 +109,9 @@ feature -- Basic operations
 			check
 				implement: False
 			end
-			check l_result /= Void end -- Satisfy void-safe compiler
-			Result := l_result
+			check l_result /= Void then -- Satisfy void-safe compiler
+				Result := l_result
+			end
 		end
 
 	quotient alias "/" (other: like Current): like Current
@@ -123,8 +120,9 @@ feature -- Basic operations
 			l_result: detachable like quotient
 		do
 			check implement: False end
-			check l_result /= Void end -- Satisfy void-safe compiler
-			Result := l_result
+			check l_result /= Void then -- Satisfy void-safe compiler
+				Result := l_result
+			end
 		end
 
 	identity alias "+": like Current
