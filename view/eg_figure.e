@@ -37,19 +37,16 @@ feature {NONE} -- Initialization
 			-- Initialize `Current' (synchronize with model).
 		require
 			model_not_void: model /= Void
-		local
-			l_model: like model
 		do
-			l_model := model
-			check l_model /= Void then -- Implied by precondition `model_not_void'
-				if attached l_model.name as l_name then
-					set_name_label_text (l_name)
+			check attached model as al_model then -- Implied by precondition `model_not_void'
+				if attached al_model.name as al_name then
+					set_name_label_text (al_name)
 				else
 					name_label.set_text (once "")
 					name_label.hide
 				end
+				al_model.name_change_actions.extend (agent on_name_change)
 			end
-			l_model.name_change_actions.extend (agent on_name_change)
 		end
 
 feature -- Access
@@ -76,12 +73,10 @@ feature -- Access
 			-- Xml node representing `Current's state.
 		local
 			l_xml_routines: like xml_routines
-			l_model: like model
 		do
 			l_xml_routines := xml_routines
-			l_model := model
-			check l_model /= Void then -- FIXME: Implied by ...?
-				if attached l_model.name as l_name then
+			check attached model as al_model then -- FIXME: Implied by ...?
+				if attached al_model.name as l_name then
 					node.add_attribute (name_string, xml_namespace, l_name)
 				end
 			end
@@ -100,7 +95,6 @@ feature -- Access
 		local
 			l_name: STRING
 			l_xml_routines: like xml_routines
-			l_model: like model
 			l_attribute: detachable XML_ATTRIBUTE
 			l_model_name: detachable STRING_8
 		do
@@ -110,12 +104,11 @@ feature -- Access
 				check l_attribute /= Void then -- Implied by `has_attribute_by_name'
 					l_name := l_attribute.value
 				end
-				l_model := model
-				check l_model /= Void then -- FIXME: Implied by ...?
-					l_model_name := l_model.name
-				end
-				if (l_model_name = Void) or else not (l_model_name ~ (l_name)) then
-					l_model.set_name (l_name)
+				check attached model as al_model then -- FIXME: Implied by ...?
+					l_model_name := al_model.name
+					if (l_model_name = Void) or else not (l_model_name ~ (l_name)) then
+						al_model.set_name (l_name)
+					end
 				end
 				node.forth
 			end
@@ -268,7 +261,7 @@ invariant
 	name_label_not_void: name_label /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
