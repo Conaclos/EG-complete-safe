@@ -29,12 +29,10 @@ feature -- Access
 			-- Name for linking
 		require
 			set: name /= Void
-		local
-			l_result: detachable like link_name
 		do
-			l_result := name
-			check l_result /= Void end -- Implied by precondition `set'
-			Result := l_result
+			check attached name as al_name then
+				Result := al_name
+			end
 		end
 
 	cluster: detachable EG_CLUSTER
@@ -105,7 +103,7 @@ invariant
 	internal_links_not_void: internal_links /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
