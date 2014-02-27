@@ -33,8 +33,9 @@ feature {NONE} -- Implementation
 				end
 				particles.forth
 			end
-			check l_result /= Void end -- FIXME: Implied by ...
-			Result := l_result
+			check l_result /= Void then -- FIXME: Implied by ...
+				Result := l_result
+			end
 		end
 
 note

@@ -50,8 +50,9 @@ feature -- Status report
 		do
 			if is_leaf then
 				l_particle := particle
-				check l_particle /= Void end -- Implied by invariant `leaf_has_particle_inner_nodes_do_not'
-				Result := region.has_x_y (l_particle.x, l_particle.y)
+				check l_particle /= Void then -- Implied by invariant `leaf_has_particle_inner_nodes_do_not'
+					Result := region.has_x_y (l_particle.x, l_particle.y)
+				end
 			else
 				Result := True
 				if attached childe_sw as l_childe_sw then
@@ -107,36 +108,40 @@ feature -- Element change
 				if attached childe_sw as l_childe_sw then
 					l_childe_sw.build_center_of_mass
 					l_particle := l_childe_sw.center_of_mass_particle
-					check l_particle /= Void end -- Implied by postcondition of `build_center_of_mass'
-					mass := l_particle.mass
-					x := l_particle.x * mass
-					y := l_particle.y * mass
+					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
+						mass := l_particle.mass
+						x := l_particle.x * mass
+						y := l_particle.y * mass
+					end
 				end
 				if attached childe_se as l_childe_se then
 					l_childe_se.build_center_of_mass
 					l_particle := l_childe_se.center_of_mass_particle
-					check l_particle /= Void end -- Implied by postcondition of `build_center_of_mass'
-					l_mass := l_particle.mass
-					x := x + l_particle.x * l_mass
-					y := y + l_particle.y * l_mass
+					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
+						l_mass := l_particle.mass
+						x := x + l_particle.x * l_mass
+						y := y + l_particle.y * l_mass
+					end
 					mass := l_mass + mass
 				end
 				if attached childe_ne as l_childe_ne then
 					l_childe_ne.build_center_of_mass
 					l_particle := l_childe_ne.center_of_mass_particle
-					check l_particle /= Void end -- Implied by postcondition of `build_center_of_mass'
-					l_mass := l_particle.mass
-					x := x + l_particle.x * l_mass
-					y := y + l_particle.y * l_mass
+					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
+						l_mass := l_particle.mass
+						x := x + l_particle.x * l_mass
+						y := y + l_particle.y * l_mass
+					end
 					mass := l_mass + mass
 				end
 				if attached childe_nw as l_childe_nw then
 					l_childe_nw.build_center_of_mass
 					l_particle := l_childe_nw.center_of_mass_particle
-					check l_particle /= Void end -- Implied by postcondition of `build_center_of_mass'
-					l_mass := l_particle.mass
-					x := x + l_particle.x * l_mass
-					y := y + l_particle.y * l_mass
+					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
+						l_mass := l_particle.mass
+						x := x + l_particle.x * l_mass
+						y := y + l_particle.y * l_mass
+					end
 					mass := l_mass + mass
 				end
 				create center_of_mass_particle.make ((x / mass).truncated_to_integer, (y / mass).truncated_to_integer, mass)
@@ -146,7 +151,7 @@ feature -- Element change
 			inside: attached center_of_mass_particle as le_center_of_mass_particle and then region.has_x_y (le_center_of_mass_particle.x, le_center_of_mass_particle.y)
 		end
 
-	insert (a_particle: like particle)
+	insert (a_particle: attached like particle)
 			-- Insert `a_particle' into the right position in the tree.
 		require
 			a_particle_exists: a_particle /= Void

@@ -255,14 +255,15 @@ feature {NONE} -- Implementation
 								else
 									l_other := a_edge.source
 								end
-								check l_other /= Void end -- FIXME: Implied by...?
-								if l_other.is_show_requested then
-									opx := l_other.port_x
-									opy := l_other.port_y
-									l_distance := distance (px, py, opx, opy)
-									if l_distance > tolerance then
-										l_weight := internal_stiffness * get_link_weight (a_edge)
-										l_item.set_delta (l_item.dx - l_weight * (px - opx), l_item.dy - l_weight * (py - opy))
+								check l_other /= Void then -- FIXME: Implied by...?
+									if l_other.is_show_requested then
+										opx := l_other.port_x
+										opy := l_other.port_y
+										l_distance := distance (px, py, opx, opy)
+										if l_distance > tolerance then
+											l_weight := internal_stiffness * get_link_weight (a_edge)
+											l_item.set_delta (l_item.dx - l_weight * (px - opx), l_item.dy - l_weight * (py - opy))
+										end
 									end
 								end
 							end
@@ -338,16 +339,17 @@ feature {NONE} -- Implementation
 			else
 				l_other := a_edge.source
 			end
-			check l_other /= Void end -- FIXME: Implied by ...?
-			if l_other.is_show_requested then
-				npx := a_node.port_x
-				npy := a_node.port_y
-				opx := l_other.port_x
-				opy := l_other.port_y
-				l_distance := distance (npx, npy, opx, opy)
-				if l_distance > tolerance then
-					l_weight := get_link_weight (a_edge)
-					a_node.set_delta (a_node.dx - internal_stiffness * l_weight * (npx - opx), a_node.dy - internal_stiffness * l_weight * (npy - opy))
+			check l_other /= Void then -- FIXME: Implied by ...?
+				if l_other.is_show_requested then
+					npx := a_node.port_x
+					npy := a_node.port_y
+					opx := l_other.port_x
+					opy := l_other.port_y
+					l_distance := distance (npx, npy, opx, opy)
+					if l_distance > tolerance then
+						l_weight := get_link_weight (a_edge)
+						a_node.set_delta (a_node.dx - internal_stiffness * l_weight * (npx - opx), a_node.dy - internal_stiffness * l_weight * (npy - opy))
+					end
 				end
 			end
 		end
@@ -491,7 +493,7 @@ feature {NONE} -- Implementation
 
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

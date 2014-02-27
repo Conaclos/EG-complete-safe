@@ -102,8 +102,9 @@ feature {NONE} -- Implementation
 			else
 				check False end -- FIXME: Implied by ...
 			end
-			check l_result /= Void end -- Implied by previsous if cluase and postcondition of `traverse_tree'
-			Result := l_result
+			check l_result /= Void then -- Implied by previsous if cluase and postcondition of `traverse_tree'
+				Result := l_result
+			end
 			if theta_count > 0 then
 				last_theta_average := last_theta_average / theta_count
 			end
@@ -121,18 +122,18 @@ feature {NONE} -- Implementation
 			region: EV_RECTANGLE
 			childe: detachable EG_QUAD_TREE
 			l_result: detachable like traverse_tree
-			l_particle: detachable EG_PARTICLE
 		do
 			if node.is_leaf then
-				l_particle := node.particle
-				check l_particle /= Void end -- Implied by `is_leaf'
-				l_result := n_body_force (a_particle, l_particle)
+				check attached node.particle as al_particle then -- Implied by `is_leaf'
+					l_result := n_body_force (a_particle, al_particle)
+				end
 			else
 				cmp := node.center_of_mass_particle
 				region := node.region
 					-- Distance to center of mass
-				check cmp /= Void end --FIXME: Implied by ...
-				r := distance (a_particle.x, a_particle.y, cmp.x, cmp.y)
+				check attached cmp as al_cmp then --FIXME: Implied by ...
+					r := distance (a_particle.x, a_particle.y, al_cmp.x, al_cmp.y)
+				end
 					-- size of the cell
 				d := region.width.max (region.height)
 					-- proportion between distance and size
@@ -144,7 +145,9 @@ feature {NONE} -- Implementation
 				end
 				if prop < theta then
 						-- Approximate
-					l_result := n_body_force (a_particle, cmp)
+					check attached cmp as al_cmp then --FIXME: Implied by ...
+						l_result := n_body_force (a_particle, al_cmp)
+					end
 				else
 						-- Inspect children
 					childe := node.childe_ne
@@ -177,8 +180,9 @@ feature {NONE} -- Implementation
 					end
 				end
 			end
-			check l_result /= Void end -- FIXME: Implied by ...
-			Result := l_result
+			check l_result /= Void then -- FIXME: Implied by ...
+				Result := l_result
+			end
 		ensure
 			Result_exists: Result /= Void
 		end
