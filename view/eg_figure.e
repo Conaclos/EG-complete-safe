@@ -27,8 +27,8 @@ feature {NONE} -- Initialization
 	default_create
 			-- Create an EG_FIGURE
 		do
-			Precursor {EV_MODEL_MOVE_HANDLE}
 			create name_label
+			Precursor {EV_MODEL_MOVE_HANDLE}
 			extend (name_label)
 			is_center_valid := True
 		end
