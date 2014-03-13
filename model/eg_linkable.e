@@ -60,7 +60,7 @@ feature {EG_LINK} -- Element change
 
 feature {EG_CLUSTER} -- Element change
 
-	set_cluster (a_cluster: like cluster)
+	set_cluster (a_cluster: attached like cluster)
 			-- Set `cluster' to `a_cluster'.
 		require
 			a_cluster_not_void: a_cluster /= Void
