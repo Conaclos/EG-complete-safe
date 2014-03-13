@@ -97,7 +97,7 @@ feature -- Element change
 
 feature {EG_FIGURE_WORLD} -- Element change.
 
-	set_source (a_source: like source)
+	set_source (a_source: attached like source)
 			-- Set `source' to `a_source'.
 		require
 			a_source_not_void: a_source /= Void
@@ -108,7 +108,7 @@ feature {EG_FIGURE_WORLD} -- Element change.
 			set: a_source = source
 		end
 
-	set_target (a_target: like target)
+	set_target (a_target: attached like target)
 			-- Set `target' to `a_target'.
 		require
 			a_target_not_void: a_target /= Void
