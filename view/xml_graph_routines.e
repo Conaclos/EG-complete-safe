@@ -37,7 +37,7 @@ feature {NONE} -- Initialization
 			create valid_tag_read_actions
 		end
 
-	make (a_relative_window: like relative_window)
+	make (a_relative_window: attached like relative_window)
 			-- Initialization
 		require
 			non_void_relative_window: a_relative_window /= Void

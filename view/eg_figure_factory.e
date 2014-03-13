@@ -40,7 +40,7 @@ feature -- Access
 			result_not_void: Result /= Void
 		end
 
-	model_from_xml (node: attached like xml_element_type): detachable EG_ITEM
+	model_from_xml (node: like xml_element_type): detachable EG_ITEM
 			-- Create an EG_ITEM from `node' if possible.
 		require
 			node_not_void: node /= Void
@@ -62,7 +62,7 @@ feature -- Access
 
 feature {EG_FIGURE_WORLD} -- Implementation
 
-	set_world (a_world: like world)
+	set_world (a_world: attached like world)
 			-- Set `world' to `a_world'.
 		require
 			a_world_not_void: a_world /= Void

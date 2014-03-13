@@ -57,7 +57,7 @@ feature -- Access
 
 feature {EG_POLYLINE_LINK_FIGURE} -- Element change
 
-	set_corresponding_point (a_corresponding_point: like corresponding_point)
+	set_corresponding_point (a_corresponding_point: attached like corresponding_point)
 			-- Set `corresponding_point' to `a_corresponding_point'.
 		require
 			a_corresponding_point_not_void: a_corresponding_point /= Void

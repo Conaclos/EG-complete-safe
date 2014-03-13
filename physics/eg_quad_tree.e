@@ -24,7 +24,7 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_region: like region; a_particle: like particle)
+	make (a_region: like region; a_particle: attached like particle)
 			-- Make a node with `region' `a_region' containing a_particle.
 		require
 			a_region_exists: a_region /= Void
@@ -170,15 +170,15 @@ feature -- Element change
 				py := l_particle.y
 				if px >= region.left + hw then
 					if py >= region.top + hh then
-						create childe_se.make (create {EV_RECTANGLE}.set (region.left + hw, region.top + hh, hw, hh), particle)
+						create childe_se.make (create {EV_RECTANGLE}.set (region.left + hw, region.top + hh, hw, hh), l_particle)
 					else
-						create childe_ne.make (create {EV_RECTANGLE}.set (region.left + hw, region.top, hw, hh), particle)
+						create childe_ne.make (create {EV_RECTANGLE}.set (region.left + hw, region.top, hw, hh), l_particle)
 					end
 				else
 					if py >= region.top + hh then
-						create childe_sw.make (create {EV_RECTANGLE}.set (region.left, region.top + hh, hw, hh), particle)
+						create childe_sw.make (create {EV_RECTANGLE}.set (region.left, region.top + hh, hw, hh), l_particle)
 					else
-						create childe_nw.make (create {EV_RECTANGLE}.set (region.left, region.top, hw, hh), particle)
+						create childe_nw.make (create {EV_RECTANGLE}.set (region.left, region.top, hw, hh), l_particle)
 					end
 				end
 					-- Ensure invariant.
@@ -285,7 +285,7 @@ invariant
 	is_leaf_implies_has_particle: is_leaf implies attached (attached particle as l_particle and then region.has_x_y (l_particle.x, l_particle.y))
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
