@@ -48,7 +48,7 @@ feature -- Access
 			-- Y position
 
 	attached_x: G
-			-- Attached `x'
+			-- `x'
 		obsolete
 			"use `x' instead. [02-2014]"
 		do
@@ -56,7 +56,7 @@ feature -- Access
 		end
 
 	attached_y: G
-			-- Attached `y'
+			-- `y'
 		obsolete
 			"use `y' instead. [02-2014]"
 		do
@@ -93,8 +93,8 @@ feature -- Status report
 			-- If `x' and `y' has been set?
 		obsolete
 			"Answer is True since `x' and `y' are both attached. [02-2014]"
-		do
-			Result := (attached x) and (attached y)
+		once
+			Result := True
 		end
 
 feature -- Basic operations
