@@ -12,6 +12,7 @@ inherit
 	EV_MODEL_WORLD
 		redefine
 			default_create,
+			make_filled,
 			scale,
 			wipe_out,
 			new_filled_list,
@@ -67,7 +68,14 @@ feature {NONE} -- Initialization
 			real_grid_y := default_grid_y
 		end
 
-	make_with_model (a_model: attached like model)
+	make_filled (n: INTEGER_32)
+			-- <Precursor>
+		do
+			make_with_model (create {EG_GRAPH})
+			make_filled_area (({EV_MODEL}).default, n)
+		end
+
+	make_with_model (a_model: like model)
 			-- Create a view for `a_model' using EG_SIMPLE_FACTORY.
 		require
 			a_model_not_void: a_model /= Void
@@ -77,7 +85,7 @@ feature {NONE} -- Initialization
 			set: model = a_model
 		end
 
-	make_with_model_and_factory (a_model: attached like model; a_factory: attached like factory)
+	make_with_model_and_factory (a_model: like model; a_factory: like factory)
 			-- Create a view for `a_model' using `a_factory'.
 		require
 			a_model_not_void: a_model /= Void
@@ -88,7 +96,7 @@ feature {NONE} -- Initialization
 			model := a_model
 			factory := a_factory
 			default_create
-			set_factory (a_factory)
+			a_factory.set_world (Current)
 			-- create all views in model
 
 			if a_model.clusters.is_empty then
@@ -123,13 +131,13 @@ feature {NONE} -- Initialization
 			end
 
 			-- create new views when required
-			attached_model.node_add_actions.extend (agent add_node)
-			attached_model.link_add_actions.extend (agent add_link)
-			attached_model.cluster_add_actions.extend (agent add_cluster)
+			model.node_add_actions.extend (agent add_node)
+			model.link_add_actions.extend (agent add_link)
+			model.cluster_add_actions.extend (agent add_cluster)
 
-			attached_model.link_remove_actions.extend (agent remove_link)
-			attached_model.node_remove_actions.extend (agent remove_node)
-			attached_model.cluster_remove_actions.extend (agent remove_cluster)
+			model.link_remove_actions.extend (agent remove_link)
+			model.node_remove_actions.extend (agent remove_node)
+			model.cluster_remove_actions.extend (agent remove_cluster)
 
 			enable_grid
 		ensure
@@ -204,34 +212,26 @@ feature -- Access
 			Result := items_to_figure_lookup_table.item (an_item)
 		end
 
-	model: detachable EG_GRAPH
+	model: EG_GRAPH
 			-- Model for `Current'.
 
-	attached_model: EG_GRAPH
-			-- Attached `model'
-		require
-			set: attached model
+	attached_model: like model
+			-- `model'
+		obsolete
+			"Use `factory' model."
 		do
-			check attached model as l_model then -- Implied by precondition `set'
-				Result := l_model
-			end
-		ensure
-			not_void: Result /= Void
+			Result := model
 		end
 
-	factory: detachable EG_FIGURE_FACTORY
+	factory: EG_FIGURE_FACTORY
 			-- Factory used to create new figures.
 
-	attached_factory: EG_FIGURE_FACTORY
-			-- Attached `factory'
-		require
-			set: attached factory
+	attached_factory: like factory
+			-- `factory'
+		obsolete
+			"Use `factory' instead."
 		do
-			check attached factory as l_factory then -- Implied by precondition `set'
-				Result := l_factory
-			end
-		ensure
-			not_void: Result /= Void
+			Result := factory
 		end
 
 	flat_links: like links
@@ -391,17 +391,17 @@ feature -- Element change
 			pointer_button_release_actions.prune_all (agent on_pointer_button_release_on_world)
 			pointer_motion_actions.prune_all (agent on_pointer_motion_on_world)
 
-			attached_model.node_add_actions.prune_all (agent add_node)
-			attached_model.link_add_actions.prune_all (agent add_link)
-			attached_model.cluster_add_actions.prune_all (agent add_cluster)
+			model.node_add_actions.prune_all (agent add_node)
+			model.link_add_actions.prune_all (agent add_link)
+			model.cluster_add_actions.prune_all (agent add_cluster)
 
-			attached_model.link_remove_actions.prune_all (agent remove_link)
-			attached_model.node_remove_actions.prune_all (agent remove_node)
-			attached_model.cluster_remove_actions.prune_all (agent remove_cluster)
+			model.link_remove_actions.prune_all (agent remove_link)
+			model.node_remove_actions.prune_all (agent remove_node)
+			model.cluster_remove_actions.prune_all (agent remove_cluster)
 		end
 
 
-	set_factory (a_factory: attached like factory)
+	set_factory (a_factory: like factory)
 			-- Set `factory' to `a_factory'.
 		require
 			a_factory_not_Void: a_factory /= Void
@@ -450,12 +450,12 @@ feature -- Element change
 			-- `a_node' was added to the model.
 		require
 			a_node_not_void: a_node /= Void
-			model_has_node: attached_model.has_node (a_node)
+			model_has_node: model.has_node (a_node)
 			not_has_a_node: not has_node_figure (a_node)
 		local
 			node_figure: EG_LINKABLE_FIGURE
 		do
-			node_figure := attached_factory.new_node_figure (a_node)
+			node_figure := factory.new_node_figure (a_node)
 			extend (node_figure)
 			root_cluster.extend (node_figure)
 			nodes.extend (node_figure)
@@ -471,7 +471,7 @@ feature -- Element change
 			-- `a_link' was added to the model.
 		require
 			a_link_not_void: a_link /= Void
-			model_has_link: attached_model.has_link (a_link)
+			model_has_link: model.has_link (a_link)
 			not_has_a_link: not has_link_figure (a_link)
 			a_link.source /= Void
 			a_link.target /= Void
@@ -481,7 +481,7 @@ feature -- Element change
 			link_figure: EG_LINK_FIGURE
 			source, target: detachable EG_LINKABLE_FIGURE
 		do
-			link_figure := attached_factory.new_link_figure (a_link)
+			link_figure := factory.new_link_figure (a_link)
 			put_front (link_figure)
 			links.extend (link_figure)
 			if attached {EG_LINKABLE_FIGURE} items_to_figure_lookup_table.item (a_link.source) as l_source then
@@ -502,14 +502,14 @@ feature -- Element change
 			-- `a_cluster' was added to the model.
 		require
 			a_cluster_not_void: a_cluster /= Void
-			model_has_cluster: attached_model.has_cluster (a_cluster)
+			model_has_cluster: model.has_cluster (a_cluster)
 			not_has_a_cluster: not has_cluster_figure (a_cluster)
 			a_cluster.flat_linkables.for_all (agent has_linkable_figure)
 		local
 			cluster_figure: EG_CLUSTER_FIGURE
 			l_model: detachable EG_CLUSTER
 		do
-			cluster_figure := attached_factory.new_cluster_figure (a_cluster)
+			cluster_figure := factory.new_cluster_figure (a_cluster)
 			extend (cluster_figure)
 			root_cluster.extend (cluster_figure)
 			linkable_add (cluster_figure)
@@ -848,20 +848,20 @@ feature -- Save/Restore
 				loop
 					if
 						attached {like xml_element} l_cursor.item as l_item
-						and then attached {EG_ITEM} attached_factory.model_from_xml (l_item) as eg_item
+						and then attached {EG_ITEM} factory.model_from_xml (l_item) as eg_item
 					then
 
 						if attached {EG_CLUSTER} eg_item as eg_cluster then
-							if not attached_model.has_cluster (eg_cluster) then
-								attached_model.add_cluster (eg_cluster)
+							if not model.has_cluster (eg_cluster) then
+								model.add_cluster (eg_cluster)
 							end
 						elseif attached {EG_NODE} eg_item as eg_node then
-							if not attached_model.has_node (eg_node) then
-								attached_model.add_node (eg_node)
+							if not model.has_node (eg_node) then
+								model.add_node (eg_node)
 							end
 						elseif attached {EG_LINK} eg_item as eg_link then
-							if not attached_model.has_link (eg_link) then
-								attached_model.add_link (eg_link)
+							if not model.has_link (eg_link) then
+								model.add_link (eg_link)
 							end
 						else
 							check

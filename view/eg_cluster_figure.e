@@ -108,7 +108,7 @@ feature -- Access
 				loop
 					if
 						attached {like xml_element} l_cursor.item as l_item
-						and then attached {EG_LINKABLE} l_world.attached_factory.model_from_xml (l_item) as eg_model
+						and then attached {EG_LINKABLE} l_world.factory.model_from_xml (l_item) as eg_model
 					then
 						if not l_world_model.has_linkable (eg_model) then
 							if attached {EG_CLUSTER} eg_model as eg_cluster then

@@ -23,6 +23,7 @@ feature -- Initialization
 		do
 			x := ax
 			y := ay
+
 		ensure
 			set: x = ax and y = ay
 		end
