@@ -65,7 +65,7 @@ feature -- Element change.
 	set_theta (a_theta: like theta)
 			-- Set `theta' to `a_theta'.
 		require
-			a_theta_in_range: theta >= 0 and theta <= 1.0
+			a_theta_in_range: 0 <= theta and theta <= 1.0
 		do
 			theta := a_theta
 		ensure
@@ -74,7 +74,7 @@ feature -- Element change.
 
 feature -- Access
 
-	quad_tree: detachable EG_QUAD_TREE
+	quad_tree: EG_QUAD_TREE
 			-- The quad tree to traverse.
 
 	theta: DOUBLE
@@ -95,14 +95,7 @@ feature {NONE} -- Implementation
 		do
 			last_theta_average := 0.0
 			theta_count := 0
-			if attached quad_tree as l_quad_tree then
-				l_result := traverse_tree (l_quad_tree, a_particle)
-			else
-				check False end -- FIXME: Implied by ...
-			end
-			check l_result /= Void then -- Implied by previsous if cluase and postcondition of `traverse_tree'
-				Result := l_result
-			end
+			Result := traverse_tree (quad_tree, a_particle)
 			if theta_count > 0 then
 				last_theta_average := last_theta_average / theta_count
 			end
@@ -116,64 +109,58 @@ feature {NONE} -- Implementation
 			r: DOUBLE
 			d: INTEGER
 			prop: DOUBLE
-			cmp: detachable EG_PARTICLE
 			region: EV_RECTANGLE
-			childe: detachable EG_QUAD_TREE
 			l_result: detachable like traverse_tree
 		do
-			if node.is_leaf then
-				check attached node.particle as l_particle then -- Implied by `is_leaf'
-					l_result := n_body_force (a_particle, l_particle)
-				end
+			if attached node.particle as l_particle then -- equivalent to `node.is_leaf'
+				Result := n_body_force (a_particle, l_particle)
 			else
-				cmp := node.center_of_mass_particle
-				region := node.region
-					-- Distance to center of mass
-				check attached cmp as l_cmp then --FIXME: Implied by ...
+				check attached node.center_of_mass_particle as l_cmp then -- FIXME Implied by...
+					region := node.region
+						-- Distance to center of mass
 					r := distance (a_particle.x, a_particle.y, l_cmp.x, l_cmp.y)
-				end
-					-- size of the cell
-				d := region.width.max (region.height)
-					-- proportion between distance and size
-				prop := d/r
+						-- size of the cell
+					d := region.width.max (region.height)
+						-- proportion between distance and size
+					prop := d / r
 
-				if prop < 1.0 then
-					last_theta_average := last_theta_average + prop
-					theta_count := theta_count + 1
-				end
-				if prop < theta then
-						-- Approximate
-					check attached cmp as l_cmp then --FIXME: Implied by ...
-						l_result := n_body_force (a_particle, l_cmp)
+					if prop < 1.0 then
+						last_theta_average := last_theta_average + prop
+						theta_count := theta_count + 1
 					end
-				else
-						-- Inspect children
-					childe := node.childe_ne
-					if attached childe as l_childe then
-						l_result := traverse_tree (l_childe, a_particle)
-					end
-					childe := node.childe_nw
-					if attached childe as l_childe_2 then
-						if l_result = Void then
-							l_result := traverse_tree (l_childe_2, a_particle)
-						else
-							l_result := l_result + traverse_tree (l_childe_2, a_particle)
+					if prop < theta then
+							-- Approximate
+						Result := n_body_force (a_particle, l_cmp)
+					else
+							-- Inspect children
+						if attached node.childe_ne as l_childe then
+							l_result := traverse_tree (l_childe, a_particle)
 						end
-					end
-					childe := node.childe_se
-					if attached childe as l_childe_3 then
-						if l_result = Void then
-							l_result := traverse_tree (l_childe_3, a_particle)
-						else
-							l_result := l_result + traverse_tree (l_childe_3, a_particle)
+
+						if attached node.childe_nw as l_childe_2 then
+							if l_result = Void then
+								l_result := traverse_tree (l_childe_2, a_particle)
+							else
+								l_result := l_result + traverse_tree (l_childe_2, a_particle)
+							end
 						end
-					end
-					childe := node.childe_sw
-					if attached childe as l_childe_4 then
+
+						if attached node.childe_se as l_childe_3 then
+							if l_result = Void then
+								l_result := traverse_tree (l_childe_3, a_particle)
+							else
+								l_result := l_result + traverse_tree (l_childe_3, a_particle)
+							end
+						end
+
 						if l_result = Void then
-							l_result := traverse_tree (l_childe_4, a_particle)
+							check attached node.childe_sw as l_childe_4 then -- Implied by not node.is_leaf
+								Result := traverse_tree (l_childe_4, a_particle)
+							end
+						elseif attached node.childe_sw as l_childe_4 then
+							Result := l_result + traverse_tree (l_childe_4, a_particle)
 						else
-							l_result := l_result + traverse_tree (l_childe_4, a_particle)
+							Result := l_result
 						end
 					end
 				end
@@ -185,51 +172,38 @@ feature {NONE} -- Implementation
 	build_quad_tree
 			-- Build `quad_tree' from `particles'. O(n log n)
 		local
-			l_particles: like particles
 			l_item: like particle_type
 			world_size: EV_RECTANGLE
 			maxx, minx, maxy, miny, x, y: INTEGER
+			l_quad_tree: detachable like quad_tree
 		do
-			from
-				maxx := maxx.min_value
-				maxy := maxx
-				minx := minx.max_value
-				miny := minx
-				l_particles := particles
-				l_particles.start
-			until
-				l_particles.after
-			loop
-				l_item := l_particles.item
+			maxx := maxx.min_value
+			maxy := maxx
+			minx := minx.max_value
+			miny := minx
+			across particles as it loop
+				l_item := it.item
 				x := l_item.x
 				maxx := maxx.max (x)
 				minx := minx.min (x)
 				y := l_item.y
 				maxy := maxy.max (y)
 				miny := miny.min (y)
-				l_particles.forth
 			end
 			create world_size.make (minx, miny, maxx - minx, maxy - miny)
-			from
-				l_particles := particles
-				l_particles.start
-			until
-				l_particles.after
-			loop
-				l_item := l_particles.item
-				if attached quad_tree as l_quad_tree then
+			across particles as it loop
+				l_item := it.item
+				if l_quad_tree /= Void then
 					if not l_quad_tree.has (l_item) then
 						l_quad_tree.insert (l_item)
 					end
 				else
-					create quad_tree.make (world_size, l_item)
+					create l_quad_tree.make (world_size, l_item)
 				end
-				l_particles.forth
 			end
-			if attached quad_tree as l_quad_tree_2 then
-				l_quad_tree_2.build_center_of_mass
-			else
-				check False end -- Implied by previous loop
+			check l_quad_tree /= Void then -- Implied by previous loop
+				l_quad_tree.build_center_of_mass
+				quad_tree := l_quad_tree
 			end
 		end
 
