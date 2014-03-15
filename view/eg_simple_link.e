@@ -136,12 +136,12 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 				else
 					if attached source as l_source then
 						source_size := l_source.size
-						check attached reflexive as l_reflexive then -- FIXME: Implied by ...?
+						check attached reflexive as l_reflexive then -- Implied by invariant `reflexive_model_equivalence'
 							l_reflexive.set_x_y (source_size.right + l_reflexive.radius1, source_size.top + source_size.height // 2)
 						end
 					end
 					if is_label_shown then
-						check attached reflexive as l_reflexive then -- FIXME: Implied by ...?
+						check attached reflexive as l_reflexive then -- Implied by invariant `reflexive_model_equivalence'
 							name_label.set_point_position (l_reflexive.x + l_reflexive.radius1, l_reflexive.y)
 						end
 					end
