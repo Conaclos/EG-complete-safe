@@ -11,61 +11,68 @@ class
 
 inherit
 	EG_VECTOR [G]
+		redefine
+			default_create
+		end
 
 create
-	make,
-	default_create
+	default_create,
+	make
 
 feature -- Initialization
 
-	make, set (ax, ay: G)
-			-- Set `x' to `ax' and `y' to `ay'.
+	default_create
+		obsolete
+			"`default_create' is not void-safe statically. Use `make' instead. [02-2014]"
 		do
-			x := ax
-			y := ay
+			make (({G}).default, ({G}).default)
+		ensure then
+			set: x = ({G}).default and y = ({G}).default
+		end
 
+	make, set (a_x: like x; a_y: like y)
+			-- Set `x' to `a_x' and `y' to `a_y'.
+		do
+			x := a_x
+			y := a_y
 		ensure
-			set: x = ax and y = ay
+			set: x = a_x and y = a_y
 		end
 
 feature -- Access
 
-	x: detachable G
-			-- X position of `Current'.
+	x: G
+			-- X position
 
-	y: detachable G
-			-- Y position of `Current'.
+	y: G
+			-- Y position
 
 	attached_x: G
 			-- Attached `x'
-		require
-			set: attached x
+		obsolete
+			"use `x' instead. [02-2014]"
 		do
-			check attached x as l_x then -- Implied by precondition `set'
-				Result := l_x
-			end
+			Result := x
 		end
 
 	attached_y: G
 			-- Attached `y'
-		require
-			set: attached y
+		obsolete
+			"use `y' instead. [02-2014]"
 		do
-			check attached y as l_y then -- Implied by precondition `set'
-				Result := l_y
-			end
+			Result := y
 		end
 
 	one: like Current
 			-- Neutral element for "*" and "/"
 		do
-			create Result.make (attached_x.one, attached_y.one)
+			create Result.make (x.one, y.one)
 		end
 
 	zero: like Current
 			-- Neutral element for "+" and "-"
 		do
-			create Result.make (attached_x.zero, attached_y.zero)
+			create Result.make (x.zero, y.zero)
 		end
 
 feature -- Status report
@@ -84,6 +91,8 @@ feature -- Status report
 
 	is_x_y_set: BOOLEAN
 			-- If `x' and `y' has been set?
+		obsolete
+			"Answer is True since `x' and `y' are both attached. [02-2014]"
 		do
 			Result := (attached x) and (attached y)
 		end
@@ -93,55 +102,43 @@ feature -- Basic operations
 	plus alias "+" (other: like Current): like Current
 			-- Sum with `other' (commutative).
 		do
-			create Result.make (attached_x + other.attached_x, attached_y + other.attached_y)
+			create Result.make (x + other.x, y + other.y)
 		end
 
 	minus alias "-" (other: like Current): like Current
 			-- Result of subtracting `other'
 		do
-			create Result.make (attached_x - other.attached_x, attached_y - other.attached_y)
+			create Result.make (x - other.x, y - other.y)
 		end
 
 	product alias "*" (other: like Current): like Current
 			-- Product by `other'
-		local
-			l_result: detachable like product
 		do
-			check
-				implement: False
-			end
-			check l_result /= Void then -- Satisfy void-safe compiler
-				Result := l_result
-			end
+			check False then end
 		end
 
 	quotient alias "/" (other: like Current): like Current
 			-- Division by `other'
-		local
-			l_result: detachable like quotient
 		do
-			check implement: False end
-			check l_result /= Void then -- Satisfy void-safe compiler
-				Result := l_result
-			end
+			check False then end
 		end
 
 	identity alias "+": like Current
 			-- Unary plus
 		do
-			create Result.make (attached_x, attached_y)
+			create Result.make (x, y)
 		end
 
 	opposite alias "-": like Current
 			-- Unary minus
 		do
-			create Result.make (-attached_x, -attached_y)
+			create Result.make (-x, -y)
 		end
 
 	scalar_product alias "|*" (other: G): like Current
 			-- Scalar product between `Current' and other.
 		do
-			create Result.make (attached_x * other, attached_y * other)
+			create Result.make (x * other, y * other)
 		end
 
 note
