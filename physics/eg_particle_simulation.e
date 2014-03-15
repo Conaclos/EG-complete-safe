@@ -100,13 +100,8 @@ feature {NONE} -- Implementation
 
 	particle_type: EG_PARTICLE
 			-- Type of particles
-		local
-			l_result: detachable like particle_type
 		do
-			check anchor_type_only: False end
-			check l_result /= Void then -- Satisfy void safe compiler
-				Result := l_result
-			end
+			check anchor_type_only: False then end
 		end
 
 invariant
@@ -114,7 +109,7 @@ invariant
 	particles_not_empty: not particles.is_empty
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
