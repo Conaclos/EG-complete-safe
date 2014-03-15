@@ -60,8 +60,6 @@ feature -- Element change.
 		do
 			Precursor {EG_PARTICLE_SIMULATION} (a_particles)
 			build_quad_tree
-		ensure then
-			quad_tree_exists: quad_tree /= Void
 		end
 
 	set_theta (a_theta: like theta)
@@ -180,9 +178,6 @@ feature {NONE} -- Implementation
 					end
 				end
 			end
-			check l_result /= Void then -- FIXME: Implied by ...
-				Result := l_result
-			end
 		ensure
 			Result_exists: Result /= Void
 		end
@@ -236,8 +231,6 @@ feature {NONE} -- Implementation
 			else
 				check False end -- Implied by previous loop
 			end
-		ensure
-			build: quad_tree /= Void
 		end
 
 invariant
