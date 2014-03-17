@@ -45,26 +45,21 @@ feature -- Status report
 
 	valid_tree: BOOLEAN
 			-- Are all particles in `Current' element `region'?
-		local
-			l_particle: like particle
 		do
-			if is_leaf then
-				l_particle := particle
-				check l_particle /= Void then -- Implied by invariant `leaf_has_particle_inner_nodes_do_not'
-					Result := region.has_x_y (l_particle.x, l_particle.y)
-				end
+			if attached particle as l_particle then -- equivalent to `is_leaf' (invariant `leaf_has_particle_inner_nodes_do_not')
+				Result := region.has_x_y (l_particle.x, l_particle.y)
 			else
 				Result := True
 				if attached childe_sw as l_childe_sw then
 					Result := l_childe_sw.valid_tree
 				end
-				if Result and then attached childe_se as l_childe_se then
+				if Result and attached childe_se as l_childe_se then
 					Result := l_childe_se.valid_tree
 				end
-				if Result and then attached childe_nw as l_childe_nw then
+				if Result and attached childe_nw as l_childe_nw then
 					Result := l_childe_nw.valid_tree
 				end
-				if Result and then attached childe_ne as l_childe_ne then
+				if Result and attached childe_ne as l_childe_ne then
 					Result := l_childe_ne.valid_tree
 				end
 			end
@@ -238,42 +233,22 @@ feature -- Element change
 			else
 				if attached particle as l_particle then
 						-- Reached the leaf.
-					if l_particle.x = px and then l_particle.y = py then
-						Result := True
-					else
-						Result := False
-					end
+					Result := l_particle.x = px and l_particle.y = py
 				else
 					hw := (region.width / 2).ceiling
 					hh := (region.height / 2).ceiling
 						-- Look into childrens.
 					if px >= region.left + hw then
 						if py >= region.top + hh then
-							if attached childe_se as l_childe_se then
-								Result := l_childe_se.has (a_particle)
-							else
-								Result := False
-							end
+							Result := attached childe_se as l_childe_se and then l_childe_se.has (a_particle)
 						else
-							if attached childe_ne as l_childe_ne then
-								Result := l_childe_ne.has (a_particle)
-							else
-								Result := False
-							end
+							Result := attached childe_ne as l_childe_ne and then l_childe_ne.has (a_particle)
 						end
 					else
 						if py >= region.top + hh then
-							if attached childe_sw as l_childe_sw then
-								Result := l_childe_sw.has (a_particle)
-							else
-								Result := False
-							end
+							Result := attached childe_sw as l_childe_sw and then l_childe_sw.has (a_particle)
 						else
-							if attached childe_nw as l_childe_nw then
-								Result := l_childe_nw.has (a_particle)
-							else
-								Result := False
-							end
+							Result := attached childe_nw as l_childe_nw and then l_childe_nw.has (a_particle)
 						end
 					end
 				end
