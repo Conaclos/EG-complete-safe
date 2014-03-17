@@ -84,7 +84,7 @@ feature {NONE} -- Implementation
 					check l_other /= Void then -- FXIME: Implied by ...?
 						if l_other.is_show_requested then
 							l_weight := stiffness * link_stiffness (l_item)
-							Result.set (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))
+							create Result.make (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))
 						end
 					end
 				end
