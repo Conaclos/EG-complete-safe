@@ -19,7 +19,7 @@ create
 	default_create,
 	make
 
-feature -- Initialization
+feature {NONE} -- Initialization
 
 	default_create
 		obsolete
@@ -30,11 +30,23 @@ feature -- Initialization
 			set: x = ({G}).default and y = ({G}).default
 		end
 
-	make, set (a_x: like x; a_y: like y)
+	make (a_x: like x; a_y: like y)
 			-- Set `x' to `a_x' and `y' to `a_y'.
 		do
 			x := a_x
 			y := a_y
+		ensure
+			set: x = a_x and y = a_y
+		end
+
+feature -- Element change
+
+	set (a_x: like x; a_y: like y)
+			-- Set `x' to `a_x' and `y' to `a_y'.
+		obsolete
+			"Create a new instance with `make' creation procedure since EG_VECTOR2D is immutable. [03-2014]"
+		do
+			make (a_x, a_y)
 		ensure
 			set: x = a_x and y = a_y
 		end
@@ -100,7 +112,7 @@ feature -- Status report
 feature -- Basic operations
 
 	plus alias "+" (other: like Current): like Current
-			-- Sum with `other' (commutative).
+			-- Sum with `other' (commutative)
 		do
 			create Result.make (x + other.x, y + other.y)
 		end
