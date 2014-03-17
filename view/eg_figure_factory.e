@@ -11,10 +11,10 @@ deferred class
 feature -- Access
 
 	world: detachable EG_FIGURE_WORLD
-			-- World `Current' is a factory for.
+			-- World `Current' is a factory for
 
 	new_node_figure (a_node: EG_NODE): EG_LINKABLE_FIGURE
-			-- Create a node figure for `a_node'.
+			-- Create a node figure for `a_node'
 		require
 			a_node_not_void: a_node /= Void
 		deferred
@@ -23,7 +23,7 @@ feature -- Access
 		end
 
 	new_cluster_figure (a_cluster: EG_CLUSTER): EG_CLUSTER_FIGURE
-			-- Create a cluster figure for `a_cluster'.
+			-- Create a cluster figure for `a_cluster'
 		require
 			a_cluster_not_void: a_cluster /= Void
 		deferred
@@ -32,7 +32,7 @@ feature -- Access
 		end
 
 	new_link_figure (a_link: EG_LINK): EG_LINK_FIGURE
-			-- Create a link figure for `a_link'.
+			-- Create a link figure for `a_link'
 		require
 			a_link_not_void: a_link /= Void
 		deferred
@@ -41,23 +41,16 @@ feature -- Access
 		end
 
 	model_from_xml (node: like xml_element_type): detachable EG_ITEM
-			-- Create an EG_ITEM from `node' if possible.
+			-- Create an EG_ITEM from `node' if possible
 		require
 			node_not_void: node /= Void
 		deferred
 		end
 
 	xml_element_type: XML_ELEMENT
-			-- Element type for compilation purpose.
-		local
-			e: detachable like xml_element_type
+			-- Element type for compilation purpose
 		do
-			check should_not_be_used: False end
-
-				-- To satisfy void-safety compiler checking			
-			check e /= Void then
-				Result := e
-			end
+			check should_not_be_used: False then end
 		end
 
 feature {EG_FIGURE_WORLD} -- Implementation
