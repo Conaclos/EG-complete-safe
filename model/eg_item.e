@@ -13,7 +13,9 @@ inherit
 		rename
 			hash_code as id
 		redefine
-			default_create
+			default_create,
+			is_equal,
+			id
 		end
 
 feature {NONE} -- Initialization
@@ -40,11 +42,17 @@ feature -- Access
 			Result := internal_hash_id
 		end
 
+	is_equal (other: like Current): BOOLEAN
+			-- Has the same `id' that 'other'?
+		do
+			Result := id = other.id
+		end
+
 	name: detachable STRING
-			-- Name of `Current'.
+			-- Name of `Current'
 
 	set_name (a_name: detachable STRING)
-			-- Set `name' to `a_name'.
+			-- Set `name' to `a_name'
 		do
 			if a_name /= name then
 				name := a_name
