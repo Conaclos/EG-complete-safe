@@ -75,13 +75,13 @@ feature -- Element change.
 feature -- Access
 
 	quad_tree: EG_QUAD_TREE
-			-- The quad tree to traverse.
+			-- The quad tree to traverse
 
 	theta: DOUBLE
 			-- The higher theta the more approximations are made (see comment in indexing)
 
 	last_theta_average: DOUBLE
-			-- The average theta value on last call to `force'.
+			-- The average theta value on last call to `force'
 
 feature {NONE} -- Implementation
 
@@ -102,9 +102,10 @@ feature {NONE} -- Implementation
 		end
 
 	traverse_tree (node: EG_QUAD_TREE; a_particle: like particle_type): G
-			-- Traverse `node' and calculate force with `a_particle'.
+			-- Traverse `node' and calculate force with `a_particle'
 		require
 			not_void: node /= Void
+			not_leaf_implies_cmp_not_void: (node.particle = Void) implies (node.center_of_mass_particle /= Void)
 		local
 			r: DOUBLE
 			d: INTEGER
@@ -115,7 +116,7 @@ feature {NONE} -- Implementation
 			if attached node.particle as l_particle then -- equivalent to `node.is_leaf'
 				Result := n_body_force (a_particle, l_particle)
 			else
-				check attached node.center_of_mass_particle as l_cmp then -- FIXME Implied by...
+				check attached node.center_of_mass_particle as l_cmp then -- Implied by precondition `not_leaf_implies_cmp_not_void'
 					region := node.region
 						-- Distance to center of mass
 					r := distance (a_particle.x, a_particle.y, l_cmp.x, l_cmp.y)
