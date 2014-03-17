@@ -14,15 +14,11 @@ inherit
 			update,
 			default_create,
 			xml_node_name,
-			model,
-			make_filled
+			model
 		end
 
 create
 	make_with_model
-
-create {EG_SIMPLE_NODE}
-	make_filled
 
 feature {NONE} -- Initialization
 
@@ -41,60 +37,51 @@ feature {NONE} -- Initialization
 		require
 			a_model_not_void: a_model /= Void
 		do
-			-- Satisfy invariant
-			create node_figure
+			create node_figure -- Satisfy invariant
 
-			default_create
 			model := a_model
+			default_create
 			initialize
 			update
 		end
 
-	make_filled (n: INTEGER_32)
-			-- <Precursor>
-		do
-			create node_figure
-
-			Precursor {EG_LINKABLE_FIGURE} (n)
-		end
-
 feature -- Access
 
-	model: detachable EG_NODE
-			-- Model `Current' is a view for.
+	model: EG_NODE
+			-- Model `Current' is a view for
 
 	port_x: INTEGER
-			-- x position where links are starting.
+			-- x position where links are starting
 		do
 			Result := point_x
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting.
+			-- y position where links are starting
 		do
 			Result := point_y
 		end
 
 	size: EV_RECTANGLE
-			-- Size of `Current'.
+			-- Size of `Current'
 		do
 			Result := node_figure.bounding_box
 		end
 
 	height: INTEGER
-			-- Height in pixels.
+			-- Height in pixels
 		do
 			Result := node_figure.radius2 * 2
 		end
 
 	width: INTEGER
-			-- Width in pixels.
+			-- Width in pixels
 		do
 			Result := node_figure.radius1 * 2
 		end
 
 	xml_node_name: STRING
-			-- Name of `xml_element'.
+			-- Name of `xml_element'
 		do
 			Result := "EG_SIMPLE_NODE"
 		end
@@ -178,7 +165,7 @@ feature {NONE} -- Implementation
 		end
 
 	figure_size: INTEGER
-			-- Size of figure in pixel.
+			-- Size of figure in pixel
 		do
 			Result := 20
 		end
@@ -192,25 +179,17 @@ feature {NONE} -- Implementation
 		end
 
 	node_figure: EV_MODEL_ELLIPSE
-			-- The figure visualizing `Current'.
+			-- The figure visualizing `Current'
 
 	number_of_figures: INTEGER = 2
-			-- Number of figures used to visualize `Current'.
+			-- Number of figures used to visualize `Current'
 			-- (`name_label' and `node_figure')
-
-feature {NONE} -- Implementation
-
-	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
-		do
-			create Result.make_filled (n)
-		end
 
 invariant
 	node_figure_not_void: node_figure /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

@@ -26,9 +26,7 @@ feature {NONE} -- Initialization
 			-- Initialize `Current' (synchronize with `model')
 		do
 			Precursor {EG_FIGURE}
-			check attached model as l_model then -- Implied by precondition `model_not_void'
-				l_model.is_directed_change_actions.extend (agent on_is_directed_change)
-			end
+			model.is_directed_change_actions.extend (agent on_is_directed_change)
 		end
 
 feature -- Status report
@@ -43,26 +41,24 @@ feature -- Status report
 feature -- Access
 
 	source: detachable EG_LINKABLE_FIGURE
-			-- source of `Current'.
+			-- source of `Current'
 
 	target: like source
-			-- target of `Current'.
+			-- target of `Current'
 
-	model: detachable EG_LINK
-			-- The model for `Current'.
+	model: EG_LINK
+			-- The model for `Current'
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state.
+			-- Xml node representing `Current's state
 		local
 			l_model: like model
 		do
 			l_model := model
 			Result := Precursor {EG_FIGURE} (node)
-			check l_model /= Void then -- FIXME: Implied by ...?
-				Result.add_attribute (once "SOURCE", xml_namespace, l_model.source.link_name)
-				Result.add_attribute (once "TARGET", xml_namespace, l_model.target.link_name)
-				Result.put_last (Xml_routines.xml_node (Result, is_directed_string, boolean_representation (l_model.is_directed)))
-			end
+			Result.add_attribute (once "SOURCE", xml_namespace, l_model.source.link_name)
+			Result.add_attribute (once "TARGET", xml_namespace, l_model.target.link_name)
+			Result.put_last (Xml_routines.xml_node (Result, is_directed_string, boolean_representation (l_model.is_directed)))
 		end
 
 	set_with_xml_element (node: like xml_element)
@@ -71,15 +67,13 @@ feature -- Access
 			node.forth
 			node.forth
 			Precursor {EG_FIGURE} (node)
-			check attached model as l_model then -- FIXME: Implied by ...?
-				l_model.set_is_directed (xml_routines.xml_boolean (node, is_directed_string))
-			end
+			model.set_is_directed (xml_routines.xml_boolean (node, is_directed_string))
 		end
 
 	is_directed_string: STRING = "IS_DIRECTED"
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'.
+			-- Name of the node returned by `xml_element'
 		do
 			Result := once "EG_LINK_FIGURE"
 		end
@@ -90,9 +84,7 @@ feature -- Element change
 			-- Free `Current's resources.
 		do
 			Precursor {EG_FIGURE}
-			if attached model as l_model then
-				l_model.is_directed_change_actions.extend (agent on_is_directed_change)
-			end
+			model.is_directed_change_actions.extend (agent on_is_directed_change)
 		end
 
 feature {EG_FIGURE_WORLD} -- Element change.
@@ -130,7 +122,7 @@ feature -- Visitor
 feature {NONE} -- Implementation
 
 	on_is_directed_change
-			-- `model'.`is_directed' changed.
+			-- `model'.`is_directed' changed
 		deferred
 		end
 

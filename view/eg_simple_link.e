@@ -12,15 +12,11 @@ inherit
 	EG_LINK_FIGURE
 		redefine
 			default_create,
-			xml_node_name,
-			make_filled
+			xml_node_name
 		end
 
 create
 	make_with_model
-
-create {EG_SIMPLE_LINK}
-	make_filled
 
 feature {NONE} -- Initialization
 
@@ -38,11 +34,10 @@ feature {NONE} -- Initialization
 		require
 			a_model_not_void: a_model /= Void
 		do
-			-- Satisfy invariant
-			create line
+			create line -- Satisfy invariant
+			model := a_model
 
 			default_create
-			model := a_model
 			initialize
 
 			if a_model.is_directed then
@@ -62,24 +57,16 @@ feature {NONE} -- Initialization
 			update
 		end
 
-	make_filled (n: INTEGER_32)
-			-- <Precursor>
-		do
-			create line
-
-			Precursor {EG_LINK_FIGURE} (n)
-		end
-
 feature -- Access
 
 	xml_node_name: STRING
-			-- Name of `xml_element'.
+			-- Name of `xml_element'
 		do
 			Result := "EG_SIMPLE_LINK"
 		end
 
 	arrow_size: INTEGER
-			-- Size of the arrow.
+			-- Size of the arrow
 		do
 			Result := line.arrow_size
 		end
@@ -105,45 +92,43 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			an_angle: DOUBLE
 			source_size: EV_RECTANGLE
 		do
-			check attached model as l_model then -- FIXME: Implied by ...?
-				if not l_model.is_reflexive then
-					if attached source as l_source and then attached target as l_target then
-						p1 := line.point_array.item (0)
-						p2 := line.point_array.item (1)
+			if not model.is_reflexive then
+				if attached source as l_source and then attached target as l_target then
+					p1 := line.point_array.item (0)
+					p2 := line.point_array.item (1)
 
-						p1.set (l_source.port_x, l_source.port_y)
-						p2.set (l_target.port_x, l_target.port_y)
+					p1.set (l_source.port_x, l_source.port_y)
+					p2.set (l_target.port_x, l_target.port_y)
 
-						an_angle := line_angle (p1.x_precise, p1.y_precise, p2.x_precise, p2.y_precise)
-						l_source.update_edge_point (p1, an_angle)
-						an_angle := pi + an_angle
-						l_target.update_edge_point (p2, an_angle)
-					elseif attached source as l_source_2 then
-						p1 := line.point_array.item (0)
-						p1.set (l_source_2.port_x, l_source_2.port_y)
-						l_source_2.update_edge_point (p1, 0)
-					elseif attached target as l_target_2 then
-						p2 := line.point_array.item (1)
-						p2.set (l_target_2.port_x, l_target_2.port_y)
-						l_target_2.update_edge_point (p2, 0)
-					end
+					an_angle := line_angle (p1.x_precise, p1.y_precise, p2.x_precise, p2.y_precise)
+					l_source.update_edge_point (p1, an_angle)
+					an_angle := pi + an_angle
+					l_target.update_edge_point (p2, an_angle)
+				elseif attached source as l_source_2 then
+					p1 := line.point_array.item (0)
+					p1.set (l_source_2.port_x, l_source_2.port_y)
+					l_source_2.update_edge_point (p1, 0)
+				elseif attached target as l_target_2 then
+					p2 := line.point_array.item (1)
+					p2.set (l_target_2.port_x, l_target_2.port_y)
+					l_target_2.update_edge_point (p2, 0)
+				end
 
-					line.invalidate
-					line.center_invalidate
-					if is_label_shown then
-						name_label.set_point_position (line.x, line.y)
+				line.invalidate
+				line.center_invalidate
+				if is_label_shown then
+					name_label.set_point_position (line.x, line.y)
+				end
+			else
+				if attached source as l_source then
+					source_size := l_source.size
+					check attached reflexive as l_reflexive then -- Implied by invariant `reflexive_model_equivalence'
+						l_reflexive.set_x_y (source_size.right + l_reflexive.radius1, source_size.top + source_size.height // 2)
 					end
-				else
-					if attached source as l_source then
-						source_size := l_source.size
-						check attached reflexive as l_reflexive then -- Implied by invariant `reflexive_model_equivalence'
-							l_reflexive.set_x_y (source_size.right + l_reflexive.radius1, source_size.top + source_size.height // 2)
-						end
-					end
-					if is_label_shown then
-						check attached reflexive as l_reflexive then -- Implied by invariant `reflexive_model_equivalence'
-							name_label.set_point_position (l_reflexive.x + l_reflexive.radius1, l_reflexive.y)
-						end
+				end
+				if is_label_shown then
+					check attached reflexive as l_reflexive then -- Implied by invariant `reflexive_model_equivalence'
+						name_label.set_point_position (l_reflexive.x + l_reflexive.radius1, l_reflexive.y)
 					end
 				end
 			end
@@ -159,31 +144,21 @@ feature {NONE} -- Implementation
 		end
 
 	line: EV_MODEL_LINE
-			-- The line representing the link.
+			-- The line representing the link
 
 	reflexive: detachable EV_MODEL_ELLIPSE
-			-- The ellipse used when link `is_reflexive'.
+			-- The ellipse used when link `is_reflexive'
 
 	on_is_directed_change
 			-- `model'.`is_directed' changed.
 		do
-			check attached model as l_model then -- FIXME: Implied by ...?
-				if l_model.is_directed then
-					line.enable_end_arrow
-				else
-					line.disable_end_arrow
-				end
+			if model.is_directed then
+				line.enable_end_arrow
+			else
+				line.disable_end_arrow
 			end
 			line.invalidate
 			line.center_invalidate
-		end
-
-feature {NONE} -- Implementation
-
-	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
-		do
-			create Result.make_filled (n)
 		end
 
 invariant

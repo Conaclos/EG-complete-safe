@@ -10,10 +10,9 @@ deferred class
 
 inherit
 	EV_MODEL_MOVE_HANDLE
-		undefine
-			new_filled_list
 		redefine
 			world,
+			new_filled_list,
 			default_create
 		end
 
@@ -35,30 +34,26 @@ feature {NONE} -- Initialization
 
 	initialize
 			-- Initialize `Current' (synchronize with model).
-		require
-			model_not_void: model /= Void
 		do
-			check attached model as l_model then -- Implied by precondition `model_not_void'
-				if attached l_model.name as l_name then
-					set_name_label_text (l_name)
-				else
-					name_label.set_text (once "")
-					name_label.hide
-				end
-				l_model.name_change_actions.extend (agent on_name_change)
+			if attached model.name as l_name then
+				set_name_label_text (l_name)
+			else
+				name_label.set_text (once "")
+				name_label.hide
 			end
+			model.name_change_actions.extend (agent on_name_change)
 		end
 
 feature -- Access
 
 	is_storable: BOOLEAN
 			-- Does `Current' need to be persistently stored?
-			-- True by default.
+			-- True by default
 		do
 			Result := True
 		end
 
-	model: detachable EG_ITEM
+	model: EG_ITEM
 			-- The model for `Current'
 
 	world: detachable EG_FIGURE_WORLD
@@ -70,15 +65,13 @@ feature -- Access
 		end
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state.
+			-- Xml node representing `Current's state
 		local
 			l_xml_routines: like xml_routines
 		do
 			l_xml_routines := xml_routines
-			check attached model as l_model then -- FIXME: Implied by ...?
-				if attached l_model.name as l_name then
-					node.add_attribute (name_string, xml_namespace, l_name)
-				end
+			if attached model.name as l_name then
+				node.add_attribute (name_string, xml_namespace, l_name)
 			end
 			node.put_last (l_xml_routines.xml_node (node, is_selected_string, boolean_representation (is_selected)))
 			node.put_last (l_xml_routines.xml_node (node, is_label_shown_string, boolean_representation (is_label_shown)))
@@ -88,7 +81,7 @@ feature -- Access
 	is_selected_string: STRING = "IS_SELECTED"
 	is_label_shown_string: STRING = "IS_LABEL_SHOWN"
 	name_string: STRING = "NAME"
-		-- XML String constants.
+		-- XML String constants
 
 	set_with_xml_element (node: like xml_element)
 			-- Retrive state from `node'.
@@ -104,11 +97,9 @@ feature -- Access
 				check l_attribute /= Void then -- Implied by `has_attribute_by_name'
 					l_name := l_attribute.value
 				end
-				check attached model as l_model then -- FIXME: Implied by ...?
-					l_model_name := l_model.name
-					if (l_model_name = Void) or else not (l_model_name ~ (l_name)) then
-						l_model.set_name (l_name)
-					end
+				l_model_name := model.name
+				if l_model_name = Void or else l_model_name /~ (l_name) then
+					model.set_name (l_name)
 				end
 				node.forth
 			end
@@ -125,7 +116,7 @@ feature -- Access
 		end
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'.
+			-- Name of the node returned by `xml_element'
 		do
 			Result := once "EG_FIGURE"
 		end
@@ -150,9 +141,7 @@ feature -- Element change
 			-- Free resources of `Current' such that GC can collect it.
 			-- Leave it in an unstable state.
 		do
-			if attached model as l_model then
-				l_model.name_change_actions.prune_all (agent on_name_change)
-			end
+			model.name_change_actions.prune_all (agent on_name_change)
 		end
 
 feature -- Status setting
@@ -235,7 +224,7 @@ feature {NONE} -- Implementation
 	on_name_change
 			-- Name was changed in the model.
 		do
-			if (attached model as l_model) and then (attached l_model.name as l_name) then
+			if attached model.name as l_name then
 				if name_label.text.count = 0 and then not is_label_shown then
 					name_label.show
 				end
@@ -251,14 +240,22 @@ feature {NONE} -- Implementation
 			-- | Redefine in subclass if you want make changes to the text.
 		require
 			a_text_not_void: a_text /= Void
-			model_not_void: model /= Void
 			a_text_equal_model_text: attached model as l_model and then l_model.name = a_text
 		do
 			name_label.set_text (a_text)
 		end
 
+feature {NONE} -- Obsolete
+
+	new_filled_list (n: INTEGER): like Current
+			-- New list with `n' elements
+		do
+			check not_implemented: False then end
+		end
+
 invariant
 	name_label_not_void: name_label /= Void
+	model_not_void: model /= Void
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

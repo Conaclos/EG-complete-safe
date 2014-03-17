@@ -24,8 +24,8 @@ inherit
 			recycle
 		end
 
-create {EG_POLYLINE_LINK_FIGURE}
-	make_filled
+create
+	make_with_model
 
 feature {NONE} -- Initialization
 
@@ -48,45 +48,56 @@ feature {NONE} -- Initialization
 			reflexive_radius := 50
 		end
 
+	make_with_model (a_model: like model)
+			-- Make a polyline link using `a_model'.
+		require
+			a_model_not_void: a_model /= Void
+		do
+			model := a_model
+
+			default_create
+			initialize
+		ensure
+			model_set: model = a_model
+		end
+
 	initialize
 			-- Initialize.
 		do
 			Precursor {EG_LINK_FIGURE}
-			check attached model as l_model then -- FIXME: Implied by ...?
-				if l_model.is_reflexive then
-					line.set_point_count (4)
-				else
-					line.pointer_button_press_actions.extend (agent pointer_button_pressed_on_a_line)
-					line.set_pointer_style (new_edge_cursor)
-				end
-				if l_model.is_directed then
-					line.enable_end_arrow
-				end
+			if model.is_reflexive then
+				line.set_point_count (4)
+			else
+				line.pointer_button_press_actions.extend (agent pointer_button_pressed_on_a_line)
+				line.set_pointer_style (new_edge_cursor)
+			end
+			if model.is_directed then
+				line.enable_end_arrow
 			end
 		end
 
 feature -- Access
 
 	start_point_x: INTEGER
-			--
+			-- x position of the first point
 		do
 			Result := line.point_array.item (0).x
 		end
 
 	start_point_y: INTEGER
-			--
+			-- y position of the first point
 		do
 			Result := line.point_array.item (0).y
 		end
 
 	end_point_x: INTEGER
-			--
+			-- x position of the last point
 		do
 			Result := line.point_array.item (line.point_array.count - 1).x
 		end
 
 	end_point_y: INTEGER
-			--
+			-- y position of the last point
 		do
 			Result := line.point_array.item (line.point_array.count - 1).y
 		end
@@ -104,19 +115,16 @@ feature -- Access
 		end
 
 	line_width: INTEGER
-			--
 		do
 			Result := line.line_width
 		end
 
 	edges_count: INTEGER
-			--
 		do
 			Result := edge_move_handlers.count
 		end
 
 	foreground_color: EV_COLOR
-			--
 		do
 			Result := line.foreground_color
 		end
@@ -234,7 +242,7 @@ feature -- Access
 		end
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'.
+			-- Name of the node returned by `xml_element'
 		do
 			Result := "EG_POLYLINE_LINK_FIGURE"
 		end
@@ -347,7 +355,7 @@ feature -- Element change
 			create mh.make (Current)
 			mh.set_point_position (new_x, new_y)
 			mh.set_corresponding_point (new_point)
-			if edge_move_handlers.count = 0 then
+			if edge_move_handlers.is_empty then
 				edge_move_handlers.extend (mh)
 			elseif i = 1 then
 				edge_move_handlers.put_front (mh)
@@ -408,17 +416,14 @@ feature -- Element change
 			last_point: EV_COORDINATE
 		do
 			if not is_reflexive then
-				from
-					edge_move_handlers.start
-				until
-					edge_move_handlers.after
+				across
+					edge_move_handlers as it
 				loop
 					start
-					search (edge_move_handlers.item)
+					search (it.item)
 					if not exhausted then
 						remove
 					end
-					edge_move_handlers.forth
 				end
 				edge_move_handlers.wipe_out
 				last_point := line.point_array.item (line.point_array.count - 1)
@@ -437,27 +442,25 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			nx, ny: INTEGER
 		do
 			if attached source as l_source and then attached target as l_target then
-				check attached model as l_model then --FIXME: Implied by ...?
-					if not l_model.is_reflexive then
-						if edge_move_handlers.count = 0 then
-							set_end_and_start_point_to_edge
-						else
-							set_start_point_to_edge
-							set_end_point_to_edge
-						end
+				if not model.is_reflexive then
+					if edge_move_handlers.is_empty then
+						set_end_and_start_point_to_edge
 					else
-						nx := l_source.port_x
-						ny := l_source.port_y
-						if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
-							line.set_i_th_point_position (1, nx, ny)
-							line.set_i_th_point_position (line.point_count, nx, ny)
-							line.set_i_th_point_position (2, nx + 150, ny - 50)
-							line.set_i_th_point_position (3, nx + 150, ny + 50)
-							set_start_point_to_edge
-							set_end_point_to_edge
-							line.set_i_th_point_position (2, line.i_th_point_x (1) + reflexive_radius, line.i_th_point_y (1) - as_integer (reflexive_radius / 3))
-							line.set_i_th_point_position (3, line.i_th_point_x (4) + reflexive_radius, line.i_th_point_y (4) + as_integer (reflexive_radius / 3))
-						end
+						set_start_point_to_edge
+						set_end_point_to_edge
+					end
+				else
+					nx := l_source.port_x
+					ny := l_source.port_y
+					if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
+						line.set_i_th_point_position (1, nx, ny)
+						line.set_i_th_point_position (line.point_count, nx, ny)
+						line.set_i_th_point_position (2, nx + 150, ny - 50)
+						line.set_i_th_point_position (3, nx + 150, ny + 50)
+						set_start_point_to_edge
+						set_end_point_to_edge
+						line.set_i_th_point_position (2, line.i_th_point_x (1) + reflexive_radius, line.i_th_point_y (1) - as_integer (reflexive_radius / 3))
+						line.set_i_th_point_position (3, line.i_th_point_x (4) + reflexive_radius, line.i_th_point_y (4) + as_integer (reflexive_radius / 3))
 					end
 				end
 				invalidate
@@ -599,7 +602,7 @@ feature {NONE} -- Implementation
 		end
 
 	new_edge_cursor: EV_POINTER_STYLE
-			-- Cursor displayed when pointer over a line (white dot).
+			-- Cursor displayed when pointer over a line (white dot)
 		local
 			pix_map: EV_PIXMAP
 		once
@@ -631,18 +634,16 @@ feature {NONE} -- Implementation
 	on_is_directed_change
 			-- `model'.`is_directed' changed.
 		do
-			check attached model as l_model then -- FIXME: Implied by ...?
-				if l_model.is_directed then
-					line.enable_end_arrow
-				else
-					line.disable_end_arrow
-				end
+			if model.is_directed then
+				line.enable_end_arrow
+			else
+				line.disable_end_arrow
 			end
 			request_update
 		end
 
 	line: EV_MODEL_POLYLINE
-			-- The polyline visualizing the link.
+			-- The polyline visualizing the link
 --			
 --	reflexive_distance: INTEGER
 --			-- Distance from the border of the linkable figure if `is_reflexive'.
@@ -651,15 +652,7 @@ feature {EG_FIGURE_WORLD} -- Implementation
 
 	edge_move_handlers: ARRAYED_LIST [EG_EDGE]
 			-- Move handlers for the edges of the polyline.
-			-- start_point and end_point have no move_handlers.
-
-feature {NONE} -- Implementation
-
-	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
-		do
-			create Result.make_filled (n)
-		end
+			-- start_point and end_point have no move_handlers
 
 invariant
 	edge_move_handlers_exists: edge_move_handlers /= Void

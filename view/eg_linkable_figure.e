@@ -66,9 +66,7 @@ feature -- Status report
 				until
 					i > nb or else Result
 				loop
-					if l_internal_links.i_th (i).is_show_requested then
-						Result := True
-					end
+					Result := l_internal_links.i_th (i).is_show_requested
 					i := i + 1
 				end
 			end
@@ -106,23 +104,23 @@ feature -- Status report
 feature -- Access
 
 	cluster: detachable EG_CLUSTER_FIGURE
-			-- Cluster figure `Current' is part of.
+			-- Cluster figure `Current' is part of
 
-	model: detachable EG_LINKABLE
+	model: EG_LINKABLE
 			-- The model for `Current'.
 
 	port_x: INTEGER
-			-- x position where links are starting.
+			-- x position where links are starting
 		deferred
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting.
+			-- y position where links are starting
 		deferred
 		end
 
 	xml_node_name: STRING
-			-- Name of the xml node returned by `xml_element'.
+			-- Name of the xml node returned by `xml_element'
 		do
 			Result := once "EG_LINKABLE_FIGURE"
 		end
@@ -132,7 +130,7 @@ feature -- Access
 	port_y_string: STRING = "PORT_Y"
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml element representing `Current's state.
+			-- Xml element representing `Current's state
 		local
 			l_xml_routines: like xml_routines
 		do
@@ -159,21 +157,21 @@ feature -- Access
 		end
 
 	size: EV_RECTANGLE
-			-- Size of `Current'.
+			-- Size of `Current'
 		deferred
 		ensure
 			result_not_void: Result /= Void
 		end
 
 	height: INTEGER
-			-- Height in pixels.
+			-- Height in pixels
 		deferred
 		ensure
 			result_not_negative: Result >= 0
 		end
 
 	width: INTEGER
-			-- Width in pixels.
+			-- Width in pixels
 		deferred
 		ensure
 			result_not_negative: Result >= 0
@@ -181,7 +179,7 @@ feature -- Access
 
 	minimum_size: EV_RECTANGLE
 			-- `Current' has to be of `Result' size
-			-- to include all visible elements starting from `number_of_figures' + 1.
+			-- to include all visible elements starting from `number_of_figures' + 1
 		do
 			create Result
 			update_rectangle_to_minimum_size (Result)
@@ -205,22 +203,15 @@ feature -- Access
 feature -- Status settings
 
 	request_update
-			--
-		local
-			l_internal_links: like internal_links
 		do
 			Precursor {EG_FIGURE}
 			if attached cluster as l_cluster then
 				l_cluster.request_update
 			end
-			from
-				l_internal_links := internal_links
-				l_internal_links.start
-			until
-				l_internal_links.after
+			across
+				internal_links as it
 			loop
-				l_internal_links.item.request_update
-				l_internal_links.forth
+				it.item.request_update
 			end
 		end
 
@@ -340,7 +331,7 @@ feature -- Visitor
 feature {NONE} -- Implementation
 
 	on_handle_start
-			-- User started to move `Current'.
+			-- User started to move `Current'
 		do
 			was_fixed := is_fixed
 			set_is_fixed (True)

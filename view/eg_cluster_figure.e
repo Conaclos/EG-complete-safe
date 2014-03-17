@@ -27,29 +27,26 @@ feature {NONE} -- Initialization
 			-- Initialize `Current' (synchronize with model).
 		do
 			Precursor {EG_LINKABLE_FIGURE}
-			if attached model as l_model then
-					-- Implied by precondition so this always holds.
-				l_model.linkable_add_actions.extend (agent on_linkable_add)
-				l_model.linkable_remove_actions.extend (agent on_linkable_remove)
-			end
+			model.linkable_add_actions.extend (agent on_linkable_add)
+			model.linkable_remove_actions.extend (agent on_linkable_remove)
 		end
 
 feature -- Access
 
-	model: detachable EG_CLUSTER
-			-- The model for `Current'.
+	model: EG_CLUSTER
+			-- The model for `Current'
 
 	layouter: detachable EG_LAYOUT
 			-- Layouter used for this `Cluster' if not Void
 
 	xml_node_name: STRING
-			-- Name of the xml node returned by `xml_element'.
+			-- Name of the xml node returned by `xml_element'
 		do
 			Result := once "EG_CLUSTER_FIGURE"
 		end
 
 	subclusters: ARRAYED_LIST [EG_CLUSTER_FIGURE]
-			-- Clusters with parent `Current'.
+			-- Clusters with parent `Current'
 		do
 			from
 				create {ARRAYED_LIST [EG_CLUSTER_FIGURE]} Result.make (1)
@@ -67,7 +64,7 @@ feature -- Access
 		end
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml element representing `Current's state.
+			-- Xml element representing `Current's state
 		local
 			fig, elements: like xml_element
 		do
@@ -89,25 +86,19 @@ feature -- Access
 
 	set_with_xml_element (node: like xml_element)
 			-- Retrive state from `node'.
-		local
-			l_cursor: XML_COMPOSITE_CURSOR
 		do
 			Precursor {EG_LINKABLE_FIGURE} (node)
 			if
 				attached {XML_ELEMENT} node.item_for_iteration as elements
 				and then attached world as l_world
 				and then attached l_world.model as l_world_model
-				and then attached model as l_model
 			then
 				node.forth
-				l_cursor := elements.new_cursor
-				from
-					l_cursor.start
-				until
-					l_cursor.after
+				across
+					elements as it
 				loop
 					if
-						attached {like xml_element} l_cursor.item as l_item
+						attached {like xml_element} it.item as l_item
 						and then attached {EG_LINKABLE} l_world.factory.model_from_xml (l_item) as eg_model
 					then
 						if not l_world_model.has_linkable (eg_model) then
@@ -119,15 +110,14 @@ feature -- Access
 								check node_or_cluster: False end
 							end
 						end
-						if not l_model.has (eg_model) then
-							l_model.extend (eg_model)
+						if not model.has (eg_model) then
+							model.extend (eg_model)
 						end
 						if attached l_world.figure_from_model (eg_model) as l_fig then
 							l_item.start
 							l_fig.set_with_xml_element (l_item)
 						end
 					end
-					l_cursor.forth
 				end
 			end
 		end
@@ -138,10 +128,8 @@ feature -- Element change
 			-- Free `Current's resources.
 		do
 			Precursor {EG_LINKABLE_FIGURE}
-			if attached model as l_model then
-				l_model.linkable_add_actions.prune_all (agent on_linkable_add)
-				l_model.linkable_remove_actions.prune_all (agent on_linkable_remove)
-			end
+			model.linkable_add_actions.prune_all (agent on_linkable_add)
+			model.linkable_remove_actions.prune_all (agent on_linkable_remove)
 		end
 
 	set_layouter (a_layouter: like layouter)
@@ -182,16 +170,16 @@ feature {NONE} -- Implementation
 
 	on_linkable_add (a_linkable: EG_LINKABLE)
 			-- `a_linkable' was added to the cluster.
-		local
-			l_world: like world
 		do
-			l_world := world
-			if l_world /= Void then
-				if attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig then
-					check linkable_fig_is_in_view_but_not_in_cluster: not has (l_linkable_fig) end
-					extend (l_linkable_fig)
-					l_linkable_fig.set_cluster (Current)
+			if
+				attached world as l_world and then
+				attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig
+			then
+				check
+					linkable_fig_is_in_view_but_not_in_cluster: not has (l_linkable_fig)
 				end
+				extend (l_linkable_fig)
+				l_linkable_fig.set_cluster (Current)
 			end
 			request_update
 		end
@@ -199,11 +187,12 @@ feature {NONE} -- Implementation
 	on_linkable_remove (a_linkable: EG_LINKABLE)
 			-- `a_linkable' was removed from the cluster.
 		do
-			if attached world as l_world then
-				if attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig then
-					l_linkable_fig.set_cluster (Void)
-					prune_all (l_linkable_fig)
-				end
+			if
+				attached world as l_world and then
+				attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig
+			then
+				l_linkable_fig.set_cluster (Void)
+				prune_all (l_linkable_fig)
 			end
 			request_update
 		end

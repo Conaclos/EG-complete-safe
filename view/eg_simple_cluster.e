@@ -13,15 +13,11 @@ inherit
 		redefine
 			default_create,
 			update,
-			xml_node_name,
-			make_filled
+			xml_node_name
 		end
 
 create
 	make_with_model
-
-create {EG_SIMPLE_CLUSTER}
-	make_filled
 
 feature {NONE} -- Initialization
 
@@ -29,7 +25,6 @@ feature {NONE} -- Initialization
 			-- Create an empty cluster.
 		do
 			Precursor {EG_CLUSTER_FIGURE}
-			create rectangle
 			rectangle.enable_dashed_line_style
 			extend (rectangle)
 		end
@@ -40,9 +35,9 @@ feature {NONE} -- Initialization
 			a_model_not_void: a_model /= Void
 		do
 			create rectangle -- Satisfy invariant
+			model := a_model
 
 			default_create
-			model := a_model
 			initialize
 
 			disable_rotating
@@ -51,48 +46,40 @@ feature {NONE} -- Initialization
 			update
 		end
 
-	make_filled (n: INTEGER_32)
-			-- <Precursor>
-		do
-			create rectangle
-
-			Precursor {EG_CLUSTER_FIGURE} (n)
-		end
-
 feature -- Access
 
 	port_x: INTEGER
-			-- x position where links are starting.
+			-- x position where links are starting
 		do
 			Result := rectangle.x
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting.
+			-- y position where links are starting
 		do
 			Result := rectangle.y
 		end
 
 	size: EV_RECTANGLE
-			-- Size of `Current'.
+			-- Size of `Current'
 		do
 			Result := rectangle.bounding_box
 		end
 
 	height: INTEGER
-			-- Height in pixels.
+			-- Height in pixels
 		do
 			Result := rectangle.height
 		end
 
 	width: INTEGER
-			-- Width in pixels.
+			-- Width in pixels
 		do
 			Result := rectangle.width
 		end
 
 	xml_node_name: STRING
-			-- Name of `xml_element'.
+			-- Name of `xml_element'
 		do
 			Result := "EG_SIMPLE_CLUSTER"
 		end
@@ -192,25 +179,17 @@ feature {NONE} -- Implementation
 		end
 
 	rectangle: EV_MODEL_RECTANGLE
-			-- The rectangle visualising the border of `Current'.
+			-- The rectangle visualising the border of `Current'
 
 	number_of_figures: INTEGER = 2
-			-- number of figures used to visialize `Current'.
+			-- number of figures used to visialize `Current'
 			-- (`name_label' and `rectangle')
-
-feature {NONE} -- Implementation
-
-	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
-		do
-			create Result.make_filled (n)
-		end
 
 invariant
 	rectangle_not_void: rectangle /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
