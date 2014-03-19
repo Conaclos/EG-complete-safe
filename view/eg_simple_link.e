@@ -161,6 +161,14 @@ feature {NONE} -- Implementation
 			line.center_invalidate
 		end
 
+feature {NONE} -- Obsolete
+
+	new_filled_list (n: INTEGER): like Current
+			-- New list with `n' elements
+		do
+			check not_implemented: False then end
+		end
+
 invariant
 	line_not_void: line /= Void
 

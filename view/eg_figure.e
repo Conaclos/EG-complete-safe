@@ -10,9 +10,12 @@ deferred class
 
 inherit
 	EV_MODEL_MOVE_HANDLE
+		export {NONE}
+			new_filled_list
+		undefine
+			new_filled_list
 		redefine
 			world,
-			new_filled_list,
 			default_create
 		end
 
@@ -243,14 +246,6 @@ feature {NONE} -- Implementation
 			a_text_equal_model_text: attached model as l_model and then l_model.name = a_text
 		do
 			name_label.set_text (a_text)
-		end
-
-feature {NONE} -- Obsolete
-
-	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements
-		do
-			check not_implemented: False then end
 		end
 
 invariant

@@ -185,6 +185,14 @@ feature {NONE} -- Implementation
 			-- number of figures used to visialize `Current'
 			-- (`name_label' and `rectangle')
 
+feature {NONE} -- Obsolete
+
+	new_filled_list (n: INTEGER): like Current
+			-- New list with `n' elements
+		do
+			check not_implemented: False then end
+		end
+
 invariant
 	rectangle_not_void: rectangle /= Void
 

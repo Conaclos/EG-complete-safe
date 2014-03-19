@@ -654,6 +654,14 @@ feature {EG_FIGURE_WORLD} -- Implementation
 			-- Move handlers for the edges of the polyline.
 			-- start_point and end_point have no move_handlers
 
+feature {NONE} -- Obsolete
+
+	new_filled_list (n: INTEGER): like Current
+			-- New list with `n' elements
+		do
+			check not_implemented: False then end
+		end
+
 invariant
 	edge_move_handlers_exists: edge_move_handlers /= Void
 	line_not_void: line /= Void

@@ -185,6 +185,14 @@ feature {NONE} -- Implementation
 			-- Number of figures used to visualize `Current'
 			-- (`name_label' and `node_figure')
 
+feature {NONE} -- Obsolete
+
+	new_filled_list (n: INTEGER): like Current
+			-- New list with `n' elements
+		do
+			check not_implemented: False then end
+		end
+
 invariant
 	node_figure_not_void: node_figure /= Void
 
