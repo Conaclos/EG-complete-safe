@@ -36,10 +36,11 @@ create
 feature {NONE} -- Implementation
 
 	px, py: INTEGER
-			-- Position of a particle.
+			-- Position of a particle
 
 	external_force (a_node: like particle_type): EG_VECTOR2D [DOUBLE]
 			-- External force for `a_node'. (attraction to center of universe).
+			-- Warning: side-effect query.
 		local
 			l_distance: DOUBLE
 			l_force: DOUBLE
@@ -54,6 +55,9 @@ feature {NONE} -- Implementation
 			else
 				create Result.make (0.0, 0.0)
 			end
+		ensure then
+			px_set: px = a_node.port_x
+			py_set: py = a_node.port_y
 		end
 
 	nearest_neighbor_force (a_node: like particle_type): EG_VECTOR2D [DOUBLE]
@@ -93,20 +97,20 @@ feature {NONE} -- Implementation
 		end
 
 	n_body_force (a_node, an_other: EG_PARTICLE): EG_VECTOR2D [DOUBLE]
-			-- Get the electrical repulsion between all nodes, including those that are not adjacent.
+			-- Get the electrical repulsion between all nodes, including those that are not adjacent
 		local
 			l_distance, l_force: DOUBLE
 			opx, opy: DOUBLE
 		do
-			if a_node /= an_other then
+			if a_node = an_other then
+				create Result.make (0.0, 0.0)
+			else
 				opx := an_other.x
 				opy := an_other.y
 				l_distance := distance (px, py, opx, opy).max (0.001)
 
 				l_force := electrical_repulsion / (l_distance ^ 3)
 				create Result.make (l_force * (px - opx) * an_other.mass, l_force * (py - opy) * an_other.mass)
-			else
-				create Result.make (0.0, 0.0)
 			end
 		end
 
@@ -114,13 +118,8 @@ feature {NONE} -- Implementation
 
 	particle_type: EG_LINKABLE_FIGURE
 			-- Type of particle
-		local
-			l_result: detachable like particle_type
 		do
-			check anchor_type_only: False end
-			check l_result /= Void then -- Satisfy void-safe compiler
-				Result := l_result
-			end
+			check anchor_type_only: False then end
 		end
 
 note

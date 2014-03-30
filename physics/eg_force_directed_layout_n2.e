@@ -53,14 +53,16 @@ feature -- Access
 			-- Algorithm variables
 
 	center_x: INTEGER
+			-- Abscissa position of the center
+
 	center_y: INTEGER
-			-- Position of the center.
+			-- Ordinate position of the center
 
 	stop_actions: EV_NOTIFY_ACTION_SEQUENCE
 
 	move_threshold: DOUBLE
 			-- Stop layouting and call `stop_actions' if no node moved
-			-- for more then `move_threshold'.
+			-- for more then `move_threshold'
 
 feature -- Access
 
@@ -73,7 +75,7 @@ feature -- Access
 feature -- Element change
 
 	set_fence (a_fence: like fence)
-			-- Set 'fence'.
+			-- Set `fence' to `a_fence'.
 		do
 			fence := a_fence
 		ensure
@@ -92,7 +94,7 @@ feature -- Element change
 feature -- Basic operations
 
 	preset (a_level: INTEGER)
-			-- Rest the setting accoridingly to 'a_level', which is one of:
+			-- Rest the setting accoridingly to `a_level', which is one of:
 			-- 1: tight, 2: normal, 3: loose
 		do
 			if a_level = 1 then
@@ -114,9 +116,9 @@ feature -- Basic operations
 		end
 
 	set_center_attraction (a_value: INTEGER)
-			-- Set 'center_attraction' value in percentage of maximum.
+			-- Set `center_attraction' value in percentage of maximum.
 		require
-			valid_value: a_value >= 0 and then a_value <= 100
+			valid_value: 0 <= a_value and a_value <= 100
 		do
 			center_attraction := a_value
 		ensure
@@ -124,9 +126,9 @@ feature -- Basic operations
 		end
 
 	set_stiffness (a_value: INTEGER)
-			-- Set 'stiffness' value in percentage of maximum.
+			-- Set `stiffness' value in percentage of maximum.
 		require
-			valid_value: a_value >= 0 and then a_value <= 100
+			valid_value: 0 <= a_value and a_value <= 100
 		do
 			stiffness := a_value
 		ensure
@@ -134,20 +136,22 @@ feature -- Basic operations
 		end
 
 	set_electrical_repulsion (a_value: INTEGER)
-			-- Set 'electrical_repulsion' value in percentage of maximum.
+			-- Set `electrical_repulsion' value in percentage of maximum.
 		require
-			valid_value: a_value >= 0 and then a_value <= 100
+			valid_value: 0 <= a_value and a_value <= 100
 		do
 			electrical_repulsion := a_value
 		ensure
 			set: electrical_repulsion = a_value
 		end
 
-	set_center (ax, ay: INTEGER)
-			-- Set `center_x' to `ax' and `center_y' to `ay'.
+	set_center (a_x, a_y: INTEGER)
+			-- Set `center_x' to `a_x' and `center_y' to `a_y'.
 		do
-			center_x := ax
-			center_y := ay
+			center_x := a_x
+			center_y := a_y
+		ensure
+			set: center_x = a_x and center_y = a_y
 		end
 
 	reset
@@ -159,7 +163,7 @@ feature -- Basic operations
 		end
 
 	stop
-			-- Set `is_stopped' to True, call `stop_actions'.
+			-- Set `is_stopped' to True; call `stop_actions'.
 		do
 			is_stopped := True
 			stop_actions.call (Void)
@@ -269,30 +273,29 @@ feature {NONE} -- Implementation
 						end
 
 						from
-							j := 1--i + 1
+							j := 1 --i + 1
 						until
 							j > nb
 						loop
 							l_other := linkables.i_th (j)
-							if l_other.is_show_requested then
-								if l_item /= l_other then
-									opx := l_other.port_x
-									opy := l_other.port_y
+							if
+								l_other.is_show_requested and
+								l_other /= l_item
+							then
+								opx := l_other.port_x
+								opy := l_other.port_y
 
-									l_distance := distance (px, py, opx, opy).max (tolerance)
+								l_distance := distance (px, py, opx, opy).max (tolerance)
 
-									l_force := internal_electrical_repulsion / (l_distance^3)
-									l_item.set_delta (l_item.dx + l_force  * (px - opx), l_item.dy + l_force *  (py - opy))
-								end
+								l_force := internal_electrical_repulsion / (l_distance^3)
+								l_item.set_delta (l_item.dx + l_force  * (px - opx), l_item.dy + l_force *  (py - opy))
 							end
 							j := j + 1
 						end
 
 						recursive_energy (l_item, linkables)
 						move := (l_item.dt * l_item.dx).abs + (l_item.dt * l_item.dy).abs
-						if move > max_move then
-							max_move := move
-						end
+						max_move := move.max (max_move)
 						l_item.set_x_y ((l_item.x + l_item.dx * l_item.dt).truncated_to_integer, (l_item.y + l_item.dy * l_item.dt).truncated_to_integer)
 						l_item.set_delta (0, 0)
 					end
@@ -312,10 +315,7 @@ feature {NONE} -- Implementation
 				npy := a_node.port_y
 				opx := a_other.port_x
 				opy := a_other.port_y
-				l_distance := distance (npx, npy, opx, opy)
-				if l_distance < tolerance then
-					l_distance := tolerance
-				end
+				l_distance := tolerance.max (distance (npx, npy, opx, opy))
 				l_force := internal_electrical_repulsion / l_distance / l_distance / l_distance
 				a_node.set_delta (a_node.dx + l_force  * (npx - opx), a_node.dy + l_force *  (npy - opy))
 			end
@@ -327,7 +327,7 @@ feature {NONE} -- Implementation
 			l_distance: DOUBLE
 			l_other: detachable EG_LINKABLE_FIGURE
 			l_weight: DOUBLE
-			npx, npy, opx, opy: DOUBLE--INTEGER
+			npx, npy, opx, opy: DOUBLE
 		do
 			if a_node = a_edge.source then
 				l_other := a_edge.target
@@ -382,7 +382,7 @@ feature {NONE} -- Implementation
 				i > nb
 			loop
 				a_other := linkables.i_th (i)
-				if a_node /= a_other and then a_other.is_show_requested then--and then a_other.has_visible_link then
+				if a_node /= a_other and then a_other.is_show_requested then --and then a_other.has_visible_link then
 					ox := a_other.port_x
 					oy := a_other.port_y
 					l_energy :=  l_energy + internal_electrical_repulsion / distance (npx, npy, ox, oy).max (0.0001)
@@ -404,7 +404,7 @@ feature {NONE} -- Implementation
 					else
 						a_other := a_edge.source
 					end
-					if a_other /=Void and then a_other.is_show_requested then-- and then a_other.has_visible_link then
+					if a_other /=Void and then a_other.is_show_requested then -- and then a_other.has_visible_link then
 						ox := a_other.port_x
 						oy := a_other.port_y
 						l_weight := internal_stiffness * get_link_weight (a_edge)
@@ -458,7 +458,7 @@ feature {NONE} -- Implementation
 				i > nb
 			loop
 				a_other := linkables.i_th (i)
-				if a_node /= a_other and then a_other.is_show_requested then--and then a_other.has_visible_link then
+				if a_node /= a_other and then a_other.is_show_requested then --and then a_other.has_visible_link then
 					Result :=  Result + internal_electrical_repulsion / distance (npx, npy, a_other.port_x, a_other.port_y).max (0.0001)
 				end
 				i := i + 1

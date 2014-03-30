@@ -44,7 +44,7 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	flat_nodes: like nodes
-			-- All nodes in the graph.
+			-- All nodes in the graph
 		do
 			Result := nodes.twin
 		ensure
@@ -52,7 +52,7 @@ feature -- Access
 		end
 
 	flat_clusters: like clusters
-			-- All clusters in the graph.
+			-- All clusters in the graph
 		do
 			Result := clusters.twin
 		ensure
@@ -60,7 +60,7 @@ feature -- Access
 		end
 
 	flat_links: like links
-			-- All links in the graph.
+			-- All links in the graph
 		do
 			Result := links.twin
 		ensure
@@ -280,12 +280,6 @@ feature {EG_FIGURE_WORLD} -- Implementation
 	links: ARRAYED_LIST [EG_LINK]
 			-- All links in the graph.
 
-	node_type: EG_NODE
-			-- Type of nodes in `nodes'.
-		do
-			check do_not_call: False then end
-		end
-
 feature {EG_ITEM} -- Implementation
 
 	remove_all (a_cluster: EG_CLUSTER)
@@ -321,14 +315,19 @@ feature {EG_ITEM} -- Implementation
 		require
 			links_not_void: a_links /= Void
 		do
-			from
-				a_links.start
-			until
-				a_links.after
+			across
+				a_links as it
 			loop
-				remove_link (a_links.item)
-				a_links.forth
+				remove_link (it.item)
 			end
+		end
+
+feature {NONE} -- Implementation
+
+	node_type: EG_NODE
+			-- Type of nodes in `nodes'
+		do
+			check do_not_call: False then end
 		end
 
 invariant
@@ -340,7 +339,7 @@ invariant
 	link_add_actions_not_void: link_add_actions /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

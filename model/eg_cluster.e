@@ -50,44 +50,38 @@ feature -- Access
 		end
 
 	flat_linkables: like linkables
-			-- Return all linkables containing in `Current'
-			-- including all linkables containing in sub clusters.
+			-- All linkables containing in `Current'
+			-- including all linkables containing in sub clusters
 		do
 			Result := linkables.twin
-			from
-				linkables.start
-			until
-				linkables.after
+			across
+				linkables as it
 			loop
-				if attached {like Current} linkables.item as l_cluster then
+				if attached {like Current} it.item as l_cluster then
 					Result.append (l_cluster.flat_linkables)
 				end
-				linkables.forth
 			end
 		ensure
 			result_not_void: Result /= Void
 		end
 
 	sub_clusters: ARRAYED_LIST [like Current]
-			-- Sub clusters (top level) of Current.
+			-- Sub clusters (top level) of Current
 		do
 			create Result.make (10)
-			from
-				linkables.start
-			until
-				linkables.after
+			across
+				linkables as it
 			loop
-				if attached {like Current} linkables.item as l_cluster then
+				if attached {like Current} it.item as l_cluster then
 					Result.extend (l_cluster)
 				end
-				linkables.forth
 			end
 		ensure
 			result_not_void: Result /= Void
 		end
 
 	sub_nodes: ARRAYED_LIST [like node_type]
-			-- Nodes (top level) of Current.
+			-- Nodes (top level) of Current
 		do
 			create Result.make (10)
 			add_subnodes_to_list (Result, False)
@@ -96,7 +90,7 @@ feature -- Access
 		end
 
 	add_subnodes_to_list (a_subnodes_list: ARRAYED_LIST [like node_type]; a_recursive: BOOLEAN)
-			-- Add subnodes of `Current' to `a_subnodes_list'
+			-- Add subnodes of `Current' to `a_subnodes_list'.
 		local
 			l_linkables: SPECIAL [EG_LINKABLE]
 			i, nb: INTEGER
@@ -127,10 +121,10 @@ feature -- Access
 		end
 
 	linkable_add_actions: EG_LINKABLE_ACTION
-			-- a linkable was added to `Current'.
+			-- a linkable was added to `Current'
 
 	linkable_remove_actions: EG_LINKABLE_ACTION
-			-- a linkable was removed from `Current'.
+			-- a linkable was removed from `Current'
 
 feature -- Status report
 
@@ -197,7 +191,7 @@ feature {NONE} -- Node type
 		end
 
 ;note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

@@ -62,32 +62,32 @@ feature -- Status report
 feature -- Access
 
 	center_attraction: INTEGER
-			-- Attraction of the center in percent.
+			-- Attraction of the center in percent
 
 	center_x: INTEGER
-			-- X position of the center.
+			-- X position of the center
 
 	center_y: INTEGER
-			-- Y position of the center.
+			-- Y position of the center
 
 	stiffness: INTEGER
-			-- Stiffness of the links in percent.
+			-- Stiffness of the links in percent
 
 	electrical_repulsion: INTEGER
-			-- Electrical repulsion between nodes in percent.
+			-- Electrical repulsion between nodes in percent
 
 	stop_actions: EV_NOTIFY_ACTION_SEQUENCE
-			-- Called when the layouting stops.
+			-- Called when the layouting stops
 
 	move_threshold: DOUBLE
 			-- Call `stop_actions' if no node moved
-			-- for more then `move_threshold'.
+			-- for more then `move_threshold'
 
 	theta: INTEGER
-			-- Error variable for Barnes and Hut.
+			-- Error variable for Barnes and Hut
 
 	last_theta_average: DOUBLE
-			-- Average theta value after last call to `layout'.
+			-- Average theta value after last call to `layout'
 
 feature -- Element change
 
@@ -220,10 +220,10 @@ feature -- Basic operations
 feature {NONE} -- Implementation
 
 	max_move: INTEGER
-			-- Maximal move in x and y direction of a node.
+			-- Maximal move in x and y direction of a node
 
 	theta_count: INTEGER
-			-- Theta count.
+			-- Theta count
 
 	iterations: INTEGER
 			-- Number of iterations
@@ -242,17 +242,14 @@ feature {NONE} -- Implementation
 		do
 			if not is_stopped then
 				-- Filter out not visible nodes
-				from
-					create l_linkables.make (linkables.count)
-					linkables.start
-				until
-					linkables.after
+				create l_linkables.make (linkables.count)
+				across
+					linkables as it
 				loop
-					l_item := linkables.item
+					l_item := it.item
 					if l_item.is_show_requested then
 						l_linkables.extend (l_item)
 					end
-					linkables.forth
 				end
 
 				if not l_linkables.is_empty then
@@ -312,7 +309,7 @@ feature {NONE} -- Implementation
 			last_theta_average := last_theta_average + solver.last_theta_average
 			theta_count := theta_count + 1
 
-			l_dt := (l_dt * 2)
+			l_dt := l_dt * 2
 			a_node.set_dt (l_dt)
 			l_energy := solver.force (a_node)
 			last_theta_average := last_theta_average + solver.last_theta_average
@@ -333,7 +330,7 @@ feature {NONE} -- Implementation
 		end
 
 	new_spring_particle_solver (particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_PARTICLE
-			-- Create a new spring particle solver for `particles' and initialize it.
+			-- Create a new spring particle solver for `particles' and initialize it
 		require
 			particles_exist: particles /= Void
 			particles_not_empty: not particles.is_empty
@@ -356,7 +353,7 @@ feature {NONE} -- Implementation
 		end
 
 	new_spring_energy_solver (particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_ENERGY
-			-- Create a new spring energy solver for `particles' and initialize it.
+			-- Create a new spring energy solver for `particles' and initialize it
 		require
 			particles_exist: particles /= Void
 			particles_not_empty: not particles.is_empty
@@ -379,7 +376,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

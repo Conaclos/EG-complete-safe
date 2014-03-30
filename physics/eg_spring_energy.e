@@ -38,10 +38,11 @@ create
 feature {NONE} -- Implementation
 
 	npx, npy: DOUBLE
-			-- Position of a particle with dt.
+			-- Position of a particle with dt
 
 	external_force (a_node: like particle_type): DOUBLE
-			-- External force for `a_node'. (attraction to center of universe).
+			-- External force for `a_node'. (attraction to center of universe)
+			-- Warning: side-effect query.
 		local
 			l_dt: DOUBLE
 		do
@@ -49,10 +50,13 @@ feature {NONE} -- Implementation
 			npx := a_node.port_x + l_dt * a_node.dx
 			npy := a_node.port_y + l_dt * a_node.dy
 			Result := center_attraction * distance (npx, npy, center_x, center_y)
+		ensure then
+			npx_set: npx = a_node.port_x + a_node.dt * a_node.dx
+			npy_set: npy = a_node.port_y + a_node.dt * a_node.dy
 		end
 
 	nearest_neighbor_force (a_node: like particle_type): DOUBLE
-			-- Get the spring force between all of `a_node's adjacent nodes.
+			-- Get the spring force between all of `a_node's adjacent nodes
 		local
 			i, nb: INTEGER
 			links: ARRAYED_LIST [EG_LINK_FIGURE]
@@ -84,7 +88,7 @@ feature {NONE} -- Implementation
 		end
 
 	n_body_force (a_node, an_other: EG_PARTICLE): DOUBLE
-			-- Get the electrical repulsion between all nodes, including those that are not adjacent.
+			-- Get the electrical repulsion between all nodes, including those that are not adjacent
 		do
 			if a_node /= an_other then
 				Result := electrical_repulsion * an_other.mass / distance (npx, npy, an_other.x, an_other.y).max (0.0001)

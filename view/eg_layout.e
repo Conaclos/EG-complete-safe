@@ -24,7 +24,7 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	world: EG_FIGURE_WORLD
-			-- The graph to layout.
+			-- The graph to layout
 
 feature -- Element change
 
@@ -40,24 +40,18 @@ feature -- Element change
 
 	layout
 			-- Arrange the elements in `graph'.
-		local
-			root: ARRAYED_LIST [EG_LINKABLE_FIGURE]
 		do
 			world.update
-			from
-				root := world.root_cluster
-				root.start
-			until
-				root.after
+			across
+				world.root_cluster as it
 			loop
-				if attached {EG_CLUSTER_FIGURE} root.item as cluster_figure then
+				if attached {EG_CLUSTER_FIGURE} it.item as cluster_figure then
 					if attached cluster_figure.layouter as l_layouter then
 						l_layouter.layout_cluster (cluster_figure, 2)
 					else
 						layout_cluster (cluster_figure, 2)
 					end
 				end
-				root.forth
 			end
 			layout_linkables (world.root_cluster, 1, void)
 		end
@@ -70,13 +64,11 @@ feature -- Element change
 		local
 			figures_in_cluster: ARRAYED_LIST [EG_LINKABLE_FIGURE]
 		do
-			from
-				create figures_in_cluster.make (cluster.count)
-				cluster.start
-			until
-				cluster.after
+			create figures_in_cluster.make (cluster.count)
+			across
+				cluster as it
 			loop
-				if attached {EG_LINKABLE_FIGURE} cluster.item as linkable_figure then
+				if attached {EG_LINKABLE_FIGURE} it.item as linkable_figure then
 					figures_in_cluster.extend (linkable_figure)
 					if attached {EG_CLUSTER_FIGURE} linkable_figure as cluster_figure then
 						if attached cluster_figure.layouter as l_layouter then
@@ -86,7 +78,6 @@ feature -- Element change
 						end
 					end
 				end
-				cluster.forth
 			end
 			layout_linkables (figures_in_cluster, level, cluster)
 		end
@@ -98,16 +89,13 @@ feature -- Element change
 		local
 			figures_in_cluster: ARRAYED_LIST [EG_LINKABLE_FIGURE]
 		do
-			from
-				create figures_in_cluster.make (cluster.count)
-				cluster.start
-			until
-				cluster.after
+			create figures_in_cluster.make (cluster.count)
+			across
+				cluster as it
 			loop
-				if attached {EG_LINKABLE_FIGURE} cluster.item as linkable_figure then
+				if attached {EG_LINKABLE_FIGURE} it.item as linkable_figure then
 					figures_in_cluster.extend (linkable_figure)
 				end
-				cluster.forth
 			end
 			layout_linkables (figures_in_cluster, 1, cluster)
 		end
@@ -127,7 +115,7 @@ invariant
 	world_not_void: world /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
