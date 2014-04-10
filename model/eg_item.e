@@ -31,7 +31,7 @@ feature -- Access
 			-- The graph model `Current' is part of (if not Void).
 
 	id: INTEGER
-			-- Unique id
+			-- Unique id.
 		do
 			if internal_hash_id = 0  then
 				counter.put (counter.item + 1)
