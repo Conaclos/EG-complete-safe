@@ -80,11 +80,7 @@ feature {NONE} -- Implementation
 				l_item := l_links.i_th (i)
 
 				if l_item.is_show_requested then
-					if a_node = l_item.source then
-						l_other := l_item.target
-					else
-						l_other := l_item.source
-					end
+					l_other := l_item.neighbor_of (a_node)
 					if l_other.is_show_requested then
 						l_weight := stiffness * link_stiffness (l_item)
 						create Result.make (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))

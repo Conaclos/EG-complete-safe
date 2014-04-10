@@ -73,11 +73,7 @@ feature {NONE} -- Implementation
 			loop
 				l_edge := links.i_th (i)
 				if l_edge.is_show_requested then
-					if a_node = l_edge.source then
-						l_other := l_edge.target
-					else
-						l_other := l_edge.source
-					end
+					l_other := l_edge.neighbor_of (a_node)
 					if l_other.is_show_requested then
 						l_distance := distance (npx, npy, l_other.port_x, l_other.port_y)
 						Result := Result + stiffness * link_stiffness (l_edge) * (l_distance^2) / 2

@@ -49,6 +49,20 @@ feature -- Access
 	model: EG_LINK
 			-- The model for `Current'.
 
+	neighbor_of (a_item: like source): like source
+			-- Neighbor of `a_item'.
+		require
+			a_item_not_void: a_item /= Void
+		do
+			if a_item = source then
+				Result := target
+			else
+				Result := source
+			end
+		ensure
+			result_definition: Result = (if a_item = source then target else source end)
+		end
+
 	xml_element (node: like xml_element): XML_ELEMENT
 			-- Xml node representing `Current's state.
 		local

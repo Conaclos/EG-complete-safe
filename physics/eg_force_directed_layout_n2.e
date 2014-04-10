@@ -245,11 +245,7 @@ feature {NONE} -- Implementation
 						loop
 							l_edge := it_2.item
 							if l_edge.is_show_requested then
-								if l_item = l_edge.source then
-									l_other := l_edge.target
-								else
-									l_other := l_edge.source
-								end
+								l_other := l_edge.neighbor_of (l_item)
 								if l_other.is_show_requested then
 									opx := l_other.port_x
 									opy := l_other.port_y
@@ -315,11 +311,7 @@ feature {NONE} -- Implementation
 			l_weight: DOUBLE
 			npx, npy, opx, opy: DOUBLE
 		do
-			if a_node = a_edge.source then
-				l_other := a_edge.target
-			else
-				l_other := a_edge.source
-			end
+			l_other := a_edge.neighbor_of (a_node)
 			if l_other.is_show_requested then
 				npx := a_node.port_x
 				npy := a_node.port_y
@@ -360,12 +352,10 @@ feature {NONE} -- Implementation
 			across
 				a_linkables as it
 			loop
-				if
-					attached it.item as l_item and then
-					l_item.is_show_requested
-				then --and then l_item.has_visible_link then
-					ox := l_item.port_x
-					oy := l_item.port_y
+				l_other := it.item
+				if a_node /= l_other and l_other.is_show_requested then --and then l_item.has_visible_link then
+					ox := l_other.port_x
+					oy := l_other.port_y
 					l_energy :=  l_energy + internal_electrical_repulsion / distance (npx, npy, ox, oy).max (0.0001)
 					l_initial_energy :=  l_initial_energy + internal_electrical_repulsion / distance (px, py, ox, oy).max (0.0001)
 				end
@@ -376,11 +366,7 @@ feature {NONE} -- Implementation
 			loop
 				l_edge := it.item
 				if l_edge.is_show_requested then
-					if a_node = l_edge.source then
-						l_other := l_edge.target
-					else
-						l_other := l_edge.source
-					end
+					l_other := l_edge.neighbor_of (a_node)
 					if l_other.is_show_requested then -- and then l_other.has_visible_link then
 						ox := l_other.port_x
 						oy := l_other.port_y
@@ -440,11 +426,7 @@ feature {NONE} -- Implementation
 			loop
 				l_edge := it.item
 				if l_edge.is_show_requested then
-					if a_node = l_edge.source then
-						l_other := l_edge.target
-					else
-						l_other := l_edge.source
-					end
+					l_other := l_edge.neighbor_of (a_node)
 					if l_other.is_show_requested then-- and then a_other.has_visible_link then
 						l_distance := distance (npx, npy, l_other.port_x, l_other.port_y)
 						Result := Result + internal_stiffness * link_weight (l_edge) * l_distance * l_distance / 2
