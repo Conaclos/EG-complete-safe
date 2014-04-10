@@ -253,15 +253,13 @@ feature {NONE} -- Implementation
 								else
 									l_other := a_edge.source
 								end
-								check l_other /= Void then -- FIXME: Implied by...?
-									if l_other.is_show_requested then
-										opx := l_other.port_x
-										opy := l_other.port_y
-										l_distance := distance (px, py, opx, opy)
-										if l_distance > tolerance then
-											l_weight := internal_stiffness * get_link_weight (a_edge)
-											l_item.set_delta (l_item.dx - l_weight * (px - opx), l_item.dy - l_weight * (py - opy))
-										end
+								if l_other /= Void and then l_other.is_show_requested then
+									opx := l_other.port_x
+									opy := l_other.port_y
+									l_distance := distance (px, py, opx, opy)
+									if l_distance > tolerance then
+										l_weight := internal_stiffness * get_link_weight (a_edge)
+										l_item.set_delta (l_item.dx - l_weight * (px - opx), l_item.dy - l_weight * (py - opy))
 									end
 								end
 							end
@@ -327,24 +325,22 @@ feature {NONE} -- Implementation
 			l_distance: DOUBLE
 			l_other: detachable EG_LINKABLE_FIGURE
 			l_weight: DOUBLE
-			npx, npy, opx, opy: DOUBLE--INTEGER
+			npx, npy, opx, opy: DOUBLE
 		do
 			if a_node = a_edge.source then
 				l_other := a_edge.target
 			else
 				l_other := a_edge.source
 			end
-			check l_other /= Void then -- FIXME: Implied by ...?
-				if l_other.is_show_requested then
-					npx := a_node.port_x
-					npy := a_node.port_y
-					opx := l_other.port_x
-					opy := l_other.port_y
-					l_distance := distance (npx, npy, opx, opy)
-					if l_distance > tolerance then
-						l_weight := get_link_weight (a_edge)
-						a_node.set_delta (a_node.dx - internal_stiffness * l_weight * (npx - opx), a_node.dy - internal_stiffness * l_weight * (npy - opy))
-					end
+			if l_other /= Void and then l_other.is_show_requested then
+				npx := a_node.port_x
+				npy := a_node.port_y
+				opx := l_other.port_x
+				opy := l_other.port_y
+				l_distance := distance (npx, npy, opx, opy)
+				if l_distance > tolerance then
+					l_weight := get_link_weight (a_edge)
+					a_node.set_delta (a_node.dx - internal_stiffness * l_weight * (npx - opx), a_node.dy - internal_stiffness * l_weight * (npy - opy))
 				end
 			end
 		end
@@ -404,7 +400,7 @@ feature {NONE} -- Implementation
 					else
 						a_other := a_edge.source
 					end
-					if a_other /=Void and then a_other.is_show_requested then-- and then a_other.has_visible_link then
+					if a_other /= Void and then a_other.is_show_requested then-- and then a_other.has_visible_link then
 						ox := a_other.port_x
 						oy := a_other.port_y
 						l_weight := internal_stiffness * get_link_weight (a_edge)
