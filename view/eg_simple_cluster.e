@@ -49,37 +49,37 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	port_x: INTEGER
-			-- x position where links are starting
+			-- x position where links are starting.
 		do
 			Result := rectangle.x
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting
+			-- y position where links are starting.
 		do
 			Result := rectangle.y
 		end
 
 	size: EV_RECTANGLE
-			-- Size of `Current'
+			-- Size of `Current'.
 		do
 			Result := rectangle.bounding_box
 		end
 
 	height: INTEGER
-			-- Height in pixels
+			-- Height in pixels.
 		do
 			Result := rectangle.height
 		end
 
 	width: INTEGER
-			-- Width in pixels
+			-- Width in pixels.
 		do
 			Result := rectangle.width
 		end
 
 	xml_node_name: STRING
-			-- Name of `xml_element'
+			-- Name of `xml_element'.
 		do
 			Result := "EG_SIMPLE_CLUSTER"
 		end
@@ -179,16 +179,16 @@ feature {NONE} -- Implementation
 		end
 
 	rectangle: EV_MODEL_RECTANGLE
-			-- The rectangle visualising the border of `Current'
+			-- The rectangle visualising the border of `Current'.
 
 	number_of_figures: INTEGER = 2
 			-- number of figures used to visialize `Current'
-			-- (`name_label' and `rectangle')
+			-- (`name_label' and `rectangle').
 
 feature {NONE} -- Obsolete
 
 	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements
+			-- New list with `n' elements.
 		do
 			check not_implemented: False then end
 		end

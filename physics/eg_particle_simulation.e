@@ -56,7 +56,7 @@ feature -- Access
 feature -- Element change.
 
 	set_particles (a_particles: like particles)
-			-- Set `particles' to `a_particles'
+			-- Set `particles' to `a_particles'.
 		require
 			a_particles_not_void: a_particles /= Void
 			not_empty: not a_particles.is_empty
@@ -69,7 +69,7 @@ feature -- Element change.
 feature {NONE}
 
 	external_force (a_particle: like particle_type): G
-			-- Initial force for `a_particle'
+			-- Initial force for `a_particle'.
 		deferred
 		ensure
 			Result_exists: Result /= Void
@@ -99,7 +99,9 @@ feature {NONE}
 feature {NONE} -- Implementation
 
 	particle_type: EG_PARTICLE
-			-- Type of particles
+			-- Type of particles.
+		require
+			not_callable: False
 		do
 			check anchor_type_only: False then end
 		end

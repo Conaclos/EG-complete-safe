@@ -11,7 +11,7 @@ deferred class
 feature {NONE} -- Initialization
 
 	make_with_world (a_world: like world)
-			-- Make
+			-- Make.
 		require
 			a_world /= Void
 		do
@@ -24,7 +24,7 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	world: EG_FIGURE_WORLD
-			-- The graph to layout
+			-- The graph to layout.
 
 feature -- Element change
 
@@ -102,12 +102,12 @@ feature -- Element change
 
 feature {NONE} -- Implementation
 
-	layout_linkables (linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; level: INTEGER; cluster: detachable EG_CLUSTER_FIGURE)
+	layout_linkables (a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; a_level: INTEGER; a_cluster: detachable EG_CLUSTER_FIGURE)
 			-- arrange `linkables' that are elements of `clusters' at `level'.
 		require
-			linkables_not_void: linkables /= Void
-			level_greater_zero: level > 0
-			level_greater_1_implies_cluster_not_void: level > 1 implies cluster /= Void
+			linkables_not_void: a_linkables /= Void
+			level_greater_zero: a_level > 0
+			level_greater_1_implies_cluster_not_void: a_level > 1 implies a_cluster /= Void
 		deferred
 		end
 

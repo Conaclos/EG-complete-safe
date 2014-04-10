@@ -114,7 +114,7 @@ feature {NONE} -- Implementation
 	position_on_line: DOUBLE
 			-- Position of `label_move_handle' between `label_line_start_point'
 			-- and `label_line_end_point'. 0.0 is closest to `label_line_start_point'
-			-- 1.0 is closest to `label_line_end_point'.
+			-- 1.0 is closest to `label_line_end_point'
 
 	set_label_line_start_and_end
 			-- Set `label_line_start_point' and `label_line_end_point' such that the line
@@ -461,7 +461,6 @@ feature {NONE} -- Implementation
 		local
 			l_points: like polyline_points
 			i, nb: INTEGER
-			l_item: EV_COORDINATE
 		do
 			from
 				l_points := polyline_points
@@ -470,8 +469,7 @@ feature {NONE} -- Implementation
 			until
 				i >= nb or else Result /= 0
 			loop
-				l_item := l_points.item (i)
-				if l_item = a_point then
+				if l_points.item (i) = a_point then
 					Result := i
 				end
 				i := i + 1
@@ -486,7 +484,7 @@ feature {EV_MODEL, EV_MODEL_DRAWER} -- Access
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

@@ -32,13 +32,13 @@ create {EG_XML_STORABLE}
 feature {NONE} -- Initialization
 
 	default_create
-			-- Create an XML_ROUTINE
+			-- Create an XML_ROUTINE.
 		do
 			create valid_tag_read_actions
 		end
 
 	make (a_relative_window: attached like relative_window)
-			-- Initialization
+			-- Initialization.
 		require
 			non_void_relative_window: a_relative_window /= Void
 		do
@@ -51,7 +51,7 @@ feature {NONE} -- Initialization
 feature {NONE} -- Access
 
 	relative_window: detachable EV_WINDOW
-			-- relative window
+			-- relative window.
 
 feature {EG_XML_STORABLE} -- Access
 
@@ -107,13 +107,10 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_integer (elem: like xml_node; a_name: READABLE_STRING_GENERAL): INTEGER
 			-- Find in sub-elememt of `elem' integer item with tag `a_name'.
-		local
-			int_str: detachable STRING_32
 		do
 			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
-				int_str := e.text
-				if int_str /= Void and then int_str.is_integer then
-					Result := int_str.to_integer
+				if attached e.text as l_text and then l_text.is_integer then
+					Result := l_text.to_integer
 					valid_tags_read
 				else
 					display_warning_message ({STRING_32} "Value of element " + a_name.to_string_32 + {STRING_32} " is not valid.")
@@ -126,13 +123,10 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_boolean (elem: like xml_node; a_name: READABLE_STRING_GENERAL): BOOLEAN
 			-- Find in sub-elememt of `elem' boolean item with tag `a_name'.
-		local
-			bool_str: detachable STRING_32
 		do
 			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
-				bool_str := e.text
-				if bool_str /= Void and then bool_str.is_boolean then
-					Result := bool_str.to_boolean
+				if attached e.text as l_text and then l_text.is_boolean then
+					Result := l_text.to_boolean
 					valid_tags_read
 				else
 					display_warning_message ({STRING_32} "Value of element " + a_name.to_string_32 + {STRING_32} " is not valid.")
@@ -145,13 +139,10 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_double (elem: like xml_node; a_name: READABLE_STRING_GENERAL): DOUBLE
 			-- Find in sub-elememt of `elem' integer item with tag `a_name'.
-		local
-			double_str: detachable STRING_32
 		do
 			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
-				double_str := e.text
-				if double_str /= Void and then double_str.is_double then
-					Result := double_str.to_double
+				if attached e.text as l_text and then l_text.is_double then
+					Result := l_text.to_double
 					valid_tags_read
 				else
 					display_warning_message ({STRING_32} "Value of element " + a_name.to_string_32 + {STRING_32} " is not valid.")
@@ -167,7 +158,7 @@ feature {EG_XML_STORABLE} -- Processing
 		do
 			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text then
-					check 	is_valid_as_string_8: l_text.is_valid_as_string_8 end
+					check is_valid_as_string_8: l_text.is_valid_as_string_8 end
 					Result := l_text.to_string_8
 				end
 				valid_tags_read
@@ -194,16 +185,17 @@ feature {EG_XML_STORABLE} -- Processing
 	xml_color (elem: like xml_node; a_name: READABLE_STRING_GENERAL): EV_COLOR
 			-- Find in sub-elememt of `elem' color item with tag `a_name'.
 		local
-			s: detachable STRING_32
 			sc1, sc2: INTEGER
 			r, g, b: INTEGER
 			rescued: BOOLEAN
 		do
 			if not rescued then
-				if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
-					s := e.text
-				end
-				if s /= Void and then not s.is_empty then
+				if
+					attached {like xml_node} elem.item_for_iteration as e and then
+					e.has_same_name (a_name) and then
+					attached e.text as s and then
+					not s.is_empty
+				then
 					check
 						two_semicolons: s.occurrences (';') = 2
 					end
@@ -255,7 +247,7 @@ feature {EG_XML_STORABLE} -- Processing
 feature -- Saving
 
 	save_xml_document (a_file_name: READABLE_STRING_GENERAL; a_doc: XML_DOCUMENT)
-			-- Save `a_doc' in `ptf'
+			-- Save `a_doc' in `ptf'.
 		require
 			file_not_void: a_file_name /= Void
 			file_exists: not a_file_name.is_empty
@@ -264,7 +256,7 @@ feature -- Saving
 		end
 
 	save_xml_document_with_path (a_file_name: PATH; a_doc: XML_DOCUMENT)
-			-- Save `a_doc' in `ptf'
+			-- Save `a_doc' in `ptf'.
 		require
 			file_not_void: a_file_name /= Void
 			file_exists: not a_file_name.is_empty
@@ -383,7 +375,7 @@ feature {NONE} -- Error management
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2012, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

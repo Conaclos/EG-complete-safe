@@ -25,7 +25,7 @@ inherit
 		end
 
 create
-	make_with_model
+	make
 
 feature {NONE} -- Initialization
 
@@ -48,17 +48,20 @@ feature {NONE} -- Initialization
 			reflexive_radius := 50
 		end
 
-	make_with_model (a_model: like model)
+	make (a_model: like model; a_source, a_target: like source)
 			-- Make a polyline link using `a_model'.
 		require
 			a_model_not_void: a_model /= Void
 		do
 			model := a_model
-
+			source := a_source
+			target := a_target
 			default_create
 			initialize
 		ensure
 			model_set: model = a_model
+			source_set: source = a_source
+			target_set: target = a_target
 		end
 
 	initialize
@@ -79,25 +82,25 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	start_point_x: INTEGER
-			-- x position of the first point
+			-- x position of the first point.
 		do
 			Result := line.point_array.item (0).x
 		end
 
 	start_point_y: INTEGER
-			-- y position of the first point
+			-- y position of the first point.
 		do
 			Result := line.point_array.item (0).y
 		end
 
 	end_point_x: INTEGER
-			-- x position of the last point
+			-- x position of the last point.
 		do
 			Result := line.point_array.item (line.point_array.count - 1).x
 		end
 
 	end_point_y: INTEGER
-			-- y position of the last point
+			-- y position of the last point.
 		do
 			Result := line.point_array.item (line.point_array.count - 1).y
 		end
@@ -242,7 +245,7 @@ feature -- Access
 		end
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'
+			-- Name of the node returned by `xml_element'.
 		do
 			Result := "EG_POLYLINE_LINK_FIGURE"
 		end
@@ -250,13 +253,11 @@ feature -- Access
 feature -- Status report
 
 	is_start_arrow: BOOLEAN
-			--
 		do
 			Result := line.is_start_arrow
 		end
 
 	is_end_arrow: BOOLEAN
-			--
 		do
 			Result := line.is_end_arrow
 		end
@@ -441,37 +442,34 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 		local
 			nx, ny: INTEGER
 		do
-			if attached source as l_source and then attached target as l_target then
-				if not model.is_reflexive then
-					if edge_move_handlers.is_empty then
-						set_end_and_start_point_to_edge
-					else
-						set_start_point_to_edge
-						set_end_point_to_edge
-					end
+			if not model.is_reflexive then
+				if edge_move_handlers.is_empty then
+					set_end_and_start_point_to_edge
 				else
-					nx := l_source.port_x
-					ny := l_source.port_y
-					if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
-						line.set_i_th_point_position (1, nx, ny)
-						line.set_i_th_point_position (line.point_count, nx, ny)
-						line.set_i_th_point_position (2, nx + 150, ny - 50)
-						line.set_i_th_point_position (3, nx + 150, ny + 50)
-						set_start_point_to_edge
-						set_end_point_to_edge
-						line.set_i_th_point_position (2, line.i_th_point_x (1) + reflexive_radius, line.i_th_point_y (1) - as_integer (reflexive_radius / 3))
-						line.set_i_th_point_position (3, line.i_th_point_x (4) + reflexive_radius, line.i_th_point_y (4) + as_integer (reflexive_radius / 3))
-					end
+					set_start_point_to_edge
+					set_end_point_to_edge
 				end
-				invalidate
-				center_invalidate
+			else
+				nx := source.port_x
+				ny := source.port_y
+				if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
+					line.set_i_th_point_position (1, nx, ny)
+					line.set_i_th_point_position (line.point_count, nx, ny)
+					line.set_i_th_point_position (2, nx + 150, ny - 50)
+					line.set_i_th_point_position (3, nx + 150, ny + 50)
+					set_start_point_to_edge
+					set_end_point_to_edge
+					line.set_i_th_point_position (2, line.i_th_point_x (1) + reflexive_radius, line.i_th_point_y (1) - as_integer (reflexive_radius / 3))
+					line.set_i_th_point_position (3, line.i_th_point_x (4) + reflexive_radius, line.i_th_point_y (4) + as_integer (reflexive_radius / 3))
+				end
 			end
+			invalidate
+			center_invalidate
 			is_update_required := False
 		end
 
 	reflexive_radius: INTEGER
 			-- Radius of reflexive link.
-
 
 feature {NONE} -- Implementation
 
@@ -512,23 +510,20 @@ feature {NONE} -- Implementation
 	set_start_point_to_edge
 			-- Set the start point such that it is element of the edge of the source figure.
 		local
-			an_angle: DOUBLE
+			l_angle: DOUBLE
 			l_pa: like point_array
 			p1: EV_COORDINATE
 		do
 			l_pa := line.point_array
 			p1 := l_pa.item (1)
-
-			check attached source as l_source then -- FIXME: Implied by ...?
-				an_angle := line_angle (l_source.port_x, l_source.port_y, p1.x_precise, p1.y_precise)
-				l_source.update_edge_point (l_pa.item (0), an_angle)
-			end
+			l_angle := line_angle (source.port_x, source.port_y, p1.x_precise, p1.y_precise)
+			source.update_edge_point (l_pa.item (0), l_angle)
 		end
 
 	set_end_point_to_edge
 			-- Set the end point such that it is element of the edge of the target figure.
 		local
-			an_angle: DOUBLE
+			l_angle: DOUBLE
 			l_count: INTEGER
 			l_pa: like point_array
 			p: EV_COORDINATE
@@ -536,11 +531,8 @@ feature {NONE} -- Implementation
 			l_pa := line.point_array
 			l_count := l_pa.count
 			p := l_pa.item (l_count - 2)
-
-			check attached target as l_target then -- FIXME: Implied by ...?			
-				an_angle := line_angle (l_target.port_x, l_target.port_y, p.x_precise, p.y_precise)
-				l_target.update_edge_point (l_pa.item (l_count - 1), an_angle)
-			end
+			l_angle := line_angle (target.port_x, target.port_y, p.x_precise, p.y_precise)
+			target.update_edge_point (l_pa.item (l_count - 1), l_angle)
 		end
 
 	set_end_and_start_point_to_edge
@@ -548,19 +540,14 @@ feature {NONE} -- Implementation
 		require
 			no_edges: edges_count = 0
 		local
-			an_angle: DOUBLE
+			l_angle: DOUBLE
 			l_point_array: like point_array
 		do
 			l_point_array := line.point_array
-			check
-				attached source as l_source and
-				attached target as l_target
-			then -- FIXME: Implied by ...?
-				an_angle := line_angle (l_source.port_x, l_source.port_y, l_target.port_x, l_target.port_y)
-				l_source.update_edge_point (l_point_array.item (0), an_angle)
-				an_angle := pi + an_angle
-				l_source.update_edge_point (l_point_array.item (1), an_angle)
-			end
+			l_angle := line_angle (source.port_x, source.port_y, target.port_x, target.port_y)
+			source.update_edge_point (l_point_array.item (0), l_angle)
+			l_angle := pi + l_angle
+			source.update_edge_point (l_point_array.item (1), l_angle)
 		end
 
 	pointer_button_pressed_on_a_line (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
@@ -573,7 +560,7 @@ feature {NONE} -- Implementation
 			p, q: EV_COORDINATE
 			new_handler: EG_EDGE
 		do
-			if button = 1 and then not is_on_edge (ax, ay) and then source /= target then
+			if button = 1 and not is_on_edge (ax, ay) and source /= target then
 				from
 					l_point_array := line.point_array
 					point_found := False
@@ -602,7 +589,7 @@ feature {NONE} -- Implementation
 		end
 
 	new_edge_cursor: EV_POINTER_STYLE
-			-- Cursor displayed when pointer over a line (white dot)
+			-- Cursor displayed when pointer over a line (white dot).
 		local
 			pix_map: EV_PIXMAP
 		once
@@ -616,19 +603,8 @@ feature {NONE} -- Implementation
 
 	is_on_edge (ax, ay: INTEGER): BOOLEAN
 			-- is position `ax', `ay' on an edge?
-		local
-			l_edge_move_handlers: like edge_move_handlers
 		do
-			Result := False
-			from
-				l_edge_move_handlers := edge_move_handlers
-				l_edge_move_handlers.start
-			until
-				Result or l_edge_move_handlers.after
-			loop
-				Result := l_edge_move_handlers.item.first.position_on_figure (ax, ay)
-				l_edge_move_handlers.forth
-			end
+			Result := across edge_move_handlers as it some it.item.first.position_on_figure (ax, ay) end
 		end
 
 	on_is_directed_change
@@ -643,7 +619,7 @@ feature {NONE} -- Implementation
 		end
 
 	line: EV_MODEL_POLYLINE
-			-- The polyline visualizing the link
+			-- The polyline visualizing the link.
 --			
 --	reflexive_distance: INTEGER
 --			-- Distance from the border of the linkable figure if `is_reflexive'.
@@ -652,12 +628,12 @@ feature {EG_FIGURE_WORLD} -- Implementation
 
 	edge_move_handlers: ARRAYED_LIST [EG_EDGE]
 			-- Move handlers for the edges of the polyline.
-			-- start_point and end_point have no move_handlers
+			-- start_point and end_point have no move_handlers.
 
 feature {NONE} -- Obsolete
 
 	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements
+			-- New list with `n' elements.
 		do
 			check not_implemented: False then end
 		end

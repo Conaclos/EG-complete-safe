@@ -44,7 +44,7 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	flat_nodes: like nodes
-			-- All nodes in the graph
+			-- All nodes in the graph.
 		do
 			Result := nodes.twin
 		ensure
@@ -52,7 +52,7 @@ feature -- Access
 		end
 
 	flat_clusters: like clusters
-			-- All clusters in the graph
+			-- All clusters in the graph.
 		do
 			Result := clusters.twin
 		ensure
@@ -60,7 +60,7 @@ feature -- Access
 		end
 
 	flat_links: like links
-			-- All links in the graph
+			-- All links in the graph.
 		do
 			Result := links.twin
 		ensure
@@ -325,7 +325,7 @@ feature {EG_ITEM} -- Implementation
 feature {NONE} -- Implementation
 
 	node_type: EG_NODE
-			-- Type of nodes in `nodes'
+			-- Type of nodes in `nodes'.
 		do
 			check do_not_call: False then end
 		end
@@ -337,6 +337,7 @@ invariant
 	node_add_actions_not_void: node_add_actions /= Void
 	cluster_add_actions_not_void: cluster_add_actions /= Void
 	link_add_actions_not_void: link_add_actions /= Void
+	consistent_link: across links as it all has_linkable (it.item.source) and has_linkable (it.item.target) end
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

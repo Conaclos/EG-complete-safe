@@ -54,13 +54,13 @@ feature -- Element change
 feature -- Access
 
 	x: G
-			-- X position
+			-- X position.
 
 	y: G
-			-- Y position
+			-- Y position.
 
 	attached_x: G
-			-- `x'
+			-- `x'.
 		obsolete
 			"use `x' instead. [02-2014]"
 		do
@@ -68,7 +68,7 @@ feature -- Access
 		end
 
 	attached_y: G
-			-- `y'
+			-- `y'.
 		obsolete
 			"use `y' instead. [02-2014]"
 		do
@@ -76,13 +76,13 @@ feature -- Access
 		end
 
 	one: like Current
-			-- Neutral element for "*" and "/"
+			-- Neutral element for "*" and "/".
 		do
 			create Result.make (x.one, y.one)
 		end
 
 	zero: like Current
-			-- Neutral element for "+" and "-"
+			-- Neutral element for "+" and "-".
 		do
 			create Result.make (x.zero, y.zero)
 		end
@@ -112,37 +112,37 @@ feature -- Status report
 feature -- Basic operations
 
 	plus alias "+" (other: like Current): like Current
-			-- Sum with `other' (commutative)
+			-- Sum with `other' (commutative).
 		do
 			create Result.make (x + other.x, y + other.y)
 		end
 
 	minus alias "-" (other: like Current): like Current
-			-- Result of subtracting `other'
+			-- Result of subtracting `other'.
 		do
 			create Result.make (x - other.x, y - other.y)
 		end
 
 	product alias "*" (other: like Current): like Current
-			-- Product by `other'
+			-- Product by `other'.
 		do
-			check False then end
+			check not_implemented: False then end
 		end
 
 	quotient alias "/" (other: like Current): like Current
-			-- Division by `other'
+			-- Division by `other'.
 		do
-			check False then end
+			check not_implemented: False then end
 		end
 
 	identity alias "+": like Current
-			-- Unary plus
+			-- Unary plus.
 		do
 			create Result.make (x, y)
 		end
 
 	opposite alias "-": like Current
-			-- Unary minus
+			-- Unary minus.
 		do
 			create Result.make (-x, -y)
 		end

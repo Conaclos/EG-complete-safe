@@ -17,7 +17,7 @@ inherit
 feature {NONE} -- Initialization
 
 	default_create
-			-- Create an EG_LINKABLE
+			-- Create an EG_LINKABLE.
 		do
 			Precursor {EG_ITEM}
 			create internal_links.make (0)
@@ -25,14 +25,10 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	link_name: STRING
-			-- Name for linking
-		require
-			set: name /= Void
+	link_name: detachable STRING
+			-- Name for linking.
 		do
-			check attached name as l_name then
-				Result := l_name
-			end
+			Result := name
 		end
 
 	cluster: detachable EG_CLUSTER

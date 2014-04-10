@@ -33,7 +33,7 @@ feature -- Access
 			-- The graph model `Current' is part of (if not Void).
 
 	id: INTEGER
-			-- Unique id
+			-- Unique id.
 		do
 			if internal_hash_id = 0  then
 				counter.put (counter.item + 1)
@@ -49,17 +49,17 @@ feature -- Access
 		end
 
 	name: detachable STRING
-			-- Name of `Current'
+			-- Name of `Current'.
 
 	set_name (a_name: detachable STRING)
-			-- Set `name' to `a_name'
+			-- Set `name' to `a_name'.
 		do
-			if a_name /= name then
+			if a_name /~ name then
 				name := a_name
 				name_change_actions.call (Void)
 			end
 		ensure
-			set: name = a_name
+			set: name ~ a_name
 		end
 
 	name_change_actions: EV_NOTIFY_ACTION_SEQUENCE
@@ -67,8 +67,11 @@ feature -- Access
 
 feature {EG_GRAPH} -- Element change.
 
-	set_graph (a_graph: like graph)
+	set_graph (a_graph: detachable like graph)
 			-- Set `graph' to `a_graph'.
+---		require
+ ---			a_graph_not_void: a_graph /= Void
+ ---			graph_void: graph = Void
 		do
 			graph := a_graph
 		ensure

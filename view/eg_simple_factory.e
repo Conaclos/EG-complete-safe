@@ -16,61 +16,47 @@ feature -- Basic operations
 	new_node_figure (a_node: EG_NODE): EG_LINKABLE_FIGURE
 			-- Create a node figure for `a_node'.
 		do
-			Result := create {EG_SIMPLE_NODE}.make_with_model (a_node)
+			create {EG_SIMPLE_NODE} Result.make_with_model (a_node)
 		end
 
 	new_cluster_figure (a_cluster: EG_CLUSTER): EG_CLUSTER_FIGURE
 			-- Create a cluster figure for `a_cluster'.
 		do
-			Result := create {EG_SIMPLE_CLUSTER}.make_with_model (a_cluster)
+			create {EG_SIMPLE_CLUSTER} Result.make_with_model (a_cluster)
 		end
 
-	new_link_figure (a_link: EG_LINK): EG_LINK_FIGURE
+	new_link_figure (a_link: EG_LINK; a_source, a_target: EG_LINKABLE_FIGURE): EG_LINK_FIGURE
 			-- Create a link figure for `a_link'.
 		do
-			Result := create {EG_SIMPLE_LINK}.make_with_model (a_link)
+			create {EG_SIMPLE_LINK} Result.make (a_link, a_source, a_target)
 		end
 
 	model_from_xml (node: like xml_element_type): detachable EG_ITEM
 			-- Create an EG_ITEM from `node' if possible.
-		local
-			source_name, target_name: detachable STRING
-			node_name: detachable STRING
-			a_source, a_target: detachable EG_LINKABLE
 		do
-			node_name := node.name
-			if node_name = Void then
-				check has_name: False end
-			elseif node_name.same_string ("EG_SIMPLE_NODE") then
-				create {EG_NODE} Result
-			elseif node_name.same_string ("EG_SIMPLE_CLUSTER") then
-				create {EG_CLUSTER} Result
-			elseif node_name.same_string ("EG_SIMPLE_LINK") then
-				if attached node.attribute_by_name ("SOURCE") as l_attribute_by_name then
-					source_name := l_attribute_by_name.value
-				else
-					check False end -- FIXME: Implied by ...?
-				end
-				if attached node.attribute_by_name ("TARGET") as l_attribute_by_name_2 then
-					target_name := l_attribute_by_name_2.value
-				else
-					check False end -- FIXME: Implied by ...?
-				end
+			if attached node.name as l_name then
+				if l_name.same_string ("EG_SIMPLE_NODE") then
+					create {EG_NODE} Result
+				elseif l_name.same_string ("EG_SIMPLE_CLUSTER") then
+					create {EG_CLUSTER} Result
+				elseif
+					l_name.same_string ("EG_SIMPLE_LINK") and
 
-				if source_name /= Void and then target_name /= Void and then world /= Void then
-					a_source := linkable_with_name (source_name)
-					if a_source /= Void then
-						a_target := linkable_with_name (target_name)
-						if a_target /= Void then
-							create {EG_LINK} Result.make_with_source_and_target (a_source, a_target)
-						end
-					end
+					attached node.attribute_by_name ("SOURCE") as l_attribute_by_name and then
+					attached l_attribute_by_name.value as l_source_name and then
+					attached linkable_with_name (l_source_name) as l_source and
+
+					attached node.attribute_by_name ("TARGET") as l_attribute_by_name_2 and then
+					attached l_attribute_by_name_2.value as l_target_name and then
+					attached linkable_with_name (l_target_name) as l_target
+				then
+					create {EG_LINK} Result.make_with_source_and_target (l_source, l_target)
 				end
 			end
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

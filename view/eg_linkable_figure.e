@@ -54,22 +54,8 @@ feature -- Status report
 
 	has_visible_link: BOOLEAN
 			-- Has `Current' at least one visible link?
-		local
-			l_internal_links: like internal_links
-			i, nb: INTEGER
 		do
-			l_internal_links := internal_links
-			if not l_internal_links.is_empty then
-				from
-					i := 1
-					nb := l_internal_links.count
-				until
-					i > nb or else Result
-				loop
-					Result := l_internal_links.i_th (i).is_show_requested
-					i := i + 1
-				end
-			end
+			Result := across internal_links as it some it.item.is_show_requested end
 		end
 
 	is_cluster_above: BOOLEAN
@@ -104,23 +90,23 @@ feature -- Status report
 feature -- Access
 
 	cluster: detachable EG_CLUSTER_FIGURE
-			-- Cluster figure `Current' is part of
+			-- Cluster figure `Current' is part of.
 
 	model: EG_LINKABLE
 			-- The model for `Current'.
 
 	port_x: INTEGER
-			-- x position where links are starting
+			-- x position where links are starting.
 		deferred
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting
+			-- y position where links are starting.
 		deferred
 		end
 
 	xml_node_name: STRING
-			-- Name of the xml node returned by `xml_element'
+			-- Name of the xml node returned by `xml_element'.
 		do
 			Result := once "EG_LINKABLE_FIGURE"
 		end
@@ -130,7 +116,7 @@ feature -- Access
 	port_y_string: STRING = "PORT_Y"
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml element representing `Current's state
+			-- Xml element representing `Current's state.
 		local
 			l_xml_routines: like xml_routines
 		do
@@ -157,21 +143,21 @@ feature -- Access
 		end
 
 	size: EV_RECTANGLE
-			-- Size of `Current'
+			-- Size of `Current'.
 		deferred
 		ensure
 			result_not_void: Result /= Void
 		end
 
 	height: INTEGER
-			-- Height in pixels
+			-- Height in pixels.
 		deferred
 		ensure
 			result_not_negative: Result >= 0
 		end
 
 	width: INTEGER
-			-- Width in pixels
+			-- Width in pixels.
 		deferred
 		ensure
 			result_not_negative: Result >= 0
@@ -179,7 +165,7 @@ feature -- Access
 
 	minimum_size: EV_RECTANGLE
 			-- `Current' has to be of `Result' size
-			-- to include all visible elements starting from `number_of_figures' + 1
+			-- to include all visible elements starting from `number_of_figures' + 1.
 		do
 			create Result
 			update_rectangle_to_minimum_size (Result)
@@ -195,7 +181,7 @@ feature -- Access
 		end
 
 	links: like internal_links
-			-- Links to other linkables
+			-- Links to other linkables.
 		do
 			Result := internal_links.twin
 		end

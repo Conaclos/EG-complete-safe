@@ -27,7 +27,7 @@ inherit
 feature {NONE} -- Initialization
 
 	default_create
-			-- Create an EG_FIGURE
+			-- Create an EG_FIGURE.
 		do
 			create name_label
 			Precursor {EV_MODEL_MOVE_HANDLE}
@@ -51,7 +51,7 @@ feature -- Access
 
 	is_storable: BOOLEAN
 			-- Does `Current' need to be persistently stored?
-			-- True by default
+			-- True by default.
 		do
 			Result := True
 		end
@@ -68,7 +68,7 @@ feature -- Access
 		end
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state
+			-- Xml node representing `Current's state.
 		local
 			l_xml_routines: like xml_routines
 		do
@@ -84,26 +84,16 @@ feature -- Access
 	is_selected_string: STRING = "IS_SELECTED"
 	is_label_shown_string: STRING = "IS_LABEL_SHOWN"
 	name_string: STRING = "NAME"
-		-- XML String constants
+		-- XML String constants.
 
 	set_with_xml_element (node: like xml_element)
 			-- Retrive state from `node'.
 		local
-			l_name: STRING
 			l_xml_routines: like xml_routines
-			l_attribute: detachable XML_ATTRIBUTE
-			l_model_name: detachable STRING_8
 		do
 			l_xml_routines := xml_routines
-			if node.has_attribute_by_name (name_string) then
-				l_attribute := node.attribute_by_name (name_string)
-				check l_attribute /= Void then -- Implied by `has_attribute_by_name'
-					l_name := l_attribute.value
-				end
-				l_model_name := model.name
-				if l_model_name = Void or else l_model_name /~ (l_name) then
-					model.set_name (l_name)
-				end
+			if attached node.attribute_by_name (name_string) as l_attribute then
+				model.set_name (l_attribute.value)
 				node.forth
 			end
 			set_is_selected (l_xml_routines.xml_boolean (node, is_selected_string))
@@ -119,7 +109,7 @@ feature -- Access
 		end
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'
+			-- Name of the node returned by `xml_element'.
 		do
 			Result := once "EG_FIGURE"
 		end

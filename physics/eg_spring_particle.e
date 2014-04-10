@@ -36,7 +36,7 @@ create
 feature {NONE} -- Implementation
 
 	px, py: INTEGER
-			-- Position of a particle
+			-- Position of a particle.
 
 	external_force (a_node: like particle_type): EG_VECTOR2D [DOUBLE]
 			-- External force for `a_node'. (attraction to center of universe).
@@ -66,7 +66,7 @@ feature {NONE} -- Implementation
 			i, nb: INTEGER
 			l_links: ARRAYED_LIST [EG_LINK_FIGURE]
 			l_item: EG_LINK_FIGURE
-			l_other: detachable EG_LINKABLE_FIGURE
+			l_other: EG_LINKABLE_FIGURE
 			l_weight: DOUBLE
 		do
 			from
@@ -85,11 +85,9 @@ feature {NONE} -- Implementation
 					else
 						l_other := l_item.source
 					end
-					check l_other /= Void then -- FXIME: Implied by ...?
-						if l_other.is_show_requested then
-							l_weight := stiffness * link_stiffness (l_item)
-							create Result.make (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))
-						end
+					if l_other.is_show_requested then
+						l_weight := stiffness * link_stiffness (l_item)
+						create Result.make (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))
 					end
 				end
 				i := i + 1
@@ -97,7 +95,7 @@ feature {NONE} -- Implementation
 		end
 
 	n_body_force (a_node, an_other: EG_PARTICLE): EG_VECTOR2D [DOUBLE]
-			-- Get the electrical repulsion between all nodes, including those that are not adjacent
+			-- Get the electrical repulsion between all nodes, including those that are not adjacent.
 		local
 			l_distance, l_force: DOUBLE
 			opx, opy: DOUBLE
@@ -117,7 +115,7 @@ feature {NONE} -- Implementation
 feature {NONE} -- Implementation
 
 	particle_type: EG_LINKABLE_FIGURE
-			-- Type of particle
+			-- Type of particle.
 		do
 			check anchor_type_only: False then end
 		end

@@ -22,7 +22,7 @@ inherit
 feature {NONE} -- Initialization
 
 	default_create
-			-- Create a EG_CLUSTER_FIGURE
+			-- Create a EG_CLUSTER_FIGURE.
 		local
 			rectangle: EV_MODEL_RECTANGLE
 		do
@@ -75,22 +75,18 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	left: INTEGER
-			--
 		deferred
 		end
 
 	top: INTEGER
-			--
 		deferred
 		end
 
 	right: INTEGER
-			--
 		deferred
 		end
 
 	bottom: INTEGER
-			--
 		deferred
 		end
 
@@ -130,15 +126,13 @@ feature -- Access
 
 	set_with_xml_element (node: like xml_element)
 			-- Retrive state from `node'.
-		local
-			size_str: detachable STRING
 		do
 			Precursor {EG_CLUSTER_FIGURE} (node)
-			if xml_routines.xml_boolean (node, is_user_sized_string) then
-				size_str := xml_routines.xml_string (node, user_size_string)
-				check size_str /= Void then -- FIXME: Implied by ...?
-					user_size := rectangle_from_string (size_str)
-				end
+			if
+				attached xml_routines.xml_string (node, user_size_string) as l_str and then
+				l_str.is_boolean
+			then
+				user_size := rectangle_from_string (l_str)
 			end
 		end
 
@@ -155,7 +149,7 @@ feature -- Element change
 		end
 
 	reset_user_size
-			-- Set `user_size' to Void
+			-- Set `user_size' to Void.
 		do
 			user_size := Void
 		ensure
@@ -278,7 +272,6 @@ feature {NONE} -- Implementation
 		end
 
 	rectangle_from_string (a_size: STRING): EV_RECTANGLE
-			--
 		require
 			a_size_not_void: a_size /= Void
 		local
@@ -314,7 +307,7 @@ invariant
 	risizers_not_void: resizer_top_left /= Void and resizer_top_right /= Void and resizer_bottom_right /= Void and resizer_bottom_left /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

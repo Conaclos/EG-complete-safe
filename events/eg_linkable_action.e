@@ -9,9 +9,7 @@ class
 	EG_LINKABLE_ACTION
 
 inherit
-	EV_ACTION_SEQUENCE [TUPLE [EG_LINKABLE]]
-	-- EV_ACTION_SEQUENCE [TUPLE [a_node: EG_LINKABLE]]
-	-- (ETL3 TUPLE with named parameters)
+	EV_ACTION_SEQUENCE [TUPLE [a_node: EG_LINKABLE]]
 
 create
 	default_create
@@ -21,23 +19,25 @@ create {EG_LINKABLE_ACTION}
 
 feature -- Access
 
-	force_extend (action: PROCEDURE [ANY, TUPLE])
-			-- Extend without type checking.
-		do
-			extend (agent wrapper (?, action))
-		end
-
 	wrapper (a_linkable: EG_LINKABLE; action: PROCEDURE [ANY, TUPLE])
 			-- Use this to circumvent tuple type checking. (at your own risk!)
 			-- Calls `action' passing all other arguments.
 		do
-			action.call ([a_linkable])
+			action (a_linkable)
 		end
 
 	new_filled_list (n: INTEGER): like Current
 			-- New list with `n' elements.
 		do
 			create Result.make_filled (n)
+		end
+
+feature -- Element change
+
+	force_extend (action: PROCEDURE [ANY, TUPLE])
+			-- Extend without type checking.
+		do
+			extend (agent wrapper (?, action))
 		end
 
 note

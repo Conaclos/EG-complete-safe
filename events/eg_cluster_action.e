@@ -9,9 +9,7 @@ class
 	EG_CLUSTER_ACTION
 
 inherit
-	EV_ACTION_SEQUENCE [TUPLE [EG_CLUSTER]]
-	-- EV_ACTION_SEQUENCE [TUPLE [a_node: EG_CLUSTER]]
-	-- (ETL3 TUPLE with named parameters)
+	EV_ACTION_SEQUENCE [TUPLE [a_node: EG_CLUSTER]]
 
 create
 	default_create
@@ -21,17 +19,11 @@ create {EG_CLUSTER_ACTION}
 
 feature -- Access
 
-	force_extend (action: PROCEDURE [ANY, TUPLE])
-			-- Extend without type checking.
-		do
-			extend (agent wrapper (?, action))
-		end
-
 	wrapper (a_cluster: EG_CLUSTER; action: PROCEDURE [ANY, TUPLE])
 			-- Use this to circumvent tuple type checking. (at your own risk!)
 			-- Calls `action' passing all other arguments.
 		do
-			action.call ([a_cluster])
+			action (a_cluster)
 		end
 
 	new_filled_list (n: INTEGER): like Current
@@ -40,8 +32,16 @@ feature -- Access
 			create Result.make_filled (n)
 		end
 
+feature -- Element change
+
+	force_extend (action: PROCEDURE [ANY, TUPLE])
+			-- Extend without type checking.
+		do
+			extend (agent wrapper (?, action))
+		end
+
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

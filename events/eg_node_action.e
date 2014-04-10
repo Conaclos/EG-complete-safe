@@ -19,17 +19,11 @@ create {EG_NODE_ACTION}
 
 feature -- Access
 
-	force_extend (action: PROCEDURE [ANY, TUPLE])
-			-- Extend without type checking.
-		do
-			extend (agent wrapper (?, action))
-		end
-
 	wrapper (a_node: NODE_TYPE; action: PROCEDURE [ANY, TUPLE])
 			-- Use this to circumvent tuple type checking. (at your own risk!)
 			-- Calls `action' passing all other arguments.
 		do
-			action.call ([a_node])
+			action (a_node)
 		end
 
 	new_filled_list (n: INTEGER): like Current
@@ -38,8 +32,16 @@ feature -- Access
 			create Result.make_filled (n)
 		end
 
+feature -- Element change
+
+	force_extend (action: PROCEDURE [ANY, TUPLE])
+			-- Extend without type checking.
+		do
+			extend (agent wrapper (?, action))
+		end
+
 note
-	copyright:	"Copyright (c) 1984-2011, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

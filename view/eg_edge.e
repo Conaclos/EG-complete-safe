@@ -26,7 +26,7 @@ feature {NONE} -- Initialization
 
 	make (owner: like corresponding_line)
 			-- Create a move handle used to move the edges (the black circle).
-			-- | If you change this you might also have to change the drawers in EG_FIGURE_DRAWER
+			-- | If you change this you might also have to change the drawers in EG_FIGURE_DRAWER.
 		local
 			dot: EV_MODEL_DOT
 		do
@@ -68,7 +68,7 @@ feature {EG_POLYLINE_LINK_FIGURE} -- Element change
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

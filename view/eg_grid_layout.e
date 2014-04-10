@@ -59,7 +59,7 @@ feature -- Access
 
 	number_of_columns: INTEGER
 			-- Number of columns. (The number of rows is calculated
-			-- such that all elements fit in the grid)
+			-- such that all elements fit in the grid).
 
 	exponent: DOUBLE
 			-- Exponent used to reduce grid width per level.
@@ -157,7 +157,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

@@ -14,19 +14,16 @@ inherit
 			default_create
 		end
 
-create
-	default_create
-
 feature {NONE} -- Initialization
 
 	default_create
-			-- Create a EG_NODE
+			-- Create a EG_NODE.
 		do
 			Precursor {EG_LINKABLE}
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

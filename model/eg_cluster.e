@@ -31,27 +31,20 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	has_recursive (a_linkable: EG_LINKABLE): BOOLEAN
-		local
-			l_linkables: SPECIAL [EG_LINKABLE]
-			i, nb: INTEGER
 		do
-			from
-				l_linkables := linkables.area
-				nb := linkables.count
-			until
-				Result or else i = nb
+			across
+				linkables as it
 			loop
-				Result := l_linkables [i] = a_linkable
-				if not Result and then attached {EG_CLUSTER} l_linkables [i] as l_cluster then
+				Result := it.item = a_linkable
+				if not Result and then attached {EG_CLUSTER} it.item as l_cluster then
 					Result := l_cluster.has_recursive (a_linkable)
 				end
-				i := i + 1
 			end
 		end
 
 	flat_linkables: like linkables
 			-- All linkables containing in `Current'
-			-- including all linkables containing in sub clusters
+			-- including all linkables containing in sub clusters.
 		do
 			Result := linkables.twin
 			across
@@ -66,7 +59,7 @@ feature -- Access
 		end
 
 	sub_clusters: ARRAYED_LIST [like Current]
-			-- Sub clusters (top level) of Current
+			-- Sub clusters (top level) of Current.
 		do
 			create Result.make (10)
 			across
@@ -81,7 +74,7 @@ feature -- Access
 		end
 
 	sub_nodes: ARRAYED_LIST [like node_type]
-			-- Nodes (top level) of Current
+			-- Nodes (top level) of Current.
 		do
 			create Result.make (10)
 			add_subnodes_to_list (Result, False)
@@ -95,19 +88,15 @@ feature -- Access
 			l_linkables: SPECIAL [EG_LINKABLE]
 			i, nb: INTEGER
 		do
-			l_linkables := linkables.area
-			from
-				nb := linkables.count
-			until
-				i = nb
+			across
+				linkables as it
 			loop
-				if attached {like node_type} l_linkables [i] as l_node then
+				if attached {like node_type} it.item as l_node then
 					a_subnodes_list.extend (l_node)
 				end
-				if a_recursive and then attached {like Current} l_linkables [i] as l_cluster then
+				if a_recursive and then attached {like Current} it.item as l_cluster then
 					l_cluster.add_subnodes_to_list (a_subnodes_list, True)
 				end
-				i := i + 1
 			end
 		end
 
@@ -121,7 +110,7 @@ feature -- Access
 		end
 
 	linkable_add_actions: EG_LINKABLE_ACTION
-			-- a linkable was added to `Current'
+			-- a linkable was added to `Current'.
 
 	linkable_remove_actions: EG_LINKABLE_ACTION
 			-- a linkable was removed from `Current'
@@ -145,7 +134,7 @@ feature -- Element change
 			not_has_a_linkable: not has (a_linkable)
 		do
 			if attached a_linkable.cluster as l_cluster then
-				l_cluster.prune_all (a_linkable)
+				l_cluster.prune_all (l_cluster)
 			end
 			linkables.extend (a_linkable)
 			a_linkable.set_cluster (Current)
@@ -185,7 +174,7 @@ feature {EG_GRAPH, EG_FIGURE_WORLD, EG_FIGURE_FACTORY} -- Implementation
 feature {NONE} -- Node type
 
 	node_type: EG_NODE
-			-- Anchor type
+			-- Anchor type.
 		do
 			check valid_call: False then end
 		end

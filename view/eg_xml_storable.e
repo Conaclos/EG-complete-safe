@@ -71,7 +71,7 @@ feature {NONE} -- Implementation
 		end
 
 	Xml_routines: XML_GRAPH_ROUTINES
-			-- Access the common xml routines
+			-- Access the common xml routines.
 		once
 			create Result.default_create
 		ensure
@@ -79,7 +79,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright: "Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright: "Copyright (c) 1984-2014, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

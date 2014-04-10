@@ -34,19 +34,19 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	model: EG_CLUSTER
-			-- The model for `Current'
+			-- The model for `Current'.
 
 	layouter: detachable EG_LAYOUT
-			-- Layouter used for this `Cluster' if not Void
+			-- Layouter used for this `Cluster' if not Void.
 
 	xml_node_name: STRING
-			-- Name of the xml node returned by `xml_element'
+			-- Name of the xml node returned by `xml_element'.
 		do
 			Result := once "EG_CLUSTER_FIGURE"
 		end
 
 	subclusters: ARRAYED_LIST [EG_CLUSTER_FIGURE]
-			-- Clusters with parent `Current'
+			-- Clusters with parent `Current'.
 		do
 			from
 				create {ARRAYED_LIST [EG_CLUSTER_FIGURE]} Result.make (1)
@@ -64,7 +64,7 @@ feature -- Access
 		end
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml element representing `Current's state
+			-- Xml element representing `Current's state.
 		local
 			fig, elements: like xml_element
 		do
@@ -143,7 +143,7 @@ feature -- Element change
 feature -- Status settings
 
 	set_is_fixed (b: BOOLEAN)
-			-- Set `is_fixed' to `b'
+			-- Set `is_fixed' to `b'.
 		do
 			Precursor {EG_LINKABLE_FIGURE} (b)
 			from
@@ -173,7 +173,7 @@ feature {NONE} -- Implementation
 		do
 			if
 				attached world as l_world and then
-				attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig
+				attached l_world.linkables_to_figures.item (a_linkable) as l_linkable_fig
 			then
 				check
 					linkable_fig_is_in_view_but_not_in_cluster: not has (l_linkable_fig)
@@ -189,7 +189,7 @@ feature {NONE} -- Implementation
 		do
 			if
 				attached world as l_world and then
-				attached {EG_LINKABLE_FIGURE} l_world.items_to_figure_lookup_table.item (a_linkable) as l_linkable_fig
+				attached l_world.linkables_to_figures.item (a_linkable) as l_linkable_fig
 			then
 				l_linkable_fig.set_cluster (Void)
 				prune_all (l_linkable_fig)

@@ -45,7 +45,7 @@ create
 feature {NONE} -- Initialization
 
 	default_create
-			-- Create a EG_FORCE_DIRECTED_LAYOUT
+			-- Create a EG_FORCE_DIRECTED_LAYOUT.
 		do
 			Precursor {EG_LAYOUT}
 			preset (3)
@@ -62,32 +62,32 @@ feature -- Status report
 feature -- Access
 
 	center_attraction: INTEGER
-			-- Attraction of the center in percent
+			-- Attraction of the center in percent.
 
 	center_x: INTEGER
-			-- X position of the center
+			-- X position of the center.
 
 	center_y: INTEGER
-			-- Y position of the center
+			-- Y position of the center.
 
 	stiffness: INTEGER
-			-- Stiffness of the links in percent
+			-- Stiffness of the links in percent.
 
 	electrical_repulsion: INTEGER
-			-- Electrical repulsion between nodes in percent
+			-- Electrical repulsion between nodes in percent.
 
 	stop_actions: EV_NOTIFY_ACTION_SEQUENCE
-			-- Called when the layouting stops
+			-- Called when the layouting stops.
 
 	move_threshold: DOUBLE
-			-- Call `stop_actions' if no node moved
+			-- Call `stop_actions' if no node moved.
 			-- for more then `move_threshold'
 
 	theta: INTEGER
-			-- Error variable for Barnes and Hut
+			-- Error variable for Barnes and Hut.
 
 	last_theta_average: DOUBLE
-			-- Average theta value after last call to `layout'
+			-- Average theta value after last call to `layout'.
 
 feature -- Element change
 
@@ -220,19 +220,18 @@ feature -- Basic operations
 feature {NONE} -- Implementation
 
 	max_move: INTEGER
-			-- Maximal move in x and y direction of a node
+			-- Maximal move in x and y direction of a node.
 
 	theta_count: INTEGER
-			-- Theta count
+			-- Theta count.
 
 	iterations: INTEGER
-			-- Number of iterations
+			-- Number of iterations.
 
 	layout_linkables (linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; level: INTEGER; cluster: detachable EG_CLUSTER_FIGURE)
 			-- arrange `linkables'.
 		local
 			l_item: EG_LINKABLE_FIGURE
-			i, nb: INTEGER
 			l_force: EG_VECTOR2D [DOUBLE]
 			dx, dy: INTEGER
 			move: INTEGER
@@ -258,13 +257,10 @@ feature {NONE} -- Implementation
 					spring_energy := new_spring_energy_solver (l_linkables)
 
 						-- solve system
-					from
-						i := 1
-						nb := l_linkables.count
-					until
-						i > nb
+					across
+						l_linkables.new_cursor as it
 					loop
-						l_item := l_linkables.i_th (i)
+						l_item := it.item
 
 						if not l_item.is_fixed then
 								-- Calculate spring force
@@ -289,14 +285,13 @@ feature {NONE} -- Implementation
 							l_item.set_x_y (l_item.x + dx, l_item.y + dy)
 							l_item.set_delta (0, 0)
 						end
-						i := i + 1
 					end
 				end
 			end
 		end
 
 	recursive_energy (a_node: EG_LINKABLE_FIGURE; solver: EG_SPRING_ENERGY)
-			-- Calculate spring energy for `a_node'
+			-- Calculate spring energy for `a_node'.
 		local
 			i: INTEGER
 			l_energy, l_initial_energy: DOUBLE
@@ -330,7 +325,7 @@ feature {NONE} -- Implementation
 		end
 
 	new_spring_particle_solver (particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_PARTICLE
-			-- Create a new spring particle solver for `particles' and initialize it
+			-- Create a new spring particle solver for `particles' and initialize it.
 		require
 			particles_exist: particles /= Void
 			particles_not_empty: not particles.is_empty
@@ -353,7 +348,7 @@ feature {NONE} -- Implementation
 		end
 
 	new_spring_energy_solver (particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_ENERGY
-			-- Create a new spring energy solver for `particles' and initialize it
+			-- Create a new spring energy solver for `particles' and initialize it.
 		require
 			particles_exist: particles /= Void
 			particles_not_empty: not particles.is_empty

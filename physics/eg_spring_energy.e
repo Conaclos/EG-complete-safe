@@ -38,7 +38,7 @@ create
 feature {NONE} -- Implementation
 
 	npx, npy: DOUBLE
-			-- Position of a particle with dt
+			-- Position of a particle with dt.
 
 	external_force (a_node: like particle_type): DOUBLE
 			-- External force for `a_node'. (attraction to center of universe)
@@ -56,12 +56,12 @@ feature {NONE} -- Implementation
 		end
 
 	nearest_neighbor_force (a_node: like particle_type): DOUBLE
-			-- Get the spring force between all of `a_node's adjacent nodes
+			-- Get the spring force between all of `a_node's adjacent nodes.
 		local
 			i, nb: INTEGER
 			links: ARRAYED_LIST [EG_LINK_FIGURE]
-			an_other: detachable like a_node
-			an_edge: EG_LINK_FIGURE
+			l_other: like a_node
+			l_edge: EG_LINK_FIGURE
 			l_distance: DOUBLE
 		do
 			from
@@ -71,16 +71,16 @@ feature {NONE} -- Implementation
 			until
 				i > nb
 			loop
-				an_edge := links.i_th (i)
-				if an_edge.is_show_requested then
-					if a_node = an_edge.source then
-						an_other := an_edge.target
+				l_edge := links.i_th (i)
+				if l_edge.is_show_requested then
+					if a_node = l_edge.source then
+						l_other := l_edge.target
 					else
-						an_other := an_edge.source
+						l_other := l_edge.source
 					end
-					if an_other /=Void and then an_other.is_show_requested then
-						l_distance := distance (npx, npy, an_other.port_x, an_other.port_y)
-						Result := Result + stiffness * link_stiffness (an_edge) * (l_distance^2) / 2
+					if l_other.is_show_requested then
+						l_distance := distance (npx, npy, l_other.port_x, l_other.port_y)
+						Result := Result + stiffness * link_stiffness (l_edge) * (l_distance^2) / 2
 					end
 				end
 				i := i + 1
@@ -88,7 +88,7 @@ feature {NONE} -- Implementation
 		end
 
 	n_body_force (a_node, an_other: EG_PARTICLE): DOUBLE
-			-- Get the electrical repulsion between all nodes, including those that are not adjacent
+			-- Get the electrical repulsion between all nodes, including those that are not adjacent.
 		do
 			if a_node /= an_other then
 				Result := electrical_repulsion * an_other.mass / distance (npx, npy, an_other.x, an_other.y).max (0.0001)
@@ -99,8 +99,6 @@ feature {NONE} -- Implementation
 
 	particle_type: EG_LINKABLE_FIGURE
 			-- Type of particle
-		local
-			l_result: detachable like particle_type
 		do
 			check anchor_type_only: False then end
 		end

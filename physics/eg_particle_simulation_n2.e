@@ -18,22 +18,19 @@ inherit
 feature {NONE} -- Implementation
 
 	n_body_force_solver (a_particle: EG_PARTICLE): G
-			-- Solve n_nody_force O(n)
+			-- Solve n_nody_force O(n).
 		local
-			l_result: detachable like n_body_force_solver
+			it: INDEXABLE_ITERATION_CURSOR [like particle_type]
 		do
-			across
-				particles as it
+			from
+				it := particles.new_cursor
+				Result := n_body_force (a_particle, it.item)
+				it.forth
+			until
+				it.after
 			loop
-				if l_result /= Void then
-					l_result := l_result + n_body_force (a_particle, it.item)
-				else
-					l_result := n_body_force (a_particle, it.item)
-				end
-				particles.forth
-			end
-			check l_result /= Void then -- Implied by invariant `particles_not_empty'
-				Result := l_result
+				Result := Result + n_body_force (a_particle, it.item)
+				it.forth
 			end
 		end
 

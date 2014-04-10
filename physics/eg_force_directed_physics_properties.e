@@ -21,7 +21,7 @@ feature -- Access
 			-- X position of the center.
 
 	center_y: INTEGER
-			-- Y position of the center
+			-- Y position of the center.
 
 	center_attraction: DOUBLE
 			-- Attraction of the center for particles.
@@ -58,13 +58,13 @@ feature -- Element change
 			set: electrical_repulsion = a_value
 		end
 
-	set_center (ax, ay: INTEGER)
-			-- Set `center_x' to `ax' and `center_y' to `ay'.
+	set_center (a_x, a_y: INTEGER)
+			-- Set `center_x' to `a_x' and `center_y' to `a_y'.
 		do
-			center_x := ax
-			center_y := ay
+			center_x := a_x
+			center_y := a_y
 		ensure
-			set: center_x = ax and center_y = ay
+			set: center_x = a_x and center_y = a_y
 		end
 
 feature {NONE} -- Implementation
@@ -76,7 +76,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

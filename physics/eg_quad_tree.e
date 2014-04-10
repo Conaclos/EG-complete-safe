@@ -46,7 +46,10 @@ feature -- Status report
 	valid_tree: BOOLEAN
 			-- Are all particles in `Current' element `region'?
 		do
-			if attached particle as l_particle then -- equivalent to `is_leaf' (invariant `leaf_has_particle_inner_nodes_do_not')
+			if attached particle as l_particle then
+				check
+					is_leaf: is_leaf
+				end
 				Result := region.has_x_y (l_particle.x, l_particle.y)
 			else
 				Result := True
@@ -85,65 +88,79 @@ feature -- Access
 	childe_nw: detachable EG_QUAD_TREE
 			-- Root node for particles int the north west part of `region'.
 
-	center_of_mass_particle: detachable EG_PARTICLE
+	center_of_mass_particle: EG_PARTICLE
 			-- The average particle of all the children particles or particle if `is_leaf'.
+			-- The result is cached for next use.
+		local
+			x, y: DOUBLE
+			l_cmp: like center_of_mass_particle
+			mass, l_mass: DOUBLE
+		do
+			if attached center_of_mass_particle_cache as l_cahe then
+				Result := l_cahe
+			else
+				if attached particle as l_particle then
+					Result := l_particle
+				else
+					if attached childe_sw as l_childe_sw then
+						l_childe_sw.build_center_of_mass
+						l_cmp := l_childe_sw.center_of_mass_particle
+						mass := l_cmp.mass
+						x := l_cmp.x * mass
+						y := l_cmp.y * mass
+					end
+					if attached childe_se as l_childe_se then
+						l_childe_se.build_center_of_mass
+						l_cmp := l_childe_se.center_of_mass_particle
+						l_mass := l_cmp.mass
+						x := x + l_cmp.x * l_mass
+						y := y + l_cmp.y * l_mass
+						mass := l_mass + mass
+					end
+					if attached childe_ne as l_childe_ne then
+						l_childe_ne.build_center_of_mass
+						l_cmp := l_childe_ne.center_of_mass_particle
+						l_mass := l_cmp.mass
+						x := x + l_cmp.x * l_mass
+						y := y + l_cmp.y * l_mass
+						mass := l_mass + mass
+					end
+					if attached childe_nw as l_childe_nw then
+						l_childe_nw.build_center_of_mass
+						l_cmp := l_childe_nw.center_of_mass_particle
+						l_mass := l_cmp.mass
+						x := x + l_cmp.x * l_mass
+						y := y + l_cmp.y * l_mass
+						mass := l_mass + mass
+					end
+					create Result.make ((x / mass).truncated_to_integer, (y / mass).truncated_to_integer, mass)
+				end
+				center_of_mass_particle_cache := Result
+			end
+		ensure
+			cached_result: center_of_mass_particle_cache = Result
+			inside: region.has_x_y (Result.x, Result.y)
+		end
 
 feature -- Element change
 
+	reset_center_of_mass
+			-- Remove the cached value for `center_of_mass_particle'
+		do
+			center_of_mass_particle_cache := Void
+		ensure
+			set: center_of_mass_particle_cache = Void
+		end
+
 	build_center_of_mass
 			-- Build a center of mass for every node in the tree.
-		local
-			x, y: DOUBLE
-			l_particle: like center_of_mass_particle
-			mass, l_mass: DOUBLE
+		obsolete
+			"Use `reset_center_of_mass' instead. [04-2014]"
 		do
-			if particle /= Void then
-				center_of_mass_particle := particle
-			else
-				if attached childe_sw as l_childe_sw then
-					l_childe_sw.build_center_of_mass
-					l_particle := l_childe_sw.center_of_mass_particle
-					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
-						mass := l_particle.mass
-						x := l_particle.x * mass
-						y := l_particle.y * mass
-					end
-				end
-				if attached childe_se as l_childe_se then
-					l_childe_se.build_center_of_mass
-					l_particle := l_childe_se.center_of_mass_particle
-					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
-						l_mass := l_particle.mass
-						x := x + l_particle.x * l_mass
-						y := y + l_particle.y * l_mass
-					end
-					mass := l_mass + mass
-				end
-				if attached childe_ne as l_childe_ne then
-					l_childe_ne.build_center_of_mass
-					l_particle := l_childe_ne.center_of_mass_particle
-					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
-						l_mass := l_particle.mass
-						x := x + l_particle.x * l_mass
-						y := y + l_particle.y * l_mass
-					end
-					mass := l_mass + mass
-				end
-				if attached childe_nw as l_childe_nw then
-					l_childe_nw.build_center_of_mass
-					l_particle := l_childe_nw.center_of_mass_particle
-					check l_particle /= Void then -- Implied by postcondition of `build_center_of_mass'
-						l_mass := l_particle.mass
-						x := x + l_particle.x * l_mass
-						y := y + l_particle.y * l_mass
-					end
-					mass := l_mass + mass
-				end
-				create center_of_mass_particle.make ((x / mass).truncated_to_integer, (y / mass).truncated_to_integer, mass)
-			end
+			reset_center_of_mass
+			center_of_mass_particle_cache := center_of_mass_particle
 		ensure
-			set: center_of_mass_particle /= Void
-			inside: attached center_of_mass_particle as le_center_of_mass_particle and then region.has_x_y (le_center_of_mass_particle.x, le_center_of_mass_particle.y)
+			cached_result: center_of_mass_particle_cache /= Void
 		end
 
 	insert (a_particle: attached like particle)
@@ -255,8 +272,14 @@ feature -- Element change
 			end
 		end
 
+feature {NONE} -- Implementation
+
+	center_of_mass_particle_cache: detachable like center_of_mass_particle
+		-- Cache storage for `center_of_mass_particle'.
+
 invariant
 	leaf_has_particle_inner_nodes_do_not: is_leaf = (particle /= Void)
+	leaf_has_no_childe: is_leaf = (childe_sw = Void and childe_se = Void and childe_ne = Void and childe_nw = Void)
 	is_leaf_implies_has_particle: is_leaf implies attached (attached particle as l_particle and then region.has_x_y (l_particle.x, l_particle.y))
 
 note

@@ -23,7 +23,7 @@ inherit
 feature {NONE} -- Initialization
 
 	initialize
-			-- Initialize `Current' (synchronize with `model')
+			-- Initialize `Current' (synchronize with `model').
 		do
 			Precursor {EG_FIGURE}
 			model.is_directed_change_actions.extend (agent on_is_directed_change)
@@ -34,30 +34,34 @@ feature -- Status report
 	is_reflexive: BOOLEAN
 			-- Is `Current' reflexive?
 		do
-			Result := source /= Void and then source = target
+			Result := source = target
 		end
 
 
 feature -- Access
 
-	source: detachable EG_LINKABLE_FIGURE
-			-- source of `Current'
+	source: EG_LINKABLE_FIGURE
+			-- source of `Current'.
 
 	target: like source
-			-- target of `Current'
+			-- target of `Current'.
 
 	model: EG_LINK
-			-- The model for `Current'
+			-- The model for `Current'.
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state
+			-- Xml node representing `Current's state.
 		local
 			l_model: like model
 		do
 			l_model := model
 			Result := Precursor {EG_FIGURE} (node)
-			Result.add_attribute (once "SOURCE", xml_namespace, l_model.source.link_name)
-			Result.add_attribute (once "TARGET", xml_namespace, l_model.target.link_name)
+			if attached l_model.source.link_name as l_link_name then
+				Result.add_attribute (once "SOURCE", xml_namespace, l_link_name)
+			end
+			if attached l_model.target.link_name as l_link_name then
+				Result.add_attribute (once "TARGET", xml_namespace, l_link_name)
+			end
 			Result.put_last (Xml_routines.xml_node (Result, is_directed_string, boolean_representation (l_model.is_directed)))
 		end
 
@@ -73,7 +77,7 @@ feature -- Access
 	is_directed_string: STRING = "IS_DIRECTED"
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'
+			-- Name of the node returned by `xml_element'.
 		do
 			Result := once "EG_LINK_FIGURE"
 		end
@@ -87,36 +91,12 @@ feature -- Element change
 			model.is_directed_change_actions.extend (agent on_is_directed_change)
 		end
 
-feature {EG_FIGURE_WORLD} -- Element change.
-
-	set_source (a_source: attached like source)
-			-- Set `source' to `a_source'.
-		require
-			a_source_not_void: a_source /= Void
-		do
-			source := a_source
-			request_update
-		ensure
-			set: a_source = source
-		end
-
-	set_target (a_target: attached like target)
-			-- Set `target' to `a_target'.
-		require
-			a_target_not_void: a_target /= Void
-		do
-			target := a_target
-			request_update
-		ensure
-			set: a_target = target
-		end
-
 feature -- Visitor
 
-	process (v: EG_FIGURE_VISITOR)
+	process (a_visitor: EG_FIGURE_VISITOR)
 			-- Visitor feature.
 		do
-			v.process_link_figure (Current)
+			a_visitor.process_link_figure (Current)
 		end
 
 feature {NONE} -- Implementation
@@ -125,6 +105,10 @@ feature {NONE} -- Implementation
 			-- `model'.`is_directed' changed
 		deferred
 		end
+
+invariant
+	source_not_void: source /= Void
+	target_not_void: target /= Void
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

@@ -33,7 +33,7 @@ create
 feature {NONE} -- Initialization
 
 	default_create
-			-- Create a EG_FORCE_DIRECTED_LAYOUT
+			-- Create a EG_FORCE_DIRECTED_LAYOUT.
 		do
 			Precursor {EG_LAYOUT}
 			preset (3)
@@ -50,24 +50,24 @@ feature -- Access
 	electrical_repulsion: INTEGER
 
 	energy_tolerance: DOUBLE
-			-- Algorithm variables
+			-- Algorithm variables.
 
 	center_x: INTEGER
-			-- Abscissa position of the center
+			-- Abscissa position of the center.
 
 	center_y: INTEGER
-			-- Ordinate position of the center
+			-- Ordinate position of the center.
 
 	stop_actions: EV_NOTIFY_ACTION_SEQUENCE
 
 	move_threshold: DOUBLE
 			-- Stop layouting and call `stop_actions' if no node moved
-			-- for more then `move_threshold'
+			-- for more then `move_threshold'.
 
 feature -- Access
 
 	fence: detachable EV_RECTANGLE
-			-- Fence to keep nodes in (optional, Void if no fence)
+			-- Fence to keep nodes in (optional, Void if no fence).
 
 	is_stopped: BOOLEAN
 
@@ -95,7 +95,7 @@ feature -- Basic operations
 
 	preset (a_level: INTEGER)
 			-- Rest the setting accoridingly to `a_level', which is one of:
-			-- 1: tight, 2: normal, 3: loose
+			-- 1: tight, 2: normal, 3: loose.
 		do
 			if a_level = 1 then
 				-- Tight
@@ -200,37 +200,34 @@ feature {NONE} -- Implementation
 			-- Maximal move in x and y direction of a node.
 
 	tolerance: DOUBLE = 0.001
-	math: DOUBLE_MATH once create Result end
-			-- For math functions
+	math: DOUBLE_MATH
+			-- Math functions.
+		once
+			create Result
+		end
 
-	get_link_weight (link: EG_LINK_FIGURE): DOUBLE
-			--
+	link_weight (a_link: EG_LINK_FIGURE): DOUBLE
 		do
 			Result := 0.25 / world.scale_factor
 		end
 
-	layout_linkables (linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; level: INTEGER; cluster: detachable EG_CLUSTER_FIGURE)
+	layout_linkables (a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; a_level: INTEGER; a_cluster: detachable EG_CLUSTER_FIGURE)
 			-- arrange `linkables'.
 		local
 			l_distance, l_force: DOUBLE
 			l_item: EG_LINKABLE_FIGURE
-			l_other: detachable EG_LINKABLE_FIGURE
-			links: ARRAYED_LIST [EG_LINK_FIGURE]
-			i, nb, j, nb2: INTEGER
+			l_other: EG_LINKABLE_FIGURE
 			move: DOUBLE
 			px, py: INTEGER
 			opx, opy: INTEGER
-			a_edge: EG_LINK_FIGURE
+			l_edge: EG_LINK_FIGURE
 			l_weight: DOUBLE
 		do
 			if not is_stopped then
-				from
-					i := 1
-					nb := linkables.count
-				until
-					i > nb
+				across
+					a_linkables as it
 				loop
-					l_item := linkables.i_th (i)
+					l_item := it.item
 					if l_item.is_show_requested and then not l_item.is_fixed then
 						px := l_item.port_x
 						py := l_item.port_y
@@ -243,41 +240,32 @@ feature {NONE} -- Implementation
 							end
 						end
 
-						links := l_item.links
-						from
-							j := 1
-							nb2 := links.count
-						until
-							j > nb2
+						across
+							l_item.links as it_2
 						loop
-							a_edge := links.i_th (j)
-							if a_edge.is_show_requested then
-								if l_item = a_edge.source then
-									l_other := a_edge.target
+							l_edge := it_2.item
+							if l_edge.is_show_requested then
+								if l_item = l_edge.source then
+									l_other := l_edge.target
 								else
-									l_other := a_edge.source
+									l_other := l_edge.source
 								end
-								check l_other /= Void then -- FIXME: Implied by...?
-									if l_other.is_show_requested then
-										opx := l_other.port_x
-										opy := l_other.port_y
-										l_distance := distance (px, py, opx, opy)
-										if l_distance > tolerance then
-											l_weight := internal_stiffness * get_link_weight (a_edge)
-											l_item.set_delta (l_item.dx - l_weight * (px - opx), l_item.dy - l_weight * (py - opy))
-										end
+								if l_other.is_show_requested then
+									opx := l_other.port_x
+									opy := l_other.port_y
+									l_distance := distance (px, py, opx, opy)
+									if l_distance > tolerance then
+										l_weight := internal_stiffness * link_weight (l_edge)
+										l_item.set_delta (l_item.dx - l_weight * (px - opx), l_item.dy - l_weight * (py - opy))
 									end
 								end
 							end
-							j := j + 1
 						end
 
-						from
-							j := 1 --i + 1
-						until
-							j > nb
+						across
+							a_linkables as it_3
 						loop
-							l_other := linkables.i_th (j)
+							l_other := it_3.item
 							if
 								l_other.is_show_requested and
 								l_other /= l_item
@@ -290,16 +278,14 @@ feature {NONE} -- Implementation
 								l_force := internal_electrical_repulsion / (l_distance^3)
 								l_item.set_delta (l_item.dx + l_force  * (px - opx), l_item.dy + l_force *  (py - opy))
 							end
-							j := j + 1
 						end
 
-						recursive_energy (l_item, linkables)
+						recursive_energy (l_item, a_linkables)
 						move := (l_item.dt * l_item.dx).abs + (l_item.dt * l_item.dy).abs
 						max_move := move.max (max_move)
 						l_item.set_x_y ((l_item.x + l_item.dx * l_item.dt).truncated_to_integer, (l_item.y + l_item.dy * l_item.dt).truncated_to_integer)
 						l_item.set_delta (0, 0)
 					end
-					i := i + 1
 				end
 			end
 		end
@@ -325,7 +311,7 @@ feature {NONE} -- Implementation
 			-- Get the spring force between all of its adjacent nodes.
 		local
 			l_distance: DOUBLE
-			l_other: detachable EG_LINKABLE_FIGURE
+			l_other: EG_LINKABLE_FIGURE
 			l_weight: DOUBLE
 			npx, npy, opx, opy: DOUBLE
 		do
@@ -334,33 +320,29 @@ feature {NONE} -- Implementation
 			else
 				l_other := a_edge.source
 			end
-			check l_other /= Void then -- FIXME: Implied by ...?
-				if l_other.is_show_requested then
-					npx := a_node.port_x
-					npy := a_node.port_y
-					opx := l_other.port_x
-					opy := l_other.port_y
-					l_distance := distance (npx, npy, opx, opy)
-					if l_distance > tolerance then
-						l_weight := get_link_weight (a_edge)
-						a_node.set_delta (a_node.dx - internal_stiffness * l_weight * (npx - opx), a_node.dy - internal_stiffness * l_weight * (npy - opy))
-					end
+			if l_other.is_show_requested then
+				npx := a_node.port_x
+				npy := a_node.port_y
+				opx := l_other.port_x
+				opy := l_other.port_y
+				l_distance := distance (npx, npy, opx, opy)
+				if l_distance > tolerance then
+					l_weight := link_weight (a_edge)
+					a_node.set_delta (a_node.dx - internal_stiffness * l_weight * (npx - opx), a_node.dy - internal_stiffness * l_weight * (npy - opy))
 				end
 			end
 		end
 
-	recursive_energy (a_node: EG_LINKABLE_FIGURE; linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE])
+	recursive_energy (a_node: EG_LINKABLE_FIGURE; a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE])
 		require
 			a_node_not_void: a_node /= Void
+			a_linkables_not_void: a_linkables /= Void
 			a_node_is_shown_requested: a_node.is_show_requested
 		local
 			l_initial_energy, l_dt, l_energy: DOUBLE
 			i: INTEGER
-
-			nb: INTEGER
-			links: ARRAYED_LIST [EG_LINK_FIGURE]
-			a_other: detachable like a_node
-			a_edge: EG_LINK_FIGURE
+			l_other: like a_node
+			l_edge: EG_LINK_FIGURE
 			l_distance, l_distance2: DOUBLE
 			npx, npy: DOUBLE
 			ox, oy, px, py: INTEGER
@@ -375,39 +357,34 @@ feature {NONE} -- Implementation
 			npy := a_node.port_y + l_dt * a_node.dy
 			l_energy := internal_center_attraction * distance (npx, npy, center_x, center_y)
 			l_initial_energy := internal_center_attraction * distance (px, py, center_x, center_y)
-			from
-				i := 1
-				nb := linkables.count
-			until
-				i > nb
+			across
+				a_linkables as it
 			loop
-				a_other := linkables.i_th (i)
-				if a_node /= a_other and then a_other.is_show_requested then --and then a_other.has_visible_link then
-					ox := a_other.port_x
-					oy := a_other.port_y
+				if
+					attached it.item as l_item and then
+					l_item.is_show_requested
+				then --and then l_item.has_visible_link then
+					ox := l_item.port_x
+					oy := l_item.port_y
 					l_energy :=  l_energy + internal_electrical_repulsion / distance (npx, npy, ox, oy).max (0.0001)
 					l_initial_energy :=  l_initial_energy + internal_electrical_repulsion / distance (px, py, ox, oy).max (0.0001)
 				end
-				i := i + 1
 			end
-			links := a_node.links
-			from
-				i := 1
-				nb := links.count
-			until
-				i > nb
+
+			across
+				a_node.links as it
 			loop
-				a_edge := links.i_th (i)
-				if a_edge.is_show_requested then
-					if a_node = a_edge.source then
-						a_other := a_edge.target
+				l_edge := it.item
+				if l_edge.is_show_requested then
+					if a_node = l_edge.source then
+						l_other := l_edge.target
 					else
-						a_other := a_edge.source
+						l_other := l_edge.source
 					end
-					if a_other /=Void and then a_other.is_show_requested then -- and then a_other.has_visible_link then
-						ox := a_other.port_x
-						oy := a_other.port_y
-						l_weight := internal_stiffness * get_link_weight (a_edge)
+					if l_other.is_show_requested then -- and then l_other.has_visible_link then
+						ox := l_other.port_x
+						oy := l_other.port_y
+						l_weight := internal_stiffness * link_weight (l_edge)
 
 						l_distance := distance (npx, npy, ox, oy)
 						l_distance2 := distance (px, py, ox, oy)
@@ -416,12 +393,11 @@ feature {NONE} -- Implementation
 						l_initial_energy := l_initial_energy + l_weight * l_distance2 * l_distance2 / 2
 					end
 				end
-				i := i + 1
 			end
 
 			check
-				l_energy = get_node_energy (a_node, l_dt, linkables)
-				l_initial_energy = get_node_energy (a_node, 0, linkables)
+				l_energy = node_energy (a_node, l_dt, a_linkables)
+				l_initial_energy = node_energy (a_node, 0, a_linkables)
 			end
 
 			from
@@ -431,61 +407,51 @@ feature {NONE} -- Implementation
 			loop
 				i := i + 1
 				l_dt := l_dt / 4
-				l_energy := get_node_energy (a_node, l_dt, linkables)
+				l_energy := node_energy (a_node, l_dt, a_linkables)
 			end
 			a_node.set_dt (l_dt)
 		end
 
-	get_node_energy (a_node: EG_LINKABLE_FIGURE; a_dt: DOUBLE; linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]): DOUBLE
+	node_energy (a_node: EG_LINKABLE_FIGURE; a_dt: DOUBLE; a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]): DOUBLE
 		require
 			a_node_not_void: a_node /= Void
+			a_linkables_not_void: a_linkables /= Void
 			a_node_is_shown_requested: a_node.is_show_requested
 		local
-			i, nb: INTEGER
-			links: ARRAYED_LIST [EG_LINK_FIGURE]
-			a_other: detachable like a_node
-			a_edge: EG_LINK_FIGURE
+			l_other: like a_node
+			l_edge: EG_LINK_FIGURE
 			l_distance: DOUBLE
 			npx, npy: DOUBLE
 		do
 			npx := a_node.port_x + a_dt * a_node.dx
 			npy := a_node.port_y + a_dt * a_node.dy
 			Result := internal_center_attraction * distance (npx, npy, center_x, center_y)
-			from
-				i := 1
-				nb := linkables.count
-			until
-				i > nb
+			across
+				a_linkables as it
 			loop
-				a_other := linkables.i_th (i)
-				if a_node /= a_other and then a_other.is_show_requested then --and then a_other.has_visible_link then
-					Result :=  Result + internal_electrical_repulsion / distance (npx, npy, a_other.port_x, a_other.port_y).max (0.0001)
+				l_other := it.item
+				if l_other /= a_node and then l_other.is_show_requested then --and then a_other.has_visible_link then
+					Result :=  Result + internal_electrical_repulsion / distance (npx, npy, l_other.port_x, l_other.port_y).max (0.0001)
 				end
-				i := i + 1
 			end
-			links := a_node.links
-			from
-				i := 1
-				nb := links.count
-			until
-				i > nb
+
+			across
+				a_node.links as it
 			loop
-				a_edge := links.i_th (i)
-				if a_edge.is_show_requested then
-					if a_node = a_edge.source then
-						a_other := a_edge.target
+				l_edge := it.item
+				if l_edge.is_show_requested then
+					if a_node = l_edge.source then
+						l_other := l_edge.target
 					else
-						a_other := a_edge.source
+						l_other := l_edge.source
 					end
-					if a_other /=Void and then a_other.is_show_requested then-- and then a_other.has_visible_link then
-						l_distance := distance (npx, npy, a_other.port_x, a_other.port_y)
-						Result := Result + internal_stiffness * get_link_weight (a_edge) * l_distance * l_distance / 2
+					if l_other.is_show_requested then-- and then a_other.has_visible_link then
+						l_distance := distance (npx, npy, l_other.port_x, l_other.port_y)
+						Result := Result + internal_stiffness * link_weight (l_edge) * l_distance * l_distance / 2
 					end
 				end
-				i := i + 1
 			end
 		end
-
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

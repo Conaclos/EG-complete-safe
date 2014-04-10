@@ -17,14 +17,14 @@ create
 
 feature {NONE} -- Initialization
 
-	make (ax, ay: INTEGER; a_mass: like mass)
-			-- Make a particle with `a_mass' at position (`ax', `ay').
+	make (a_x, a_y: INTEGER; a_mass: like mass)
+			-- Make a particle with `a_mass' at position (`a_x', `a_y').
 		do
-			internal_x := ax
-			internal_y := ay
+			internal_x := a_x
+			internal_y := a_y
 			mass := a_mass
 		ensure
-			set: x = ax and y = ay and mass = a_mass
+			set: x = a_x and y = a_y and mass = a_mass
 		end
 
 feature -- Access
@@ -56,7 +56,7 @@ feature -- Access
 feature -- Element change
 
 	set_delta (a_dx, a_dy: DOUBLE)
-			-- Set `dx' to `a_dx' and `dy' to `a_dy'
+			-- Set `dx' to `a_dx' and `dy' to `a_dy'.
 		do
 			dx := a_dx
 			dy := a_dy
@@ -65,7 +65,7 @@ feature -- Element change
 		end
 
 	set_dt (a_dt: DOUBLE)
-			-- Set `dt' to `a_dt'
+			-- Set `dt' to `a_dt'.
 		do
 			dt := a_dt
 		ensure
@@ -75,13 +75,13 @@ feature -- Element change
 feature {NONE} -- Implementation
 
 	internal_x: INTEGER
-			-- internal `x' position.
+			-- Internal `x' position.
 
 	internal_y: INTEGER;
-			-- internal `y' position.
+			-- Internal `y' position.
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

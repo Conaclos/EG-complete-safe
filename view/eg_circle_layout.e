@@ -37,14 +37,14 @@ feature -- Access
 				-- X position of the center of the circle.
 
 	center_y: INTEGER
-				-- Y position of the center of the circle
+				-- Y position of the center of the circle.
 
 	radius: INTEGER
 				-- Radius of largest circle.
 
 	exponent: DOUBLE
 				-- Exponent used to reduce radius per level:
-				-- (`radius' / cluster_level ^ `exponent')
+				-- (`radius' / cluster_level ^ `exponent').
 
 feature -- Element change
 
@@ -87,7 +87,6 @@ feature {NONE} -- Implementation
 			d_angle, angle: DOUBLE
 			i: INTEGER
 			l_link: EG_LINKABLE_FIGURE
-			l_cluster: detachable EG_CLUSTER_FIGURE
 		do
 			l_count := linkables.count
 			if l_count = 1 then
@@ -105,11 +104,8 @@ feature {NONE} -- Implementation
 				l_link := linkables.i_th (i)
 				if level = 1 then
 					l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + center_x, (sine (angle) * level_radius).truncated_to_integer + center_y)
-				else
-					l_cluster := l_link.cluster
-					check l_cluster /= Void then -- FIXME: Implied by ...?
-						l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + l_cluster.port_x, (sine (angle) * level_radius).truncated_to_integer + l_cluster.port_y)
-					end
+				elseif attached l_link.cluster as l_cluster then
+					l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + l_cluster.port_x, (sine (angle) * level_radius).truncated_to_integer + l_cluster.port_y)
 				end
 				angle := angle + d_angle
 				i := i + 1
@@ -117,7 +113,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
