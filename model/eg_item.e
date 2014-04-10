@@ -14,8 +14,7 @@ inherit
 			hash_code as id
 		redefine
 			default_create,
-			is_equal,
-			id
+			is_equal
 		end
 
 feature {NONE} -- Initialization
