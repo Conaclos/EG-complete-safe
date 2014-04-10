@@ -473,8 +473,6 @@ feature -- Element change
 			a_link_not_void: a_link /= Void
 			model_has_link: attached_model.has_link (a_link)
 			not_has_a_link: not has_link_figure (a_link)
-			a_link.source /= Void
-			a_link.target /= Void
 			has_source_figure: has_linkable_figure (a_link.source)
 			has_target_figure: has_linkable_figure (a_link.target)
 		local
@@ -1070,21 +1068,20 @@ feature {NONE} -- Implementation
 		local
 			l_rect: attached like multi_select_rectangle
 		do
-			if button = 1 and then not figure_was_selected and then ev_application.ctrl_pressed and then is_multiple_selection_enabled then
-				if is_multiselection_mode then
-					check attached multi_select_rectangle as al_rect then -- Implied by `is_multiselection_mode'
-						prune_all (al_rect)
-					end
-				end
-				create l_rect.make_with_positions (ax, ay, ax, ay)
-				multi_select_rectangle := l_rect
-				l_rect.enable_dashed_line_style
-				extend (l_rect)
-				is_multiselection_mode := True
-				selected_figure := multi_select_rectangle
-				enable_capture
-			elseif button = 1 then
-				if selected_figure /= Void then
+			if button = 1 then
+				if
+					not figure_was_selected and
+					ev_application.ctrl_pressed and
+					attached multi_select_rectangle as al_rect
+				then
+					prune_all (al_rect)
+					create l_rect.make_with_positions (ax, ay, ax, ay)
+					multi_select_rectangle := l_rect
+					l_rect.enable_dashed_line_style
+					extend (l_rect)
+					selected_figure := multi_select_rectangle
+					enable_capture
+				elseif selected_figure /= Void then
 					is_figure_moved := True
 					figure_change_start_actions.call (Void)
 				else
@@ -1101,31 +1098,26 @@ feature {NONE} -- Implementation
 		local
 			l_bbox, l_tmp_bbox: EV_RECTANGLE
 		do
-			if is_multiselection_mode then
-				check attached multi_select_rectangle as l_rect then -- Implied by `is_multiselection_mode'
-					l_rect.set_point_b_position (ax, ay)
-					l_bbox := l_rect.bounding_box
-				end
+			if attached multi_select_rectangle as l_rect then
+				l_rect.set_point_b_position (ax, ay)
+				l_bbox := l_rect.bounding_box
 				create l_tmp_bbox
 				if not ev_application.ctrl_pressed then
 					deselect_all
 				end
-				from
-					nodes.start
-				until
-					nodes.after
+				across
+					nodes as it
 				loop
-					if nodes.item.is_show_requested then
-						nodes.item.update_rectangle_to_bounding_box (l_tmp_bbox)
+					if it.item.is_show_requested then
+						it.item.update_rectangle_to_bounding_box (l_tmp_bbox)
 						if l_tmp_bbox.intersects (l_bbox) then
-							if not nodes.item.is_selected then
-								selected_figures.extend (nodes.item)
-								set_figure_selection_state (nodes.item, True)
+							if not it.item.is_selected then
+								selected_figures.extend (it.item)
+								set_figure_selection_state (it.item, True)
 								figure_was_selected := True
 							end
 						end
 					end
-					nodes.forth
 				end
 			end
 		end
@@ -1133,12 +1125,10 @@ feature {NONE} -- Implementation
 	on_pointer_button_release_on_world (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
 			-- Pointer was released over world.
 		do
-			if is_multiselection_mode then
-				check attached multi_select_rectangle as l_rect then -- Implied by `is_multiselection_mode'
-					prune_all (l_rect)
-				end
+			if attached multi_select_rectangle as l_rect then
+				prune_all (l_rect)
 				full_redraw
-				is_multiselection_mode := False
+				multi_select_rectangle := Void
 				disable_capture
 			end
 			if is_figure_moved then
@@ -1150,9 +1140,6 @@ feature {NONE} -- Implementation
 
 	multi_select_rectangle: detachable EV_MODEL_RECTANGLE
 			-- Rectangle used to multiselect nodes.
-
-	is_multiselection_mode: BOOLEAN
-			-- Is `Current' in multiselction mode?
 
 	figure_added (a_figure: EG_FIGURE)
 			-- `a_figure' was added to the world. Redefine this to do your

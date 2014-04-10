@@ -95,15 +95,11 @@ feature -- Access
 		local
 			l_name: STRING
 			l_xml_routines: like xml_routines
-			l_attribute: detachable XML_ATTRIBUTE
 			l_model_name: detachable STRING_8
 		do
 			l_xml_routines := xml_routines
-			if node.has_attribute_by_name (name_string) then
-				l_attribute := node.attribute_by_name (name_string)
-				check l_attribute /= Void then -- Implied by `has_attribute_by_name'
-					l_name := l_attribute.value
-				end
+			if attached node.attribute_by_name (name_string) as l_attribute then
+				l_name := l_attribute.value
 				check attached model as l_model then -- FIXME: Implied by ...?
 					l_model_name := l_model.name
 					if (l_model_name = Void) or else not (l_model_name ~ (l_name)) then

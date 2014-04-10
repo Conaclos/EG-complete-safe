@@ -45,14 +45,12 @@ feature -- Status report
 
 	valid_tree: BOOLEAN
 			-- Are all particles in `Current' element `region'?
-		local
-			l_particle: like particle
 		do
-			if is_leaf then
-				l_particle := particle
-				check l_particle /= Void then -- Implied by invariant `leaf_has_particle_inner_nodes_do_not'
-					Result := region.has_x_y (l_particle.x, l_particle.y)
+			if attached particle as l_particle then
+				check
+					is_leaf: is_leaf
 				end
+				Result := region.has_x_y (l_particle.x, l_particle.y)
 			else
 				Result := True
 				if attached childe_sw as l_childe_sw then

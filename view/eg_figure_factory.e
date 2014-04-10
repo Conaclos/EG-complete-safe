@@ -78,12 +78,11 @@ feature {NONE} -- Implementation
 			-- Linkable with name `a_name' in graph if any
 		require
 			a_name_not_void: a_name /= Void
-			world_not_void: world /= Void
 		local
 			nodes: LIST [EG_NODE]
 			clusters: LIST [EG_CLUSTER]
 		do
-			check attached world as l_world then -- Implied by precondition `world_not_void'
+			if attached world as l_world then
 				from
 					nodes := l_world.attached_model.flat_nodes
 					nodes.start

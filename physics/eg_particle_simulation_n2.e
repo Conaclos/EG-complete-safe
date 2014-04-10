@@ -17,29 +17,22 @@ feature {NONE} -- Implementation
 	n_body_force_solver (a_particle: EG_PARTICLE): G
 			-- Solve n_nody_force O(n).
 		local
-			l_item: EG_PARTICLE
-			l_result: detachable like n_body_force_solver
+			it: INDEXABLE_ITERATION_CURSOR [like particle_type]
 		do
 			from
-				particles.start
+				it := particles.new_cursor
+				Result := n_body_force (a_particle, it.item)
+				it.forth
 			until
-				particles.after
+				it.after
 			loop
-				l_item := particles.item
-				if l_result = Void then
-					l_result := n_body_force (a_particle, l_item)
-				else
-					l_result := l_result + n_body_force (a_particle, l_item)
-				end
-				particles.forth
-			end
-			check l_result /= Void then -- FIXME: Implied by ...
-				Result := l_result
+				Result := Result + n_body_force (a_particle, it.item)
+				it.forth
 			end
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

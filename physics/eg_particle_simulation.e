@@ -99,7 +99,9 @@ feature {NONE}
 feature {NONE} -- Implementation
 
 	particle_type: EG_PARTICLE
-			-- Type of particles
+			-- Type of particles.
+		require
+			not_callable: False
 		do
 			check anchor_type_only: False then end
 		end

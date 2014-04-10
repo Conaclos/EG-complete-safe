@@ -74,7 +74,7 @@ feature {NONE} -- Implementation
 					else
 						an_other := an_edge.source
 					end
-					if an_other /=Void and then an_other.is_show_requested then
+					if an_other /= Void and then an_other.is_show_requested then
 						l_distance := distance (npx, npy, an_other.port_x, an_other.port_y)
 						Result := Result + stiffness * link_stiffness (an_edge) * (l_distance^2) / 2
 					end
@@ -95,13 +95,8 @@ feature {NONE} -- Implementation
 
 	particle_type: EG_LINKABLE_FIGURE
 			-- Type of particle
-		local
-			l_result: detachable like particle_type
 		do
-			check anchor_type_only: False end
-			check l_result /= Void then -- Satisfy void-safe compiler
-				Result := l_result
-			end
+			check anchor_type_only: False then end
 		end
 
 note

@@ -113,14 +113,9 @@ feature {NONE} -- Implementation
 feature {NONE} -- Implementation
 
 	particle_type: EG_LINKABLE_FIGURE
-			-- Type of particle
-		local
-			l_result: detachable like particle_type
+			-- Type of particle.
 		do
-			check anchor_type_only: False end
-			check l_result /= Void then -- Satisfy void-safe compiler
-				Result := l_result
-			end
+			check anchor_type_only: False then end
 		end
 
 note
