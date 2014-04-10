@@ -44,9 +44,17 @@ feature -- Access
 
 	source: detachable EG_LINKABLE_FIGURE
 			-- source of `Current'.
+		note
+			option: stable
+		attribute
+		end
 
 	target: like source
 			-- target of `Current'.
+		note
+			option: stable
+		attribute
+		end
 
 	model: detachable EG_LINK
 			-- The model for `Current'.

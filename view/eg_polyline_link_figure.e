@@ -436,7 +436,7 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 		local
 			nx, ny: INTEGER
 		do
-			if attached source as l_source and then attached target as l_target then
+			if source /= Void and target /= Void then
 				check attached model as l_model then --FIXME: Implied by ...?
 					if not l_model.is_reflexive then
 						if edge_move_handlers.count = 0 then
@@ -446,8 +446,8 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 							set_end_point_to_edge
 						end
 					else
-						nx := l_source.port_x
-						ny := l_source.port_y
+						nx := source.port_x
+						ny := source.port_y
 						if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
 							line.set_i_th_point_position (1, nx, ny)
 							line.set_i_th_point_position (line.point_count, nx, ny)
@@ -508,6 +508,8 @@ feature {NONE} -- Implementation
 
 	set_start_point_to_edge
 			-- Set the start point such that it is element of the edge of the source figure.
+		require
+			source_attached: source /= Void
 		local
 			an_angle: DOUBLE
 			l_pa: like point_array
@@ -516,14 +518,16 @@ feature {NONE} -- Implementation
 			l_pa := line.point_array
 			p1 := l_pa.item (1)
 
-			check attached source as l_source then -- FIXME: Implied by ...?
-				an_angle := line_angle (l_source.port_x, l_source.port_y, p1.x_precise, p1.y_precise)
-				l_source.update_edge_point (l_pa.item (0), an_angle)
+			check source /= Void then -- Implied by `source_attached'
+				an_angle := line_angle (source.port_x, source.port_y, p1.x_precise, p1.y_precise)
+				source.update_edge_point (l_pa.item (0), an_angle)
 			end
 		end
 
 	set_end_point_to_edge
 			-- Set the end point such that it is element of the edge of the target figure.
+		require
+			target_attached: target /= Void
 		local
 			an_angle: DOUBLE
 			l_count: INTEGER
@@ -534,9 +538,9 @@ feature {NONE} -- Implementation
 			l_count := l_pa.count
 			p := l_pa.item (l_count - 2)
 
-			check attached target as l_target then -- FIXME: Implied by ...?			
-				an_angle := line_angle (l_target.port_x, l_target.port_y, p.x_precise, p.y_precise)
-				l_target.update_edge_point (l_pa.item (l_count - 1), an_angle)
+			check target /= Void then -- Implied by `target_attached'			
+				an_angle := line_angle (target.port_x, target.port_y, p.x_precise, p.y_precise)
+				target.update_edge_point (l_pa.item (l_count - 1), an_angle)
 			end
 		end
 
@@ -544,19 +548,18 @@ feature {NONE} -- Implementation
 			-- Set end and start point on the edge of source and target.
 		require
 			no_edges: edges_count = 0
+			source_attached: source /= Void
+			target_attached: target /= Void
 		local
 			an_angle: DOUBLE
 			l_point_array: like point_array
 		do
 			l_point_array := line.point_array
-			check
-				attached source as l_source and
-				attached target as l_target
-			then -- FIXME: Implied by ...?
-				an_angle := line_angle (l_source.port_x, l_source.port_y, l_target.port_x, l_target.port_y)
-				l_source.update_edge_point (l_point_array.item (0), an_angle)
+			check source /= Void and target /= Void then -- Implied by `source_attached' and `target_attached'
+				an_angle := line_angle (source.port_x, source.port_y, target.port_x, target.port_y)
+				source.update_edge_point (l_point_array.item (0), an_angle)
 				an_angle := pi + an_angle
-				l_source.update_edge_point (l_point_array.item (1), an_angle)
+				source.update_edge_point (l_point_array.item (1), an_angle)
 			end
 		end
 

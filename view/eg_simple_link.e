@@ -102,30 +102,31 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			-- Some properties may have changed.
 		local
 			p1, p2: EV_COORDINATE
-			an_angle: DOUBLE
+			l_angle: DOUBLE
 			source_size: EV_RECTANGLE
 		do
 			check attached model as l_model then -- FIXME: Implied by ...?
 				if not l_model.is_reflexive then
-					if attached source as l_source and then attached target as l_target then
+					if source /= Void then
 						p1 := line.point_array.item (0)
-						p2 := line.point_array.item (1)
+						p1.set (source.port_x, source.port_y)
 
-						p1.set (l_source.port_x, l_source.port_y)
-						p2.set (l_target.port_x, l_target.port_y)
+						if target /= Void then
+							p2 := line.point_array.item (1)
+							p2.set (target.port_x, target.port_y)
 
-						an_angle := line_angle (p1.x_precise, p1.y_precise, p2.x_precise, p2.y_precise)
-						l_source.update_edge_point (p1, an_angle)
-						an_angle := pi + an_angle
-						l_target.update_edge_point (p2, an_angle)
-					elseif attached source as l_source_2 then
-						p1 := line.point_array.item (0)
-						p1.set (l_source_2.port_x, l_source_2.port_y)
-						l_source_2.update_edge_point (p1, 0)
-					elseif attached target as l_target_2 then
+							l_angle := line_angle (p1.x_precise, p1.y_precise, p2.x_precise, p2.y_precise)
+							source.update_edge_point (p1, l_angle)
+							l_angle := pi + l_angle
+							target.update_edge_point (p2, l_angle)
+						else
+							source.update_edge_point (p1, 0)
+						end
+					elseif target /= Void then
 						p2 := line.point_array.item (1)
-						p2.set (l_target_2.port_x, l_target_2.port_y)
-						l_target_2.update_edge_point (p2, 0)
+						p2.set (target.port_x, target.port_y)
+
+						target.update_edge_point (p2, 0)
 					end
 
 					line.invalidate
@@ -134,8 +135,8 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 						name_label.set_point_position (line.x, line.y)
 					end
 				else
-					if attached source as l_source then
-						source_size := l_source.size
+					if source /= Void then
+						source_size := source.size
 						check attached reflexive as l_reflexive then -- Implied by invariant `reflexive_model_equivalence'
 							l_reflexive.set_x_y (source_size.right + l_reflexive.radius1, source_size.top + source_size.height // 2)
 						end
