@@ -111,7 +111,7 @@ feature {NONE} -- Implementation
 			-- The point of `label_move_handler' is situated on the segment
 			-- from `label_line_start_point' to `label_line_end_point'.
 
-	position_on_line: DOUBLE
+	position_on_line: REAL_64
 			-- Position of `label_move_handle' between `label_line_start_point'
 			-- and `label_line_end_point'. 0.0 is closest to `label_line_start_point'
 			-- 1.0 is closest to `label_line_end_point'
@@ -121,23 +121,23 @@ feature {NONE} -- Implementation
 			-- (`label_line_start_point',`label_line_end_point') is closest to `label_move_handle'.
 		local
 			l_polyline_points: like polyline_points
-			cur_dist, min_dist: DOUBLE
+			l_cur_dist, l_min_dist: REAL_64
 			i, nb: INTEGER
-			p, q, nearest_start, nearest_end: EV_COORDINATE
-			lx, ly: INTEGER
+			p, q, l_nearest_start, l_nearest_end: EV_COORDINATE
+			l_x, l_y: INTEGER
 		do
 			-- find the nearest line.
 			l_polyline_points := polyline_points
 			from
-				lx := label_move_handle.point_x
-				ly := label_move_handle.point_y
+				l_x := label_move_handle.point_x
+				l_y := label_move_handle.point_y
 
 				p := l_polyline_points.item (0)
 				q := l_polyline_points.item (1)
 
-				min_dist := distance_from_segment (lx, ly, p.x_precise, p.y_precise, q.x_precise, q.y_precise)
-				nearest_start := p
-				nearest_end := q
+				l_min_dist := distance_from_segment (l_x, l_y, p.x_precise, p.y_precise, q.x_precise, q.y_precise)
+				l_nearest_start := p
+				l_nearest_end := q
 				p := q
 				i := 2
 				nb := l_polyline_points.count - 1
@@ -145,40 +145,39 @@ feature {NONE} -- Implementation
 				i > nb
 			loop
 				q := l_polyline_points.item (i)
-				cur_dist := distance_from_segment (lx, ly, p.x_precise, p.y_precise, q.x_precise, q.y_precise)
-				if  cur_dist < min_dist then
-					min_dist := cur_dist
-					nearest_start := p
-					nearest_end := q
+				l_cur_dist := distance_from_segment (l_x, l_y, p.x_precise, p.y_precise, q.x_precise, q.y_precise)
+				if l_cur_dist < l_min_dist then
+					l_min_dist := l_cur_dist
+					l_nearest_start := p
+					l_nearest_end := q
 				end
 				p := q
 				i := i + 1
 			end
 
-			label_line_start_point := nearest_start
-			label_line_end_point := nearest_end
+			label_line_start_point := l_nearest_start
+			label_line_end_point := l_nearest_end
 			position_on_line := -1.0
 		end
 
-	set_label_position_on_line (nearest_start, nearest_end: EV_COORDINATE)
+	set_label_position_on_line (a_nearest_start, a_nearest_end: EV_COORDINATE)
 			-- Set the `label_move_handle' position such that its point is
-			-- on the segment from `nearest_start' to `nearest_end'.
+			-- on the segment from `a_nearest_start' to `a_nearest_end'.
 		local
-			new_x, new_y: INTEGER
+			l_new_x, l_new_y: INTEGER
 			lx, ly: INTEGER
-			d_x, d_y: DOUBLE
-			m1, m2: DOUBLE
-			x1, y1, x2, y2, nx, ny: DOUBLE
-
-			a, b, c, d, g, h: DOUBLE
+			d_x, d_y: REAL_64
+			m1, m2: REAL_64
+			x1, y1, x2, y2, nx, ny: REAL_64
+			a, b, c, d, g, h: REAL_64
 		do
 			lx := label_move_handle.point_x
 			ly := label_move_handle.point_y
 
-			x1 := nearest_start.x_precise
-			y1 := nearest_start.y_precise
-			x2 := nearest_end.x_precise
-			y2 := nearest_end.y_precise
+			x1 := a_nearest_start.x_precise
+			y1 := a_nearest_start.y_precise
+			x2 := a_nearest_end.x_precise
+			y2 := a_nearest_end.y_precise
 
 			if position_on_line < 0.0 then
 				-- nearest line is from nearest_start to nearest_end
@@ -199,58 +198,58 @@ feature {NONE} -- Implementation
 				end
 				check
 					-- For speed reasons I do not call project_to_line and has_projection.
-					same_as_project: nx = project_to_line (lx, ly, nearest_start.x_precise, nearest_start.y_precise, nearest_end.x_precise, nearest_end.y_precise).double_item (1)
+					same_as_project: nx = project_to_line (lx, ly, a_nearest_start.x_precise, a_nearest_start.y_precise, a_nearest_end.x_precise, a_nearest_end.y_precise).double_item (1)
 											and
-									 ny = project_to_line (lx, ly, nearest_start.x_precise, nearest_start.y_precise, nearest_end.x_precise, nearest_end.y_precise).double_item (2)
+									 ny = project_to_line (lx, ly, a_nearest_start.x_precise, a_nearest_start.y_precise, a_nearest_end.x_precise, a_nearest_end.y_precise).double_item (2)
 				end
 				if between (nx, x1, x2) and between (ny, y1, y2) then
 					check
-						has_projection: has_projection (lx, ly, nearest_start.x_precise, nearest_start.y_precise, nearest_end.x_precise, nearest_end.y_precise)
+						has_projection: has_projection (lx, ly, a_nearest_start.x_precise, a_nearest_start.y_precise, a_nearest_end.x_precise, a_nearest_end.y_precise)
 					end
-					new_x := as_integer (nx)
-					new_y := as_integer (ny)
+					l_new_x := as_integer (nx)
+					l_new_y := as_integer (ny)
 				else
 					-- go to nearest point
 					if distance (lx, ly, x1, y1) < distance (lx, ly, x2, y2) then
-						new_x := as_integer (x1)
-						new_y := as_integer (y1)
+						l_new_x := as_integer (x1)
+						l_new_y := as_integer (y1)
 					else
-						new_x := as_integer (x2)
-						new_y := as_integer (y2)
+						l_new_x := as_integer (x2)
+						l_new_y := as_integer (y2)
 					end
 				end
 				b := distance (x1, y1, x2, y2)
 				if b = 0.0 then
 					position_on_line := 0.0
 				else
-					position_on_line := distance (x1, y1, new_x, new_y) / b
+					position_on_line := distance (x1, y1, l_new_x, l_new_y) / b
 				end
 			else
 				b := distance (x1, y1, x2, y2)
 				if b = 0.0 or else position_on_line <= 0.0 then
-					new_x := as_integer (x1)
-					new_y := as_integer (y1)
+					l_new_x := as_integer (x1)
+					l_new_y := as_integer (y1)
 				elseif position_on_line >= 1.0 then
-					new_x := as_integer (x2)
-					new_y := as_integer (y2)
+					l_new_x := as_integer (x2)
+					l_new_y := as_integer (y2)
 				else
 					a := b * position_on_line
 					h := x2 - x1
 					g := a * h / b
 					d := y2 - y1
 					c := a * d / b
-					new_x := as_integer (x1 + g)
-					new_y := as_integer (y1 + c)
+					l_new_x := as_integer (x1 + g)
+					l_new_y := as_integer (y1 + c)
 				end
 			end
 
 			-- the label_move_handles point goes to new_x new_y
-			label_move_handle.set_point_position (new_x, new_y)
+			label_move_handle.set_point_position (l_new_x, l_new_y)
 			-- set the label_group to the correct side of the line			
-			set_label_group_position_on_line (new_x, new_y, nearest_start, nearest_end)
+			set_label_group_position_on_line (l_new_x, l_new_y, a_nearest_start, a_nearest_end)
 		end
 
-	set_label_group_position_on_line (new_x, new_y: DOUBLE; p, q: EV_COORDINATE)
+	set_label_group_position_on_line (a_new_x, a_new_y: REAL_64; p, q: EV_COORDINATE)
 			-- Set `label_group' position to left or right of line from `p' to `q' depending on `is_left'.
 			-- such that `label_group' does not intersect with the line.
 		require
@@ -260,8 +259,8 @@ feature {NONE} -- Implementation
 			bbox: EV_RECTANGLE
 			shift_x, shift_y: INTEGER
 			w, h: INTEGER
-			theta: DOUBLE
-			pival: DOUBLE
+			theta: REAL_64
+			pival: REAL_64
 		do
 			theta := line_angle (p.x_precise, p.y_precise, q.x_precise, q.y_precise)
 			bbox := label_group.bounding_box
@@ -317,104 +316,104 @@ feature {NONE} -- Implementation
 			label_group.set_point_position (label_move_handle.point_x - shift_x, label_move_handle.point_y - shift_y)
 		end
 
-	transition (start_value, end_value: INTEGER; progress: DOUBLE): INTEGER
-			-- Value between `start_value' and `end_value'.
+	transition (a_start_value, a_end_value: INTEGER; a_progress: REAL_64): INTEGER
+			-- Value between `a_start_value' and `a_end_value'.
 		do
-			Result := start_value + as_integer ((end_value - start_value) * progress)
+			Result := a_start_value + as_integer ((a_end_value - a_start_value) * a_progress)
 		end
 
-	project_to_line (ax, ay, x1, y1, x2, y2: DOUBLE): TUPLE [DOUBLE, DOUBLE]
-			-- Project point `ax' `ay' to the line [(`x1', `y1'), (`x2', `y2')].
+	project_to_line (a_x, a_y, x1, y1, x2, y2: REAL_64): TUPLE [REAL_64, REAL_64]
+			-- Project point `a_x' and `a_y' to the line [(`x1', `y1'), (`x2', `y2')].
 		local
-			d_x, d_y: DOUBLE
-			m1, m2: DOUBLE
-			nx, ny: DOUBLE
+			d_x, d_y: REAL_64
+			m1, m2: REAL_64
+			nx, ny: REAL_64
 		do
 			d_x := x2 - x1
 			d_y := y2 - y1
 			if d_x = 0 then
-				Result := [x1, ay]
+				Result := [x1, a_y]
 			elseif d_y = 0 then
-				Result := [ax, y1]
+				Result := [a_x, y1]
 			else
 				m1 := d_y / d_x
 				m2 := - (1 / m1)
-				nx := (ay - y1 + m1 * x1 - m2 * ax) / (m1 - m2)
+				nx := (a_y - y1 + m1 * x1 - m2 * a_x) / (m1 - m2)
 				ny := m1 * nx - m1 * x1 + y1
 				Result := [nx, ny]
 			end
 		end
 
-	has_projection (ax, ay, x1, y1, x2, y2: DOUBLE): BOOLEAN
+	has_projection (a_x, a_y, x1, y1, x2, y2: REAL_64): BOOLEAN
 			-- Does a line perpendicular to line [(`x1', `y1), (`x2', `y2')] exist
-			-- that goes through point (`ax', `ay') and intersects with the segment [(`x1', `y1), (`x2', `y2')]?
+			-- that goes through point (`a_x', `a_y') and intersects with the segment [(`x1', `y1), (`x2', `y2')]?
 		local
-			t: TUPLE [DOUBLE, DOUBLE]
-			nx, ny: DOUBLE
+			t: TUPLE [REAL_64, REAL_64]
+			nx, ny: REAL_64
 		do
-			t := project_to_line (ax, ay, x1, y1, x2, y2)
+			t := project_to_line (a_x, a_y, x1, y1, x2, y2)
 			nx := t.double_item (1)
 			ny := t.double_item (2)
 			Result := between (nx, x1, x2) and between (ny, y1, y2)
 		end
 
-	distance_from_segment (ax, ay, x1, y1, x2, y2: DOUBLE): DOUBLE
+	distance_from_segment (a_x, a_y, x1, y1, x2, y2: REAL_64): REAL_64
 			-- Calculate distance between (`x', `y') and (`x1', `y1')-(`x2', `y2').
 			-- The line is NOT considered to be infinite.
 		local
-			t: TUPLE [DOUBLE, DOUBLE]
-			nx, ny: DOUBLE
+			t: TUPLE [REAL_64, REAL_64]
+			nx, ny: REAL_64
 		do
-			t := project_to_line (ax, ay, x1, y1, x2, y2)
+			t := project_to_line (a_x, a_y, x1, y1, x2, y2)
 			nx := t.double_item (1)
 			ny := t.double_item (2)
 			if between (nx, x1, x2) and between (ny, y1, y2) then
-				Result := distance (nx, ny, ax, ay)
+				Result := distance (nx, ny, a_x, a_y)
 			else
-				Result := distance (ax, ay, x1, y1).min (distance (ax, ay, x2, y2))
+				Result := distance (a_x, a_y, x1, y1).min (distance (a_x, a_y, x2, y2))
 			end
 		end
 
-	on_label_move (ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
-			-- `label_move_handler' was moved for `ax' `ay'.
+	on_label_move (a_x, a_y: INTEGER; a_x_tilt, a_y_tilt, pressure: REAL_64; a_screen_x, a_screen_y: INTEGER)
+			-- `label_move_handler' was moved for `a_x' `a_y'.
 		do
-			is_left := left_from_segment (screen_x, screen_y, label_line_start_point.x_precise, label_line_start_point.y_precise, label_line_end_point.x_precise, label_line_end_point.y_precise)
+			is_left := left_from_segment (a_screen_x, a_screen_y, label_line_start_point.x_precise, label_line_start_point.y_precise, label_line_end_point.x_precise, label_line_end_point.y_precise)
 			set_label_line_start_and_end
 			set_label_position_on_line (label_line_start_point, label_line_end_point)
 		end
 
-	left_from_segment (ax, ay, x1, y1, x2, y2: DOUBLE): BOOLEAN
-			-- Is (`ax', `ay') on the left side of segment from (`x1', `y1') to (`x2', `y2')?
+	left_from_segment (a_x, a_y, x1, y1, x2, y2: REAL_64): BOOLEAN
+			-- Is (`a_x', `a_y') on the left side of segment from (`x1', `y1') to (`x2', `y2')?
 			-- (See `is_left' for a definition of left).
 		local
-			d_x, d_y: DOUBLE
-			eq: DOUBLE
+			d_x, d_y: REAL_64
+			eq: REAL_64
 		do
 			d_x := x2 - x1
 			if d_x = 0 then
 				if y1 < y2 then
-					Result := ax >= x1
+					Result := a_x >= x1
 				else
-					Result := ax < x1
+					Result := a_x < x1
 				end
 			else
 				d_y := y2 - y1
 				if d_y = 0 then
 					if x1 > x2 then
-						Result := ay > y1
+						Result := a_y > y1
 					else
-						Result := ay <= y1
+						Result := a_y <= y1
 					end
 				else
-					eq := y1 + (ax - x1) * d_y / d_x
+					eq := y1 + (a_x - x1) * d_y / d_x
 					if x1 < x2 and y1 > y2 then
-						Result := ay <= eq
+						Result := a_y <= eq
 					elseif x1 < x2 and y1 < y2 then
-						Result := ay <= eq
+						Result := a_y <= eq
 					elseif x1 > x2 and y1 < y2 then
-						Result := ay >= eq
+						Result := a_y >= eq
 					else
-						Result := ay >= eq
+						Result := a_y >= eq
 					end
 				end
 			end
@@ -426,31 +425,24 @@ feature {NONE} -- Implementation
 			set_label_position_on_line (label_line_start_point, label_line_end_point)
 		end
 
-	on_scale (scale: DOUBLE)
+	on_scale (a_scale: REAL_64)
 			-- `label_move_handle' was scaled by user.
 		do
 			set_label_position_on_line (label_line_start_point, label_line_end_point)
 		end
 
-	point_with_position (ax, ay: INTEGER): detachable EV_COORDINATE
-			-- Point at position `ax' `ay' or Void if none.
+	point_with_position (a_x, a_y: INTEGER): detachable EV_COORDINATE
+			-- Point at position `a_x' `a_y' or Void if none.
 		local
-			l_points: like polyline_points
-			i, nb: INTEGER
-			l_item: EV_COORDINATE
+			l_item: like point_with_position
 		do
-			from
-				l_points := polyline_points
-				i := 0
-				nb := l_points.count
-			until
-				i >= nb or else Result /= Void
+			across
+				polyline_points as it
 			loop
-				l_item := l_points.item (i)
-				if l_item.x = ax and then l_item.y = ay then
+				l_item := it.item
+				if l_item.x = a_x and then l_item.y = a_y then
 					Result := l_item
 				end
-				i := i + 1
 			end
 		end
 

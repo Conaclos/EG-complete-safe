@@ -14,6 +14,9 @@ inherit
 			default_create
 		end
 
+create
+	default_create
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -27,14 +30,16 @@ feature -- Access
 
 	link_name: detachable STRING
 			-- Name for linking.
+		note
+			option: stable
 		do
 			Result := name
 		end
 
-	cluster: detachable EG_CLUSTER
+	cluster: detachable EG_CLUSTER assign set_cluster
 			-- cluster `Current' is part of.
 
-	links: like internal_links
+	links: ARRAYED_LIST [EG_LINK]
 			-- Links to other EG_LINKABLEs.
 		do
 			Result := internal_links.twin
@@ -56,12 +61,10 @@ feature {EG_LINK} -- Element change
 
 feature {EG_CLUSTER} -- Element change
 
-	set_cluster (a_cluster: attached like cluster)
+	set_cluster (a_cluster: like cluster)
 			-- Set `cluster' to `a_cluster'.
 		require
-			a_cluster_not_void: a_cluster /= Void
-			a_cluster_has_current: a_cluster.has (Current)
-			cluster_void: cluster = Void
+			a_cluster_has_current: a_cluster /= Void implies a_cluster.has (Current)
 		do
 			cluster := a_cluster
 		ensure
@@ -70,12 +73,13 @@ feature {EG_CLUSTER} -- Element change
 
 	remove_cluster
 			-- Set `cluster' to Void.
+		Obsolete
+			"Use `set_cluster' instead. [04-2014]"
 		do
 			cluster := Void
 		ensure
 			set: cluster = Void
 		end
-
 
 feature {EG_GRAPH} -- Element change
 
@@ -92,7 +96,7 @@ feature {EG_GRAPH} -- Element change
 
 feature {EG_FIGURE_WORLD, EG_GRAPH} -- Access
 
-	internal_links: ARRAYED_LIST [EG_LINK]
+	internal_links: like links
 			-- Links to other EG_LINKABLEs.
 
 invariant

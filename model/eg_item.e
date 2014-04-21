@@ -17,6 +17,9 @@ inherit
 			is_equal
 		end
 
+create
+	default_create
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -34,7 +37,7 @@ feature -- Access
 	id: INTEGER
 			-- Unique id.
 		do
-			if internal_hash_id = 0  then
+			if internal_hash_id = 0 then
 				counter.put (counter.item + 1)
 				internal_hash_id := counter.item
 			end
@@ -49,28 +52,32 @@ feature -- Access
 
 	name: detachable STRING
 			-- Name of `Current'.
+		note
+			option: stable
+		attribute end
 
-	set_name (a_name: detachable STRING)
+	name_change_actions: EV_NOTIFY_ACTION_SEQUENCE
+			-- Called when `name' was changed.
+
+feature -- Element change
+
+	set_name (a_name: attached like name)
 			-- Set `name' to `a_name'.
+		require
+			a_name_not_void: a_name /= Void
 		do
 			if a_name /~ name then
 				name := a_name
 				name_change_actions.call (Void)
 			end
 		ensure
-			set: name ~ a_name
+			set: a_name /~ name implies name = a_name
 		end
 
-	name_change_actions: EV_NOTIFY_ACTION_SEQUENCE
-			-- Called when `name' was changed.
+feature {EG_GRAPH} -- Element change
 
-feature {EG_GRAPH} -- Element change.
-
-	set_graph (a_graph: detachable like graph)
+	set_graph (a_graph: like graph)
 			-- Set `graph' to `a_graph'.
----		require
- ---			a_graph_not_void: a_graph /= Void
- ---			graph_void: graph = Void
 		do
 			graph := a_graph
 		ensure
@@ -80,7 +87,7 @@ feature {EG_GRAPH} -- Element change.
 feature {NONE} -- Implementation
 
 	internal_hash_id: like id
-			-- internal id for the hash code.
+			-- Internal id for the hash code.
 
 	counter: CELL [INTEGER]
 			-- Id counter.

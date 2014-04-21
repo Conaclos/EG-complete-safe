@@ -17,6 +17,9 @@ inherit
 			default_create
 		end
 
+create
+	default_create
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -106,7 +109,7 @@ feature -- Status report
 	is_empty: BOOLEAN
 			-- Is `Current' empty?
 		do
-			Result := links.is_empty and then nodes.is_empty and then clusters.is_empty
+			Result := links.is_empty and nodes.is_empty and clusters.is_empty
 		end
 
 feature -- Element change
@@ -326,8 +329,10 @@ feature {NONE} -- Implementation
 
 	node_type: EG_NODE
 			-- Type of nodes in `nodes'.
+		require
+			callable: False
 		do
-			check do_not_call: False then end
+			check callable: False then end
 		end
 
 invariant

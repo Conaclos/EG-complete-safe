@@ -10,8 +10,6 @@ deferred class
 
 inherit
 	EV_MODEL_MOVE_HANDLE
-		export {NONE}
-			new_filled_list
 		undefine
 			new_filled_list
 		redefine
@@ -47,6 +45,17 @@ feature {NONE} -- Initialization
 			model.name_change_actions.extend (agent on_name_change)
 		end
 
+feature -- Constant
+
+	is_selected_string: STRING = "IS_SELECTED"
+			-- Xml mark representing `is_selected'.
+
+	is_label_shown_string: STRING = "IS_LABEL_SHOWN"
+			-- Xml mark representing `is_label_shown'.
+
+	name_string: STRING = "NAME"
+			-- Xml mark representing model's name.
+
 feature -- Access
 
 	is_storable: BOOLEAN
@@ -57,7 +66,7 @@ feature -- Access
 		end
 
 	model: EG_ITEM
-			-- The model for `Current'
+			-- The model for `Current'.
 
 	world: detachable EG_FIGURE_WORLD
 			-- The world `Current' is part of.
@@ -67,37 +76,32 @@ feature -- Access
 			end
 		end
 
-	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state.
+	xml_element (a_node: like xml_element): XML_ELEMENT
+			-- <Precursor>
 		local
 			l_xml_routines: like xml_routines
 		do
 			l_xml_routines := xml_routines
 			if attached model.name as l_name then
-				node.add_attribute (name_string, xml_namespace, l_name)
+				a_node.add_attribute (name_string, xml_namespace, l_name)
 			end
-			node.put_last (l_xml_routines.xml_node (node, is_selected_string, boolean_representation (is_selected)))
-			node.put_last (l_xml_routines.xml_node (node, is_label_shown_string, boolean_representation (is_label_shown)))
-			Result := node
+			a_node.put_last (l_xml_routines.xml_node (a_node, is_selected_string, boolean_representation (is_selected)))
+			a_node.put_last (l_xml_routines.xml_node (a_node, is_label_shown_string, boolean_representation (is_label_shown)))
+			Result := a_node
 		end
 
-	is_selected_string: STRING = "IS_SELECTED"
-	is_label_shown_string: STRING = "IS_LABEL_SHOWN"
-	name_string: STRING = "NAME"
-		-- XML String constants.
-
-	set_with_xml_element (node: like xml_element)
-			-- Retrive state from `node'.
+	set_with_xml_element (a_node: like xml_element)
+			-- <Precursor>
 		local
 			l_xml_routines: like xml_routines
 		do
 			l_xml_routines := xml_routines
-			if attached node.attribute_by_name (name_string) as l_attribute then
+			if attached a_node.attribute_by_name (name_string) as l_attribute then
 				model.set_name (l_attribute.value)
-				node.forth
+				a_node.forth
 			end
-			set_is_selected (l_xml_routines.xml_boolean (node, is_selected_string))
-			if l_xml_routines.xml_boolean (node, is_label_shown_string) then
+			set_is_selected (l_xml_routines.xml_boolean (a_node, is_selected_string))
+			if l_xml_routines.xml_boolean (a_node, is_label_shown_string) then
 				if not is_label_shown then
 					show_label
 				end
@@ -109,7 +113,7 @@ feature -- Access
 		end
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'.
+			-- <Precursor>
 		do
 			Result := once "EG_FIGURE"
 		end
@@ -188,7 +192,7 @@ feature -- Status setting
 feature -- Visitor
 
 	process (v: EG_FIGURE_VISITOR)
-			-- Visitor feature.
+			-- <Precursor>
 		do
 			v.process_figure (Current)
 		end
@@ -204,11 +208,11 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 feature {NONE} -- Implementation
 
-	set_is_selected (an_is_selected: like is_selected)
-			-- Set `is_selected' to `an_is_selected'.
+	set_is_selected (a_is_selected: like is_selected)
+			-- Set `is_selected' to `a_is_selected'.
 		deferred
 		ensure
-			is_selected_assigned: is_selected = an_is_selected
+			is_selected_assigned: is_selected = a_is_selected
 		end
 
 	name_label: EV_MODEL_TEXT
@@ -218,7 +222,7 @@ feature {NONE} -- Implementation
 			-- Name was changed in the model.
 		do
 			if attached model.name as l_name then
-				if name_label.text.count = 0 and then not is_label_shown then
+				if name_label.text.count = 0 and not is_label_shown then
 					name_label.show
 				end
 				set_name_label_text (l_name)

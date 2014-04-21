@@ -10,17 +10,9 @@ class
 
 inherit
 	EG_LINKABLE
-		redefine
-			default_create
-		end
 
-feature {NONE} -- Initialization
-
+create
 	default_create
-			-- Create a EG_NODE.
-		do
-			Precursor {EG_LINKABLE}
-		end
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

@@ -41,21 +41,21 @@ feature -- Access
 			Result := internal_y
 		end
 
-	mass: DOUBLE
+	mass: REAL_64
 			-- The mass of the particle.
 
-	dx: DOUBLE
+	dx: REAL_64
 			-- Delta to x direction.
 
-	dy: DOUBLE
+	dy: REAL_64
 			-- Delta to y direction.
 
-	dt: DOUBLE
+	dt: REAL_64 assign set_dt
 			-- Delta time.
 
 feature -- Element change
 
-	set_delta (a_dx, a_dy: DOUBLE)
+	set_delta (a_dx, a_dy: REAL_64)
 			-- Set `dx' to `a_dx' and `dy' to `a_dy'.
 		do
 			dx := a_dx
@@ -64,7 +64,7 @@ feature -- Element change
 			set: dx = a_dx and dy = a_dy
 		end
 
-	set_dt (a_dt: DOUBLE)
+	set_dt (a_dt: REAL_64)
 			-- Set `dt' to `a_dt'.
 		do
 			dt := a_dt
@@ -74,12 +74,14 @@ feature -- Element change
 
 feature {NONE} -- Implementation
 
-	internal_x: INTEGER
+	internal_x: like x
 			-- Internal `x' position.
 
-	internal_y: INTEGER;
+	internal_y: like y
 			-- Internal `y' position.
 
+invariant
+	
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"

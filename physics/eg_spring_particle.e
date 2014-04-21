@@ -15,7 +15,7 @@ class
 	EG_SPRING_PARTICLE
 
 inherit
-	EG_PARTICLE_SIMULATION_BH [EG_VECTOR2D [DOUBLE]]
+	EG_PARTICLE_SIMULATION_BH [EG_VECTOR2D [REAL_64]]
 		redefine
 			particle_type
 		end
@@ -35,15 +35,18 @@ create
 
 feature {NONE} -- Implementation
 
-	px, py: INTEGER
-			-- Position of a particle.
+	px: INTEGER
+			-- X position of a particle.
 
-	external_force (a_node: like particle_type): EG_VECTOR2D [DOUBLE]
+	py: INTEGER
+			-- Y position of a particle.
+
+	external_force (a_node: like particle_type): EG_VECTOR2D [REAL_64]
 			-- External force for `a_node'. (attraction to center of universe).
 			-- Warning: side-effect query.
 		local
-			l_distance: DOUBLE
-			l_force: DOUBLE
+			l_distance: REAL_64
+			l_force: REAL_64
 		do
 			px := a_node.port_x
 			py := a_node.port_y
@@ -60,60 +63,54 @@ feature {NONE} -- Implementation
 			py_set: py = a_node.port_y
 		end
 
-	nearest_neighbor_force (a_node: like particle_type): EG_VECTOR2D [DOUBLE]
-			-- Get the spring force between all of `a_node's adjacent nodes.
+	nearest_neighbor_force (a_node: like particle_type): EG_VECTOR2D [REAL_64]
+			-- Spring force between all of `a_node's adjacent nodes.
 		local
-			i, nb: INTEGER
-			l_links: ARRAYED_LIST [EG_LINK_FIGURE]
 			l_item: EG_LINK_FIGURE
 			l_other: EG_LINKABLE_FIGURE
-			l_weight: DOUBLE
+			l_weight: REAL_64
+			x, y: REAL_64
 		do
-			from
-				create Result.make (0.0, 0.0)
-				i := 1
-				l_links := a_node.links
-				nb := l_links.count
-			until
-				i > nb
+			across
+				a_node.links as it
 			loop
-				l_item := l_links.i_th (i)
-
+				l_item := it.item
 				if l_item.is_show_requested then
 					l_other := l_item.neighbor_of (a_node)
 					if l_other.is_show_requested then
 						l_weight := stiffness * link_stiffness (l_item)
-						create Result.make (Result.x - l_weight * (px - l_other.port_x), Result.y - l_weight * (py - l_other.port_y))
+						x := x - l_weight * (px - l_other.port_x)
+						y := y - l_weight * (py - l_other.port_y)
 					end
 				end
-				i := i + 1
 			end
+			create Result.make (x, y)
 		end
 
-	n_body_force (a_node, an_other: EG_PARTICLE): EG_VECTOR2D [DOUBLE]
-			-- Get the electrical repulsion between all nodes, including those that are not adjacent.
+	n_body_force (a_node, a_other: EG_PARTICLE): EG_VECTOR2D [REAL_64]
+			-- Electrical repulsion between all nodes, including those that are not adjacent.
 		local
-			l_distance, l_force: DOUBLE
-			opx, opy: DOUBLE
+			l_distance, l_force: REAL_64
+			opx, opy: REAL_64
 		do
-			if a_node = an_other then
+			if a_node = a_other then
 				create Result.make (0.0, 0.0)
 			else
-				opx := an_other.x
-				opy := an_other.y
+				opx := a_other.x
+				opy := a_other.y
 				l_distance := distance (px, py, opx, opy).max (0.001)
 
 				l_force := electrical_repulsion / (l_distance ^ 3)
-				create Result.make (l_force * (px - opx) * an_other.mass, l_force * (py - opy) * an_other.mass)
+				create Result.make (l_force * (px - opx) * a_other.mass, l_force * (py - opy) * a_other.mass)
 			end
 		end
 
 feature {NONE} -- Implementation
 
 	particle_type: EG_LINKABLE_FIGURE
-			-- Type of particle.
+			-- <Precursor>
 		do
-			check anchor_type_only: False then end
+			check callable: False then end
 		end
 
 note

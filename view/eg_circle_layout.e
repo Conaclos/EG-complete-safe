@@ -39,22 +39,22 @@ feature -- Access
 	center_y: INTEGER
 				-- Y position of the center of the circle.
 
-	radius: INTEGER
+	radius: INTEGER assign set_radius
 				-- Radius of largest circle.
 
-	exponent: DOUBLE
+	exponent: REAL_64 assign set_exponent
 				-- Exponent used to reduce radius per level:
 				-- (`radius' / cluster_level ^ `exponent').
 
 feature -- Element change
 
-	set_center (ax, ay: like center_x)
-			-- Set `center_x' to `ax' and `center_y' to `ay'.
+	set_center (a_x, a_y: like center_x)
+			-- Set `center_x' to `a_x' and `center_y' to `a_y'.
 		do
-			center_x := ax
-			center_y := ay
+			center_x := a_x
+			center_y := a_y
 		ensure
-			set: center_x = ax and center_y = ay
+			set: center_x = a_x and center_y = a_y
 		end
 
 	set_radius (a_radius: like radius)
@@ -67,50 +67,48 @@ feature -- Element change
 			set: radius = a_radius
 		end
 
-	set_exponent (an_exponent: like exponent)
-			-- Set `exponent' to `an_exponent'.
+	set_exponent (a_exponent: like exponent)
+			-- Set `exponent' to `a_exponent'.
 		require
-			an_exponent_larger_equal_one: an_exponent >= 1.0
+			a_exponent_larger_equal_one: a_exponent >= 1.0
 		do
-			exponent := an_exponent
+			exponent := a_exponent
 		ensure
-			set: exponent = an_exponent
+			set: exponent = a_exponent
 		end
 
 feature {NONE} -- Implementation
 
-	layout_linkables (linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; level: INTEGER; cluster: detachable EG_CLUSTER_FIGURE)
-			-- arrange `linkables'.
+	layout_linkables (a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; a_level: INTEGER; a_cluster: detachable EG_CLUSTER_FIGURE)
+			-- arrange `a_linkables'.
 		local
 			l_count: INTEGER
-			level_radius: DOUBLE
-			d_angle, angle: DOUBLE
-			i: INTEGER
-			l_link: EG_LINKABLE_FIGURE
+			l_level_radius: REAL_64
+			d_angle, angle: REAL_64
 		do
-			l_count := linkables.count
+			l_count := a_linkables.count
 			if l_count = 1 then
-				level_radius := 0
+				l_level_radius := 0
 			else
-				level_radius := (1 / level ^ exponent) * radius
+				l_level_radius := (1 / a_level ^ exponent) * radius
 				d_angle := 2 * pi / l_count
 			end
-			from
-				i := 1
-				angle := 0
-			until
-				i > l_count
+
+			across
+				a_linkables as it
 			loop
-				l_link := linkables.i_th (i)
-				if level = 1 then
-					l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + center_x, (sine (angle) * level_radius).truncated_to_integer + center_y)
-				elseif attached l_link.cluster as l_cluster then
-					l_link.set_port_position ((cosine (angle) * level_radius).truncated_to_integer + l_cluster.port_x, (sine (angle) * level_radius).truncated_to_integer + l_cluster.port_y)
+				if a_level = 1 then
+					it.item.set_port_position ((cosine (angle) * l_level_radius).truncated_to_integer + center_x, (sine (angle) * l_level_radius).truncated_to_integer + center_y)
+				elseif attached it.item.cluster as l_cluster then
+					it.item.set_port_position ((cosine (angle) * l_level_radius).truncated_to_integer + l_cluster.port_x, (sine (angle) * l_level_radius).truncated_to_integer + l_cluster.port_y)
 				end
 				angle := angle + d_angle
-				i := i + 1
 			end
 		end
+
+invariant
+	exponent_larger_equal_one: exponent >= 1.0
+	radius_larger_zero: radius > 0
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

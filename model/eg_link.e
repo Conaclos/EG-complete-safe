@@ -62,6 +62,17 @@ feature {NONE} -- Initialization
 			is_directed: is_directed
 		end
 
+feature -- Access
+
+	source: EG_LINKABLE
+			-- The source of the link.
+
+	target: like source
+			-- The target of the link.
+
+	is_directed_change_actions: EV_NOTIFY_ACTION_SEQUENCE
+			-- Called when `is_directed' changes.
+
 feature -- Status report
 
 	is_directed: BOOLEAN
@@ -88,24 +99,13 @@ feature -- Status Settings
 			set: is_directed = b
 		end
 
-feature -- Access
-
-	source: EG_LINKABLE
-			-- The source of the link.
-
-	target: like source
-			-- The target of the link.
-
-	is_directed_change_actions: EV_NOTIFY_ACTION_SEQUENCE
-			-- Called when `is_directed' changes.
-
 invariant
 	source_not_void: source /= Void
 	target_not_void: target /= Void
 	is_directed_change_actions_not_void: is_directed_change_actions /= Void
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

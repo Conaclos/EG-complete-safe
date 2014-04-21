@@ -36,6 +36,7 @@ inherit
 			set_particles
 		end
 
+inherit {NONE}
 	EV_MODEL_DOUBLE_MATH
 		export
 			{NONE} all
@@ -65,7 +66,7 @@ feature -- Element change.
 	set_theta (a_theta: like theta)
 			-- Set `theta' to `a_theta'.
 		require
-			a_theta_in_range: 0 <= theta and theta <= 1.0
+			a_theta_in_range: 0.0 <= theta and theta <= 1.0
 		do
 			theta := a_theta
 		ensure
@@ -77,21 +78,19 @@ feature -- Access
 	quad_tree: EG_QUAD_TREE
 			-- The quad tree to traverse.
 
-	theta: DOUBLE
+	theta: REAL_64 assign set_theta
 			-- The higher theta the more approximations are made (see comment in indexing).
 
-	last_theta_average: DOUBLE
+	last_theta_average: REAL_64
 			-- The average theta value on last call to `force'.
 
 feature {NONE} -- Implementation
 
-	theta_count: INTEGER
+	theta_count: NATURAL
 			-- Number of times theta was below 1.0.
 
 	n_body_force_solver (a_particle: like particle_type): G
 			-- Solve n_nody_force O(log n) best case O(n) worste case.
-		local
-			l_result: detachable like n_body_force_solver
 		do
 			last_theta_average := 0.0
 			theta_count := 0
@@ -106,9 +105,9 @@ feature {NONE} -- Implementation
 		require
 			not_void: a_node /= Void
 		local
-			r: DOUBLE
+			r: REAL_64
 			d: INTEGER
-			l_prop: DOUBLE
+			l_prop: REAL_64
 			l_region: EV_RECTANGLE
 			l_result: detachable like traverse_tree
 			l_cmp: EG_PARTICLE
@@ -213,6 +212,8 @@ feature {NONE} -- Implementation
 		end
 
 invariant
+	valid_theta: 0.0 <= theta and theta <= 1.0
+	positive_last_theta_average: 0.0 <= last_theta_average
 	quad_tree_exists: quad_tree /= Void
 
 note

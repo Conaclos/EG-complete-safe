@@ -61,7 +61,7 @@ feature -- Status report
 
 feature -- Access
 
-	center_attraction: INTEGER
+	center_attraction: INTEGER assign set_center_attraction
 			-- Attraction of the center in percent.
 
 	center_x: INTEGER
@@ -70,23 +70,23 @@ feature -- Access
 	center_y: INTEGER
 			-- Y position of the center.
 
-	stiffness: INTEGER
+	stiffness: INTEGER assign set_stiffness
 			-- Stiffness of the links in percent.
 
-	electrical_repulsion: INTEGER
+	electrical_repulsion: INTEGER assign set_electrical_repulsion
 			-- Electrical repulsion between nodes in percent.
 
 	stop_actions: EV_NOTIFY_ACTION_SEQUENCE
 			-- Called when the layouting stops.
 
-	move_threshold: DOUBLE
+	move_threshold: INTEGER assign set_move_threshold
 			-- Call `stop_actions' if no node moved.
 			-- for more then `move_threshold'
 
-	theta: INTEGER
+	theta: INTEGER assign set_theta
 			-- Error variable for Barnes and Hut.
 
-	last_theta_average: DOUBLE
+	last_theta_average: REAL_64
 			-- Average theta value after last call to `layout'.
 
 feature -- Element change
@@ -113,7 +113,7 @@ feature -- Element change
 			end
 		end
 
-	set_move_threshold (d: INTEGER)
+	set_move_threshold (d: like move_threshold)
 			-- Set `move_threshold' to `d'.
 		do
 			move_threshold := d
@@ -121,51 +121,51 @@ feature -- Element change
 			set: move_threshold = d
 		end
 
-	set_theta (a_theta: INTEGER)
+	set_theta (a_theta: like theta)
 			-- Set `theta' to `a_theta'.
 		require
-			valid_value: a_theta >= 0 and a_theta <= 100
+			valid_value: 0 <= a_theta and a_theta <= 100
 		do
 			theta := a_theta
 		end
 
-	set_center_attraction (a_value: INTEGER)
+	set_center_attraction (a_value: like center_attraction)
 			-- Set 'center_attraction' value in percentage of maximum.
 		require
-			valid_value: a_value >= 0 and then a_value <= 100
+			valid_value: 0 <= a_value and then a_value <= 100
 		do
 			center_attraction := a_value
 		ensure
 			set: center_attraction = a_value
 		end
 
-	set_stiffness (a_value: INTEGER)
+	set_stiffness (a_value: like stiffness)
 			-- Set 'stiffness' value in percentage of maximum.
 		require
-			valid_value: a_value >= 0 and then a_value <= 100
+			valid_value: 0 <= a_value and then a_value <= 100
 		do
 			stiffness := a_value
 		ensure
 			set: stiffness = a_value
 		end
 
-	set_electrical_repulsion (a_value: INTEGER)
+	set_electrical_repulsion (a_value: like electrical_repulsion)
 			-- Set 'electrical_repulsion' value in percentage of maximum.
 		require
-			valid_value: a_value >= 0 and then a_value <= 100
+			valid_value: 0 <= a_value and then a_value <= 100
 		do
 			electrical_repulsion := a_value
 		ensure
 			set: electrical_repulsion = a_value
 		end
 
-	set_center (ax, ay: INTEGER)
-			-- Set `center_x' to `ax' and `center_y' to `ay'.
+	set_center (a_x, a_y: INTEGER)
+			-- Set `center_x' to `a_x' and `center_y' to `a_y'.
 		do
-			center_x := ax
-			center_y := ay
+			center_x := a_x
+			center_y := a_y
 		ensure
-			set: center_x = ax and center_y = ay
+			set: center_x = a_x and center_y = a_y
 		end
 
 feature -- Basic operations
@@ -189,7 +189,7 @@ feature -- Basic operations
 		end
 
 	layout
-			-- Arrange the elements in `graph'.
+			-- <Precursor>
 		do
 			if not is_stopped then
 				if world.nodes.is_empty then
@@ -219,31 +219,30 @@ feature -- Basic operations
 
 feature {NONE} -- Implementation
 
-	max_move: INTEGER
+	max_move: NATURAL
 			-- Maximal move in x and y direction of a node.
 
-	theta_count: INTEGER
+	theta_count: NATURAL
 			-- Theta count.
 
-	iterations: INTEGER
+	iterations: NATURAL
 			-- Number of iterations.
 
-	layout_linkables (linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; level: INTEGER; cluster: detachable EG_CLUSTER_FIGURE)
-			-- arrange `linkables'.
+	layout_linkables (a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; a_level: INTEGER; a_cluster: detachable EG_CLUSTER_FIGURE)
+			-- arrange `a_linkables'.
 		local
 			l_item: EG_LINKABLE_FIGURE
-			l_force: EG_VECTOR2D [DOUBLE]
+			l_force: EG_VECTOR2D [REAL_64]
 			dx, dy: INTEGER
-			move: INTEGER
-			l_linkables: like linkables
-			spring_particle: EG_SPRING_PARTICLE
-			spring_energy: EG_SPRING_ENERGY
+			l_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]
+			l_particle: EG_SPRING_PARTICLE
+			l_energy: EG_SPRING_ENERGY
 		do
 			if not is_stopped then
-				-- Filter out not visible nodes
-				create l_linkables.make (linkables.count)
+					-- Filter out not visible nodes
+				create l_linkables.make (a_linkables.count)
 				across
-					linkables as it
+					a_linkables as it
 				loop
 					l_item := it.item
 					if l_item.is_show_requested then
@@ -252,35 +251,31 @@ feature {NONE} -- Implementation
 				end
 
 				if not l_linkables.is_empty then
-							-- Initialize particle solvers
-					spring_particle := new_spring_particle_solver (l_linkables)
-					spring_energy := new_spring_energy_solver (l_linkables)
+						-- Initialize particle solvers
+					l_particle := new_spring_particle_solver (l_linkables)
+					l_energy := new_spring_energy_solver (l_linkables)
 
 						-- solve system
 					across
-						l_linkables.new_cursor as it
+						l_linkables as it
 					loop
 						l_item := it.item
-
 						if not l_item.is_fixed then
 								-- Calculate spring force
-							l_force := spring_particle.force (l_item)
+							l_force := l_particle.force (l_item)
 							l_item.set_delta (l_force.x, l_force.y)
 								-- Update statistic
-							last_theta_average := last_theta_average + spring_particle.last_theta_average
+							last_theta_average := last_theta_average + l_particle.last_theta_average
 							theta_count := theta_count + 1
 
 								-- Calculate spring energy
-							recursive_energy (l_item, spring_energy)
+							recursive_energy (l_item, l_energy)
 
 								-- Move item
 							dx := (l_item.dt * l_item.dx).truncated_to_integer
 							dy := (l_item.dt * l_item.dy).truncated_to_integer
 
-							move := dx.abs + dy.abs
-							if move > max_move then
-								max_move := move
-							end
+							max_move := max_move.max ((dx.abs + dy.abs).as_natural_32)
 
 							l_item.set_x_y (l_item.x + dx, l_item.y + dy)
 							l_item.set_delta (0, 0)
@@ -290,24 +285,24 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	recursive_energy (a_node: EG_LINKABLE_FIGURE; solver: EG_SPRING_ENERGY)
+	recursive_energy (a_node: EG_LINKABLE_FIGURE; a_solver: EG_SPRING_ENERGY)
 			-- Calculate spring energy for `a_node'.
 		local
 			i: INTEGER
-			l_energy, l_initial_energy: DOUBLE
-			l_dt: DOUBLE
+			l_energy, l_initial_energy: REAL_64
+			l_dt: REAL_64
 		do
 			l_dt := a_node.dt
 
 			a_node.set_dt (0)
-			l_initial_energy := solver.force (a_node)
-			last_theta_average := last_theta_average + solver.last_theta_average
+			l_initial_energy := a_solver.force (a_node)
+			last_theta_average := last_theta_average + a_solver.last_theta_average
 			theta_count := theta_count + 1
 
 			l_dt := l_dt * 2
 			a_node.set_dt (l_dt)
-			l_energy := solver.force (a_node)
-			last_theta_average := last_theta_average + solver.last_theta_average
+			l_energy := a_solver.force (a_node)
+			last_theta_average := last_theta_average + a_solver.last_theta_average
 			theta_count := theta_count + 1
 
 			from
@@ -318,25 +313,25 @@ feature {NONE} -- Implementation
 				i := i + 1
 				l_dt := l_dt / 4
 				a_node.set_dt (l_dt)
-				l_energy := solver.force (a_node)
-				last_theta_average := last_theta_average + solver.last_theta_average
+				l_energy := a_solver.force (a_node)
+				last_theta_average := last_theta_average + a_solver.last_theta_average
 				theta_count := theta_count + 1
 			end
 		end
 
-	new_spring_particle_solver (particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_PARTICLE
-			-- Create a new spring particle solver for `particles' and initialize it.
+	new_spring_particle_solver (a_particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_PARTICLE
+			-- Create a new spring particle solver for `a_particles' and initialize it.
 		require
-			particles_exist: particles /= Void
-			particles_not_empty: not particles.is_empty
+			particles_exist: a_particles /= Void
+			particles_not_empty: not a_particles.is_empty
 		local
-			l_center_attraction, l_stiffness, l_electrical_repulsion: DOUBLE
+			l_center_attraction, l_stiffness, l_electrical_repulsion: REAL_64
 		do
 			l_center_attraction := center_attraction / 25
 			l_stiffness := ((stiffness / 300) * 0.5).max (0.0001) / world.scale_factor
 			l_electrical_repulsion := (1 + electrical_repulsion * 400) * (world.scale_factor ^ 1.5)
 
-			create Result.make_with_particles (particles)
+			create Result.make_with_particles (a_particles)
 
 			Result.set_center (center_x, center_y)
 			Result.set_center_attraction (l_center_attraction)
@@ -347,19 +342,19 @@ feature {NONE} -- Implementation
 			Result_exists: Result /= Void
 		end
 
-	new_spring_energy_solver (particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_ENERGY
+	new_spring_energy_solver (a_particles: LIST [EG_LINKABLE_FIGURE]): EG_SPRING_ENERGY
 			-- Create a new spring energy solver for `particles' and initialize it.
 		require
-			particles_exist: particles /= Void
-			particles_not_empty: not particles.is_empty
+			particles_exist: a_particles /= Void
+			particles_not_empty: not a_particles.is_empty
 		local
-			l_center_attraction, l_stiffness, l_electrical_repulsion: DOUBLE
+			l_center_attraction, l_stiffness, l_electrical_repulsion: REAL_64
 		do
 			l_center_attraction := center_attraction / 25
 			l_stiffness := ((stiffness / 300) * 0.5).max (0.0001) / world.scale_factor
 			l_electrical_repulsion := (1 + electrical_repulsion * 400) * (world.scale_factor ^ 1.5)
 
-			create Result.make_with_particles (particles)
+			create Result.make_with_particles (a_particles)
 
 			Result.set_center (center_x, center_y)
 			Result.set_center_attraction (l_center_attraction)
@@ -369,6 +364,13 @@ feature {NONE} -- Implementation
 		ensure
 			Result_exists: Result /= Void
 		end
+
+invariant
+	valid_theta: 0 <= theta and theta <= 100
+	positive_last_theta_average: last_theta_average >= 0.0
+	valid_center_attraction: 0 <= center_attraction and center_attraction <= 100
+	valid_electrical_repulsion: 0 <= electrical_repulsion and electrical_repulsion <= 100
+	valid_stiffness: 0 <= stiffness and stiffness <= 100
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

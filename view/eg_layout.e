@@ -23,7 +23,7 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	world: EG_FIGURE_WORLD
+	world: EG_FIGURE_WORLD assign set_world
 			-- The graph to layout.
 
 feature -- Element change
@@ -56,17 +56,17 @@ feature -- Element change
 			layout_linkables (world.root_cluster, 1, void)
 		end
 
-	layout_cluster (cluster: EG_CLUSTER_FIGURE; level: INTEGER)
-			-- Arrange the elements in `cluster' (recursive).
+	layout_cluster (a_cluster: EG_CLUSTER_FIGURE; level: INTEGER)
+			-- Arrange the elements in `a_cluster' (recursive).
 		require
-			cluster_not_void: cluster /= Void
+			cluster_not_void: a_cluster /= Void
 			level_greater_zero: level > 0
 		local
 			figures_in_cluster: ARRAYED_LIST [EG_LINKABLE_FIGURE]
 		do
-			create figures_in_cluster.make (cluster.count)
+			create figures_in_cluster.make (a_cluster.count)
 			across
-				cluster as it
+				a_cluster as it
 			loop
 				if attached {EG_LINKABLE_FIGURE} it.item as linkable_figure then
 					figures_in_cluster.extend (linkable_figure)
@@ -79,31 +79,31 @@ feature -- Element change
 					end
 				end
 			end
-			layout_linkables (figures_in_cluster, level, cluster)
+			layout_linkables (figures_in_cluster, level, a_cluster)
 		end
 
-	layout_cluster_only (cluster: EG_CLUSTER_FIGURE)
-			-- Arrange the elements in `cluster' (not recursive).
+	layout_cluster_only (a_cluster: EG_CLUSTER_FIGURE)
+			-- Arrange the elements in `a_cluster' (not recursive).
 		require
-			cluster_not_void: cluster /= Void
+			cluster_not_void: a_cluster /= Void
 		local
 			figures_in_cluster: ARRAYED_LIST [EG_LINKABLE_FIGURE]
 		do
-			create figures_in_cluster.make (cluster.count)
+			create figures_in_cluster.make (a_cluster.count)
 			across
-				cluster as it
+				a_cluster as it
 			loop
 				if attached {EG_LINKABLE_FIGURE} it.item as linkable_figure then
 					figures_in_cluster.extend (linkable_figure)
 				end
 			end
-			layout_linkables (figures_in_cluster, 1, cluster)
+			layout_linkables (figures_in_cluster, 1, a_cluster)
 		end
 
 feature {NONE} -- Implementation
 
 	layout_linkables (a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; a_level: INTEGER; a_cluster: detachable EG_CLUSTER_FIGURE)
-			-- arrange `linkables' that are elements of `clusters' at `level'.
+			-- arrange `a_linkables' that are elements of `clusters' at `level'.
 		require
 			linkables_not_void: a_linkables /= Void
 			level_greater_zero: a_level > 0

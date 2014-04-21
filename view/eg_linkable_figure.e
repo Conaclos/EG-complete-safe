@@ -49,7 +49,7 @@ feature {NONE} -- Initialisation
 
 feature -- Status report
 
-	is_fixed: BOOLEAN
+	is_fixed: BOOLEAN assign set_is_fixed
 			-- Does the layouter not move `Current'?
 
 	has_visible_link: BOOLEAN
@@ -87,58 +87,65 @@ feature -- Status report
 			end
 		end
 
+feature -- Constant
+
+	is_fixed_string: STRING = "IS_FIXED"
+			-- Xml mark representing `is_fixed'.
+
+	port_x_string: STRING = "PORT_X"
+			-- Xml mark representing `port_x'.
+
+	port_y_string: STRING = "PORT_Y"
+			-- Xml mark representing `port_y'.
+
 feature -- Access
 
 	cluster: detachable EG_CLUSTER_FIGURE
 			-- Cluster figure `Current' is part of.
 
 	model: EG_LINKABLE
-			-- The model for `Current'.
+			-- <Precursor>
 
 	port_x: INTEGER
-			-- x position where links are starting.
+			-- X position where links are starting.
 		deferred
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting.
+			-- Y position where links are starting.
 		deferred
 		end
 
 	xml_node_name: STRING
-			-- Name of the xml node returned by `xml_element'.
+			-- <Precursor>
 		do
 			Result := once "EG_LINKABLE_FIGURE"
 		end
 
-	is_fixed_string: STRING = "IS_FIXED"
-	port_x_string: STRING = "PORT_X"
-	port_y_string: STRING = "PORT_Y"
-
-	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml element representing `Current's state.
+	xml_element (a_node: like xml_element): XML_ELEMENT
+			-- <Precursor>
 		local
 			l_xml_routines: like xml_routines
 		do
 			l_xml_routines := xml_routines
-			Result := Precursor {EG_FIGURE} (node)
+			Result := Precursor {EG_FIGURE} (a_node)
 			Result.put_last (l_xml_routines.xml_node (Result, is_fixed_string, boolean_representation (is_fixed)))
 			Result.put_last (l_xml_routines.xml_node (Result, port_x_string, port_x.out))
 			Result.put_last (l_xml_routines.xml_node (Result, port_y_string, port_y.out))
 		end
 
-	set_with_xml_element (node: like xml_element)
-			-- Retrive state from `node'.
+	set_with_xml_element (a_node: like xml_element)
+			-- <Precursor>
 		local
 			ax, ay: INTEGER
 			l_xml_routines: like xml_routines
 		do
-			Precursor {EG_FIGURE} (node)
+			Precursor {EG_FIGURE} (a_node)
 			l_xml_routines := xml_routines
-			set_is_fixed (l_xml_routines.xml_boolean (node, is_fixed_string))
+			set_is_fixed (l_xml_routines.xml_boolean (a_node, is_fixed_string))
 
-			ax := l_xml_routines.xml_integer (node, port_x_string)
-			ay := l_xml_routines.xml_integer (node, port_y_string)
+			ax := l_xml_routines.xml_integer (a_node, port_x_string)
+			ay := l_xml_routines.xml_integer (a_node, port_y_string)
 			set_port_position (ax, ay)
 		end
 
@@ -189,6 +196,7 @@ feature -- Access
 feature -- Status settings
 
 	request_update
+			-- <Precursor>
 		do
 			Precursor {EG_FIGURE}
 			if attached cluster as l_cluster then
@@ -204,28 +212,27 @@ feature -- Status settings
 feature -- Element change
 
 	recycle
-			-- Free resources of `Current' such that GC can collect it.
-			-- Leave it in an unstable state.
+			-- <Precursor>
 		do
 			Precursor {EG_FIGURE}
 			start_actions.prune_all (agent on_handle_start)
 			end_actions.prune_all (agent on_handle_end)
 		end
 
-	set_port_position (ax, ay: INTEGER)
-			-- Set `port_x' to `ax' and `port_y' to `ay'.
+	set_port_position (a_x, a_y: INTEGER)
+			-- Set `port_x' to `a_x' and `port_y' to `a_y'.
 		local
 			d_x, d_y: INTEGER
 		do
-			d_x := ax - port_x
-			d_y := ay - port_y
+			d_x := a_x - port_x
+			d_y := a_y - port_y
 			set_x_y (x + d_x, y + d_y)
 		end
 
-	update_edge_point (p: EV_COORDINATE; an_angle: DOUBLE)
+	update_edge_point (p: EV_COORDINATE; a_angle: REAL_64)
 			-- Move `p' to a point on the edge of `Current'
 			-- where the outline intersects a line from the
-			-- center point in direction `an_angle'.
+			-- center point in direction `a_angle'.
 		require
 			p_not_void: p /= Void
 		deferred
@@ -235,7 +242,7 @@ feature -- Element change
 
 feature -- Status settings
 
-	set_is_fixed (b: BOOLEAN)
+	set_is_fixed (b: like is_fixed)
 			-- Set `is_fixed' to `b'.
 		do
 			is_fixed := b
@@ -271,10 +278,8 @@ feature {EG_CLUSTER_FIGURE, EG_FIGURE_WORLD} -- Element change
 
 	set_cluster (a_cluster: detachable EG_CLUSTER_FIGURE)
 			-- set `cluster' to `a_cluster' without adding `Current' to `a_cluster'.
-		require
-			ready: attached world
 		do
-			check attached world as l_world then -- Implied by precondition `ready'
+			if attached world as l_world then
 				if a_cluster = Void then
 					l_world.root_cluster.extend (Current)
 					l_world.extend (Current)
@@ -293,9 +298,7 @@ feature {EG_CLUSTER_FIGURE, EG_FIGURE_WORLD} -- Element change
 feature {EV_MODEL_GROUP} -- Figure group
 
 	recursive_transform (a_transformation: EV_MODEL_TRANSFORMATION)
-			-- Same as transform but without precondition
-			-- is_transformable and without invalidating
-			-- groups center
+			-- <Precursor>
 		do
 			Precursor {EG_FIGURE} (a_transformation)
 			request_update
@@ -330,6 +333,7 @@ feature {NONE} -- Implementation
 		end
 
 	was_fixed: BOOLEAN
+			-- Was previously fixed?
 
 	update_rectangle_to_minimum_size (a_rect: EV_RECTANGLE)
 			-- `Current' has to be of `Result' size

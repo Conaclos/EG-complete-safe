@@ -24,7 +24,7 @@ inherit
 feature {NONE} -- Initialization
 
 	initialize
-			-- Initialize `Current' (synchronize with model).
+			-- <Precursor>
 		do
 			Precursor {EG_LINKABLE_FIGURE}
 			model.linkable_add_actions.extend (agent on_linkable_add)
@@ -34,13 +34,13 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	model: EG_CLUSTER
-			-- The model for `Current'.
+			-- <Precursor>
 
-	layouter: detachable EG_LAYOUT
+	layouter: detachable EG_LAYOUT assign set_layouter
 			-- Layouter used for this `Cluster' if not Void.
 
 	xml_node_name: STRING
-			-- Name of the xml node returned by `xml_element'.
+			-- <Precursor>
 		do
 			Result := once "EG_CLUSTER_FIGURE"
 		end
@@ -48,54 +48,48 @@ feature -- Access
 	subclusters: ARRAYED_LIST [EG_CLUSTER_FIGURE]
 			-- Clusters with parent `Current'.
 		do
-			from
-				create {ARRAYED_LIST [EG_CLUSTER_FIGURE]} Result.make (1)
-				start
-			until
-				after
+			create {ARRAYED_LIST [EG_CLUSTER_FIGURE]} Result.make (1)
+			across
+				Current as it
 			loop
-				if attached {EG_CLUSTER_FIGURE} item as l_cluster_fig then
-					Result.extend (l_cluster_fig)
+				if attached {EG_CLUSTER_FIGURE} it.item as l_cluster_figure then
+					Result.extend (l_cluster_figure)
 				end
-				forth
 			end
 		ensure
 			Result_not_void: Result /= Void
 		end
 
-	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml element representing `Current's state.
+	xml_element (a_node: like xml_element): XML_ELEMENT
+			-- <Precursor>
 		local
-			fig, elements: like xml_element
+			l_figure, l_elements: like xml_element
 		do
-			Result := Precursor {EG_LINKABLE_FIGURE} (node)
-			create elements.make (node, once "ELEMENTS", xml_namespace)
-			from
-				start
-			until
-				after
+			Result := Precursor {EG_LINKABLE_FIGURE} (a_node)
+			create l_elements.make (a_node, once "ELEMENTS", xml_namespace)
+			across
+				Current as it
 			loop
-				if attached {EG_LINKABLE_FIGURE} item as eg_fig then
-					create fig.make (elements, eg_fig.xml_node_name, xml_namespace)
-					elements.put_last (eg_fig.xml_element (fig))
+				if attached {EG_LINKABLE_FIGURE} it.item as eg_fig then
+					create l_figure.make (l_elements, eg_fig.xml_node_name, xml_namespace)
+					l_elements.put_last (eg_fig.xml_element (l_figure))
 				end
-				forth
 			end
-			Result.put_last (elements)
+			Result.put_last (l_elements)
 		end
 
-	set_with_xml_element (node: like xml_element)
-			-- Retrive state from `node'.
+	set_with_xml_element (a_node: like xml_element)
+			-- <Precursor>
 		do
-			Precursor {EG_LINKABLE_FIGURE} (node)
+			Precursor {EG_LINKABLE_FIGURE} (a_node)
 			if
-				attached {XML_ELEMENT} node.item_for_iteration as elements
+				attached {XML_ELEMENT} a_node.item_for_iteration as l_elements
 				and then attached world as l_world
 				and then attached l_world.model as l_world_model
 			then
-				node.forth
+				a_node.forth
 				across
-					elements as it
+					l_elements as it
 				loop
 					if
 						attached {like xml_element} it.item as l_item
@@ -125,7 +119,7 @@ feature -- Access
 feature -- Element change
 
 	recycle
-			-- Free `Current's resources.
+			-- <Precursor>
 		do
 			Precursor {EG_LINKABLE_FIGURE}
 			model.linkable_add_actions.prune_all (agent on_linkable_add)
@@ -143,25 +137,22 @@ feature -- Element change
 feature -- Status settings
 
 	set_is_fixed (b: BOOLEAN)
-			-- Set `is_fixed' to `b'.
+			-- <Precursor>
 		do
 			Precursor {EG_LINKABLE_FIGURE} (b)
-			from
-				start
-			until
-				after
+			across
+				Current as it
 			loop
-				if attached {EG_LINKABLE_FIGURE} item as l_linkable_figure then
+				if attached {EG_LINKABLE_FIGURE} it.item as l_linkable_figure then
 					l_linkable_figure.set_is_fixed (b)
 				end
-				forth
 			end
 		end
 
 feature -- Visitor
 
 	process (v: EG_FIGURE_VISITOR)
-			-- Visitor feature.
+			-- <Precursor>
 		do
 			v.process_cluster_figure (Current)
 		end

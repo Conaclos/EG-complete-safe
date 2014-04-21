@@ -14,6 +14,9 @@ inherit
 			default_create
 		end
 
+create
+	default_create
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -31,14 +34,15 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	has_recursive (a_linkable: EG_LINKABLE): BOOLEAN
+			-- Has recursively `a_linkable'?
 		do
 			across
 				linkables as it
+			until
+				Result
 			loop
-				Result := it.item = a_linkable
-				if not Result and then attached {EG_CLUSTER} it.item as l_cluster then
-					Result := l_cluster.has_recursive (a_linkable)
-				end
+				Result := it.item = a_linkable or else
+					(attached {EG_CLUSTER} it.item as l_cluster and then l_cluster.has_recursive (a_linkable))
 			end
 		end
 
@@ -82,24 +86,6 @@ feature -- Access
 			result_not_void: Result /= Void
 		end
 
-	add_subnodes_to_list (a_subnodes_list: ARRAYED_LIST [like node_type]; a_recursive: BOOLEAN)
-			-- Add subnodes of `Current' to `a_subnodes_list'.
-		local
-			l_linkables: SPECIAL [EG_LINKABLE]
-			i, nb: INTEGER
-		do
-			across
-				linkables as it
-			loop
-				if attached {like node_type} it.item as l_node then
-					a_subnodes_list.extend (l_node)
-				end
-				if a_recursive and then attached {like Current} it.item as l_cluster then
-					l_cluster.add_subnodes_to_list (a_subnodes_list, True)
-				end
-			end
-		end
-
 	sub_nodes_recursive: ARRAYED_LIST [like node_type]
 			-- All nodes in current.
 		do
@@ -113,7 +99,7 @@ feature -- Access
 			-- a linkable was added to `Current'.
 
 	linkable_remove_actions: EG_LINKABLE_ACTION
-			-- a linkable was removed from `Current'
+			-- a linkable was removed from `Current'.
 
 feature -- Status report
 
@@ -125,16 +111,32 @@ feature -- Status report
 			Result := linkables.has (a_linkable)
 		end
 
+feature -- Service
+
+	add_subnodes_to_list (a_subnodes_list: ARRAYED_LIST [like node_type]; a_recursive: BOOLEAN)
+			-- Add subnodes of `Current' to `a_subnodes_list'.
+		do
+			across
+				linkables as it
+			loop
+				if attached {like node_type} it.item as l_node then
+					a_subnodes_list.extend (l_node)
+				elseif a_recursive and attached {EG_CLUSTER} it.item as l_cluster then
+					l_cluster.add_subnodes_to_list (a_subnodes_list, True)
+				end
+			end
+		end
+
 feature -- Element change
 
 	extend (a_linkable: EG_LINKABLE)
-			-- add `a_linkable' to `Current'.
+			-- Add `a_linkable' to `Current'.
 		require
 			a_linkable_not_void: a_linkable /= Void
 			not_has_a_linkable: not has (a_linkable)
 		do
 			if attached a_linkable.cluster as l_cluster then
-				l_cluster.prune_all (l_cluster)
+				l_cluster.prune_all (a_linkable)
 			end
 			linkables.extend (a_linkable)
 			a_linkable.set_cluster (Current)
@@ -153,13 +155,13 @@ feature -- Element change
 		end
 
 	prune_all (a_linkable: EG_LINKABLE)
-			-- remove all occurrences of `a_linkable' from `Current'.
+			-- Remove all occurrences of `a_linkable' from `Current'.
 		require
 			a_linkable_not_void: a_linkable /= Void
 			has_a_linkable: has (a_linkable)
 		do
 			linkables.prune_all (a_linkable)
-			a_linkable.remove_cluster
+			a_linkable.set_cluster (Void)
 			linkable_remove_actions.call ([a_linkable])
 		ensure
 			not_has_a_linkable: not has (a_linkable)
@@ -169,14 +171,16 @@ feature -- Element change
 feature {EG_GRAPH, EG_FIGURE_WORLD, EG_FIGURE_FACTORY} -- Implementation
 
 	linkables: ARRAYED_LIST [EG_LINKABLE];
-			-- linkable elements of `Current'.
+			-- Linkable elements of `Current'.
 
 feature {NONE} -- Node type
 
 	node_type: EG_NODE
 			-- Anchor type.
+		require
+			callable: False
 		do
-			check valid_call: False then end
+			check callable: False then end
 		end
 
 ;note

@@ -11,30 +11,33 @@ class
 inherit
 	EG_FIGURE_FACTORY
 
+create
+	default_create
+
 feature -- Basic operations
 
 	new_node_figure (a_node: EG_NODE): EG_LINKABLE_FIGURE
-			-- Create a node figure for `a_node'.
+			-- <Precursor>
 		do
 			create {EG_SIMPLE_NODE} Result.make_with_model (a_node)
 		end
 
 	new_cluster_figure (a_cluster: EG_CLUSTER): EG_CLUSTER_FIGURE
-			-- Create a cluster figure for `a_cluster'.
+		-- <Precursor>
 		do
 			create {EG_SIMPLE_CLUSTER} Result.make_with_model (a_cluster)
 		end
 
 	new_link_figure (a_link: EG_LINK; a_source, a_target: EG_LINKABLE_FIGURE): EG_LINK_FIGURE
-			-- Create a link figure for `a_link'.
+			-- <Precursor>
 		do
 			create {EG_SIMPLE_LINK} Result.make (a_link, a_source, a_target)
 		end
 
-	model_from_xml (node: like xml_element_type): detachable EG_ITEM
-			-- Create an EG_ITEM from `node' if possible.
+	model_from_xml (a_node: like xml_element_type): detachable EG_ITEM
+			-- <Precursor>
 		do
-			if attached node.name as l_name then
+			if attached a_node.name as l_name then
 				if l_name.same_string ("EG_SIMPLE_NODE") then
 					create {EG_NODE} Result
 				elseif l_name.same_string ("EG_SIMPLE_CLUSTER") then
@@ -42,11 +45,11 @@ feature -- Basic operations
 				elseif
 					l_name.same_string ("EG_SIMPLE_LINK") and
 
-					attached node.attribute_by_name ("SOURCE") as l_attribute_by_name and then
+					attached a_node.attribute_by_name ("SOURCE") as l_attribute_by_name and then
 					attached l_attribute_by_name.value as l_source_name and then
 					attached linkable_with_name (l_source_name) as l_source and
 
-					attached node.attribute_by_name ("TARGET") as l_attribute_by_name_2 and then
+					attached a_node.attribute_by_name ("TARGET") as l_attribute_by_name_2 and then
 					attached l_attribute_by_name_2.value as l_target_name and then
 					attached linkable_with_name (l_target_name) as l_target
 				then

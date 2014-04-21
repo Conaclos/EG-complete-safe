@@ -17,27 +17,27 @@ create
 create {EG_LINK_ACTION}
 	make_filled
 
-feature -- Access
+feature -- Element change
 
-	wrapper (a_link: EG_LINK; action: PROCEDURE [ANY, TUPLE])
-			-- Use this to circumvent tuple type checking. (at your own risk!)
-			-- Calls `action' passing all other arguments.
+	force_extend (a_action: PROCEDURE [ANY, TUPLE])
+			-- Extend without type checking.
 		do
-			action (a_link)
+			extend (agent wrapper (?, a_action))
+		end
+
+feature {NONE} -- Implementtion
+
+	wrapper (a_link: EG_LINK; a_action: PROCEDURE [ANY, TUPLE])
+			-- Use this to circumvent tuple type checking. (at your own risk!)
+			-- Calls `a_action' passing all other arguments.
+		do
+			a_action (a_link)
 		end
 
 	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
+			-- <Precursor>
 		do
 			create Result.make_filled (n)
-		end
-
-feature -- Element change
-
-	force_extend (action: PROCEDURE [ANY, TUPLE])
-			-- Extend without type checking.
-		do
-			extend (agent wrapper (?, action))
 		end
 
 note

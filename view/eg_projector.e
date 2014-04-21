@@ -17,31 +17,32 @@ inherit
 		end
 
 create
-	make, make_with_buffer
+	make,
+	make_with_buffer
 
 feature -- Access
 
 	world: EG_FIGURE_WORLD
-		-- <Precursor>
+			-- <Precursor>
 
-feature -- Display updates
+feature -- Display update
 
 	full_project
-			-- Project entire area.
+			-- <Precursor>
 		do
 			world.update
 			Precursor
 		end
 
 	project
-			-- Make a standard projection of world on device.
+			-- <Precursor>
 		do
 			world.update
 			Precursor
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2010, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

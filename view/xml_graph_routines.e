@@ -19,6 +19,7 @@ inherit
     		default_create
     	end
 
+inherit {NONE}
 	XML_CALLBACKS_FILTER_FACTORY
 		export
 			{NONE} all
@@ -27,7 +28,8 @@ inherit
 		end
 
 create {EG_XML_STORABLE}
-	make, default_create
+	default_create,
+	make
 
 feature {NONE} -- Initialization
 
@@ -52,28 +54,25 @@ feature {NONE} -- Access
 
 	relative_window: detachable EV_WINDOW
 			-- relative window.
+		note
+			option: stable
+		attribute end
 
 feature {EG_XML_STORABLE} -- Access
 
-	number_of_tags (node: like xml_node): INTEGER
+	number_of_tags (a_node: like xml_node): INTEGER
 			-- Number of tags in node and all childrens of node.
 		require
-			node_not_void: node /= Void
-		local
-			l_cursor: XML_COMPOSITE_CURSOR
+			a_node_not_void: a_node /= Void
 		do
-			from
-				l_cursor := node.new_cursor
-				l_cursor.start
-			until
-				l_cursor.after
+			across
+				a_node as it
 			loop
-				if attached {like xml_node} l_cursor.item as l_item then
+				if attached {like xml_node} it.item as l_item then
 					Result := Result + number_of_tags (l_item)
-				elseif attached {XML_ATTRIBUTE} l_cursor.item then
+				elseif attached {XML_ATTRIBUTE} it.item then
 					Result := Result + 1
 				end
-				l_cursor.forth
 			end
 		end
 
@@ -83,6 +82,7 @@ feature {EG_XML_STORABLE} -- Status report
 			-- Number of valid tags read.
 
 	valid_tag_read_actions: EV_NOTIFY_ACTION_SEQUENCE
+			-- Event triggered when a tag was just readed.
 
 feature {EG_XML_STORABLE} -- Status setting
 
@@ -105,10 +105,10 @@ feature {EG_XML_STORABLE} -- Status setting
 
 feature {EG_XML_STORABLE} -- Processing
 
-	xml_integer (elem: like xml_node; a_name: READABLE_STRING_GENERAL): INTEGER
-			-- Find in sub-elememt of `elem' integer item with tag `a_name'.
+	xml_integer (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): INTEGER
+			-- Find in sub-elememt of `a_elem' integer item with tag `a_name'.
 		do
-			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
+			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text and then l_text.is_integer then
 					Result := l_text.to_integer
 					valid_tags_read
@@ -118,13 +118,13 @@ feature {EG_XML_STORABLE} -- Processing
 			else
 				display_warning_message ({STRING_32} "Element " + a_name.to_string_32 + {STRING_32} " expected but not found.")
 			end
-			elem.forth
+			a_elem.forth
 		end
 
-	xml_boolean (elem: like xml_node; a_name: READABLE_STRING_GENERAL): BOOLEAN
-			-- Find in sub-elememt of `elem' boolean item with tag `a_name'.
+	xml_boolean (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): BOOLEAN
+			-- Find in sub-elememt of `a_elem' boolean item with tag `a_name'.
 		do
-			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
+			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text and then l_text.is_boolean then
 					Result := l_text.to_boolean
 					valid_tags_read
@@ -134,13 +134,13 @@ feature {EG_XML_STORABLE} -- Processing
 			else
 				display_warning_message ({STRING_32} "Element " + a_name.to_string_32 + {STRING_32} " expected but not found.")
 			end
-			elem.forth
+			a_elem.forth
 		end
 
-	xml_double (elem: like xml_node; a_name: READABLE_STRING_GENERAL): DOUBLE
-			-- Find in sub-elememt of `elem' integer item with tag `a_name'.
+	xml_double (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): REAL_64
+			-- Find in sub-elememt of `a_elem' integer item with tag `a_name'.
 		do
-			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
+			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text and then l_text.is_double then
 					Result := l_text.to_double
 					valid_tags_read
@@ -150,13 +150,13 @@ feature {EG_XML_STORABLE} -- Processing
 			else
 				display_warning_message ({STRING_32} "Element " + a_name.to_string_32 + {STRING_32} " expected but not found.")
 			end
-			elem.forth
+			a_elem.forth
 		end
 
-	xml_string (elem: like xml_node; a_name: READABLE_STRING_GENERAL): detachable STRING
-			-- Find in sub-elememt of `elem' string item with tag `a_name'.
+	xml_string (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): detachable STRING
+			-- Find in sub-elememt of `a_elem' string item with tag `a_name'.
 		do
-			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
+			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text then
 					check is_valid_as_string_8: l_text.is_valid_as_string_8 end
 					Result := l_text.to_string_8
@@ -165,13 +165,13 @@ feature {EG_XML_STORABLE} -- Processing
 			else
 				display_warning_message ({STRING_32} "Element " + a_name.to_string_32 + {STRING_32} " expected but not found.")
 			end
-			elem.forth
+			a_elem.forth
 		end
 
-	xml_string_32 (elem: like xml_node; a_name: READABLE_STRING_GENERAL): detachable STRING_32
-			-- Find in sub-elememt of `elem' string item with tag `a_name'.
+	xml_string_32 (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): detachable STRING_32
+			-- Find in sub-elememt of `a_elem' string item with tag `a_name'.
 		do
-			if attached {like xml_node} elem.item_for_iteration as e and then e.has_same_name (a_name) then
+			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text then
 					Result := l_text
 				end
@@ -179,19 +179,19 @@ feature {EG_XML_STORABLE} -- Processing
 			else
 				display_warning_message ({STRING_32} "Element " + a_name.to_string_32 + {STRING_32} " expected but not found.")
 			end
-			elem.forth
+			a_elem.forth
 		end
 
-	xml_color (elem: like xml_node; a_name: READABLE_STRING_GENERAL): EV_COLOR
-			-- Find in sub-elememt of `elem' color item with tag `a_name'.
+	xml_color (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): EV_COLOR
+			-- Find in sub-elememt of `a_elem' color item with tag `a_name'.
 		local
 			sc1, sc2: INTEGER
 			r, g, b: INTEGER
-			rescued: BOOLEAN
+			l_rescued: BOOLEAN
 		do
-			if not rescued then
+			if not l_rescued then
 				if
-					attached {like xml_node} elem.item_for_iteration as e and then
+					attached {like xml_node} a_elem.item_for_iteration as e and then
 					e.has_same_name (a_name) and then
 					attached e.text as s and then
 					not s.is_empty
@@ -215,11 +215,11 @@ feature {EG_XML_STORABLE} -- Processing
 					-- Default color
 				create Result.make_with_8_bit_rgb (255, 255, 0)
 			end
-			elem.forth
+			a_elem.forth
 		ensure
 			non_void_color: Result /= Void
 		rescue
-			rescued := True
+			l_rescued := True
 			retry
 		end
 
@@ -261,11 +261,11 @@ feature -- Saving
 			file_not_void: a_file_name /= Void
 			file_exists: not a_file_name.is_empty
 		local
-			retried: BOOLEAN
+			l_retried: BOOLEAN
 			l_formatter: XML_FORMATTER
 			l_output_file: RAW_FILE
 		do
-			if not retried then
+			if not l_retried then
 					-- Write document
 				create l_output_file.make_with_path (a_file_name)
 				if not l_output_file.exists or else l_output_file.is_writable then
@@ -280,7 +280,7 @@ feature -- Saving
 				end
 			end
 		rescue
-			retried := True
+			l_retried := True
 			display_error_message ({STRING_32} "Unable to write file: " + a_file_name.name)
 			retry
 		end

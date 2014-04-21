@@ -33,7 +33,7 @@ feature {NONE} -- Initialization
 			resizer_top_left.disable_scaling
 			resizer_top_left.move_actions.extend (agent on_move_top_left)
 			resizer_top_left.set_pointer_style (default_pixmaps.sizenwse_cursor)
-			create rectangle.make_with_positions (0, 0, resizers_width, resizers_height)
+			create rectangle.make_with_positions (0, 0, Resizers_width, Resizers_height)
 			resizer_top_left.extend (rectangle)
 			rectangle.hide
 			extend (resizer_top_left)
@@ -43,7 +43,7 @@ feature {NONE} -- Initialization
 			resizer_top_right.disable_scaling
 			resizer_top_right.move_actions.extend (agent on_move_top_right)
 			resizer_top_right.set_pointer_style (default_pixmaps.sizenesw_cursor)
-			create rectangle.make_with_positions (-resizers_width, 0, 0, resizers_height)
+			create rectangle.make_with_positions (- Resizers_width, 0, 0, Resizers_height)
 			resizer_top_right.extend (rectangle)
 			rectangle.hide
 			extend (resizer_top_right)
@@ -53,7 +53,7 @@ feature {NONE} -- Initialization
 			resizer_bottom_right.disable_scaling
 			resizer_bottom_right.move_actions.extend (agent on_move_bottom_right)
 			resizer_bottom_right.set_pointer_style (default_pixmaps.sizenwse_cursor)
-			create rectangle.make_with_positions (-resizers_width, -resizers_height, 0, 0)
+			create rectangle.make_with_positions (- Resizers_width, - Resizers_height, 0, 0)
 			resizer_bottom_right.extend (rectangle)
 			rectangle.hide
 			extend (resizer_bottom_right)
@@ -63,7 +63,7 @@ feature {NONE} -- Initialization
 			resizer_bottom_left.disable_scaling
 			resizer_bottom_left.move_actions.extend (agent on_move_bottom_left)
 			resizer_bottom_left.set_pointer_style (default_pixmaps.sizenesw_cursor)
-			create rectangle.make_with_positions (0, -resizers_height, resizers_width, 0)
+			create rectangle.make_with_positions (0, - Resizers_height, Resizers_width, 0)
 			resizer_bottom_left.extend (rectangle)
 			rectangle.hide
 			extend (resizer_bottom_left)
@@ -72,21 +72,33 @@ feature {NONE} -- Initialization
 			disable_scaling
 		end
 
+feature -- Constant
+
+	is_user_sized_string: STRING = "IS_USER_SIZED"
+			-- Xml mark representing `is_user_sized'.
+
+	user_size_string: STRING = "USER_SIZE"
+			-- Xml mark representing `user_size'.
+
 feature -- Access
 
 	left: INTEGER
+			-- Left position.
 		deferred
 		end
 
 	top: INTEGER
+			-- Top position.
 		deferred
 		end
 
 	right: INTEGER
+			-- Right position.
 		deferred
 		end
 
 	bottom: INTEGER
+			-- Bottom position.
 		deferred
 		end
 
@@ -94,18 +106,18 @@ feature -- Access
 			-- User resized `Current' to `user_size' if not void.
 
 	xml_node_name: STRING
-			-- Name of the xml node returned by `xml_element'.
+			-- <Precursor>
 		do
 			Result := once "EG_RESIZABLE_CLUSTER_FIGURE"
 		end
 
-	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml element representing `Current's state.
+	xml_element (a_node: like xml_element): XML_ELEMENT
+			-- <Precursor>
 		local
 			l_colon: STRING
 			l_user_size: like user_size
 		do
-			Result := Precursor {EG_CLUSTER_FIGURE} (node)
+			Result := Precursor {EG_CLUSTER_FIGURE} (a_node)
 			l_colon := ";"
 			l_user_size := user_size
 			if l_user_size = Void then
@@ -120,16 +132,12 @@ feature -- Access
 			end
 		end
 
-	is_user_sized_string: STRING = "IS_USER_SIZED"
-	user_size_string: STRING = "USER_SIZE"
-		-- String constants for XML handling.
-
-	set_with_xml_element (node: like xml_element)
-			-- Retrive state from `node'.
+	set_with_xml_element (a_node: like xml_element)
+			-- <Precursor>
 		do
-			Precursor {EG_CLUSTER_FIGURE} (node)
+			Precursor {EG_CLUSTER_FIGURE} (a_node)
 			if
-				attached xml_routines.xml_string (node, user_size_string) as l_str and then
+				attached xml_routines.xml_string (a_node, user_size_string) as l_str and then
 				l_str.is_boolean
 			then
 				user_size := rectangle_from_string (l_str)
@@ -139,7 +147,7 @@ feature -- Access
 feature -- Element change
 
 	recycle
-			-- Free `Current's resources.
+			-- <Precursor>
 		do
 			Precursor {EG_CLUSTER_FIGURE}
 			resizer_top_left.move_actions.prune_all (agent on_move_top_left)
@@ -159,7 +167,7 @@ feature -- Element change
 feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 	update
-			-- Some properties of `Current' may have changed.
+			-- <Precursor>
 		do
 			resizer_top_left.set_point_position (left, top)
 			resizer_top_right.set_point_position (right, top)
@@ -170,93 +178,92 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 feature {NONE} -- Implementation
 
-	set_top_left_position (ax, ay: INTEGER)
-			-- Set position of top left corner to (`ax', `ay').
+	set_top_left_position (a_x, a_y: INTEGER)
+			-- Set position of top left corner to (`a_x', `a_y').
 		deferred
 		end
 
-	set_bottom_right_position (ax, ay: INTEGER)
-			-- Set position of bottom right corner to (`ax', `ay').
+	set_bottom_right_position (a_x, a_y: INTEGER)
+			-- Set position of bottom right corner to (`a_x', `a_y').
 		deferred
 		end
-
 
 	resizer_top_left: EV_MODEL_MOVE_HANDLE
-			-- resizer for top left corner.
+			-- Resizer for top left corner.
 
 	resizer_top_right: EV_MODEL_MOVE_HANDLE
-			-- resizer for top right corner.
+			-- Resizer for top right corner.
 
 	resizer_bottom_right: EV_MODEL_MOVE_HANDLE
 			-- resizer for bottom right corner.
 
 	resizer_bottom_left: EV_MODEL_MOVE_HANDLE
-			-- resizer for bottom left corner.
+			-- Resizer for bottom left corner.
 
-	resizers_width: INTEGER = 20
-			-- width of the resizers in pixel.
+	Resizers_width: INTEGER = 20
+			-- Width of the resizers in pixel.
 
-	resizers_height: INTEGER = 20
-			-- height of the resizers in pixel.
+	Resizers_height: INTEGER = 20
+			-- Height of the resizers in pixel.
 
-	on_move_top_left (ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
-			-- `resizer_top_left' was moved for (`ax', `ay').
+	on_move_top_left (a_x, a_y: INTEGER; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER)
+			-- `resizer_top_left' was moved for (`a_x', `a_y').
 		local
-			new_x, new_y: INTEGER
+			l_new_x, l_new_y: INTEGER
 		do
-			new_x := (left + ax).min (right)
-			new_y := (top + ay).min (bottom)
-			set_top_left_position (new_x, new_y)
-			resizer_top_left.set_point_position (new_x, new_y)
-			resizer_bottom_left.set_point_position (new_x, resizer_bottom_left.point_y)
-			resizer_top_right.set_point_position (resizer_top_right.point_x, new_y)
+			l_new_x := (left + a_x).min (right)
+			l_new_y := (top + a_y).min (bottom)
+			set_top_left_position (l_new_x, l_new_y)
+			resizer_top_left.set_point_position (l_new_x, l_new_y)
+			resizer_bottom_left.set_point_position (l_new_x, resizer_bottom_left.point_y)
+			resizer_top_right.set_point_position (resizer_top_right.point_x, l_new_y)
 			update_user_size
 			request_update
 		end
 
-	on_move_top_right (ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
-			-- `resizer_top_right' was moved to (`ax', `ay').
+	on_move_top_right (a_x, a_y: INTEGER; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER)
+			-- `resizer_top_right' was moved to (`a_x', `a_y').
 		local
-			new_x, new_y: INTEGER
+			l_new_x, l_new_y: INTEGER
 		do
-			new_x := (right + ax).max (left)
-			new_y := (top + ay).min (bottom)
-			set_top_left_position (left, new_y)
-			set_bottom_right_position (new_x, bottom)
-			resizer_top_right.set_point_position (new_x, new_y)
-			resizer_top_left.set_point_position (resizer_top_left.point_x, new_y)
-			resizer_bottom_right.set_point_position (new_x, resizer_bottom_right.point_y)
+			l_new_x := (right + a_x).max (left)
+			l_new_y := (top + a_y).min (bottom)
+			set_top_left_position (left, l_new_y)
+			set_bottom_right_position (l_new_x, bottom)
+			resizer_top_right.set_point_position (l_new_x, l_new_y)
+			resizer_top_left.set_point_position (resizer_top_left.point_x, l_new_y)
+			resizer_bottom_right.set_point_position (l_new_x, resizer_bottom_right.point_y)
 			update_user_size
 			request_update
 		end
 
-	on_move_bottom_right (ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
-			-- `resizer_bottom_right' was moved to (`ax', `ay').
+	on_move_bottom_right (a_x, a_y: INTEGER; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER)
+			-- `resizer_bottom_right' was moved to (`a_x', `a_y').
 		local
-			new_x, new_y: INTEGER
+			l_new_x, l_new_y: INTEGER
 		do
-			new_x := (right + ax).max (left)
-			new_y := (bottom + ay).max (top)
-			set_bottom_right_position (new_x, new_y)
-			resizer_bottom_right.set_point_position (new_x, new_y)
-			resizer_top_right.set_point_position (new_x, resizer_top_right.point_y)
-			resizer_bottom_left.set_point_position (resizer_bottom_left.point_x, new_y)
+			l_new_x := (right + a_x).max (left)
+			l_new_y := (bottom + a_y).max (top)
+			set_bottom_right_position (l_new_x, l_new_y)
+			resizer_bottom_right.set_point_position (l_new_x, l_new_y)
+			resizer_top_right.set_point_position (l_new_x, resizer_top_right.point_y)
+			resizer_bottom_left.set_point_position (resizer_bottom_left.point_x, l_new_y)
 			update_user_size
 			request_update
 		end
 
-	on_move_bottom_left (ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
-			-- `resizer_bottom_left' was moved to (`ax', `ay').
+	on_move_bottom_left (a_x, a_y: INTEGER; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER)
+			-- `resizer_bottom_left' was moved to (`a_x', `a_y').
 		local
-			new_x, new_y: INTEGER
+			l_new_x, l_new_y: INTEGER
 		do
-			new_x := (left + ax).min (right)
-			new_y := (bottom + ay).max (top)
-			set_top_left_position (new_x, top)
-			set_bottom_right_position (right, new_y)
-			resizer_bottom_left.set_point_position (new_x, new_y)
-			resizer_top_left.set_point_position (new_x, resizer_top_left.point_y)
-			resizer_bottom_right.set_point_position (resizer_bottom_right.point_x, new_y)
+			l_new_x := (left + a_x).min (right)
+			l_new_y := (bottom + a_y).max (top)
+			set_top_left_position (l_new_x, top)
+			set_bottom_right_position (right, l_new_y)
+			resizer_bottom_left.set_point_position (l_new_x, l_new_y)
+			resizer_top_left.set_point_position (l_new_x, resizer_top_left.point_y)
+			resizer_bottom_right.set_point_position (resizer_bottom_right.point_x, l_new_y)
 			update_user_size
 			request_update
 		end

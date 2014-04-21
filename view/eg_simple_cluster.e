@@ -34,7 +34,7 @@ feature {NONE} -- Initialization
 		require
 			a_model_not_void: a_model /= Void
 		do
-			create rectangle -- Satisfy invariant
+			create rectangle
 			model := a_model
 
 			default_create
@@ -49,37 +49,37 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	port_x: INTEGER
-			-- x position where links are starting.
+			-- <Precursor>
 		do
 			Result := rectangle.x
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting.
+			-- <Precursor>
 		do
 			Result := rectangle.y
 		end
 
 	size: EV_RECTANGLE
-			-- Size of `Current'.
+			-- <Precursor>
 		do
 			Result := rectangle.bounding_box
 		end
 
 	height: INTEGER
-			-- Height in pixels.
+			-- <Precursor>
 		do
 			Result := rectangle.height
 		end
 
 	width: INTEGER
-			-- Width in pixels.
+			-- <Precursor>
 		do
 			Result := rectangle.width
 		end
 
 	xml_node_name: STRING
-			-- Name of `xml_element'.
+			-- <Precursor>
 		do
 			Result := "EG_SIMPLE_CLUSTER"
 		end
@@ -87,70 +87,70 @@ feature -- Access
 
 feature -- Element change
 
-	update_edge_point (p: EV_COORDINATE; an_angle: DOUBLE)
+	update_edge_point (p: EV_COORDINATE; a_angle: REAL_64)
 			-- Set `p' position such that it is on a point on the edge of `Current'.
 		local
-			m: DOUBLE
-			new_x, new_y: DOUBLE
-			w2: DOUBLE
-			mod_angle: DOUBLE
-			l_pi, l_pi2: DOUBLE
-			right, left, bottom, top: INTEGER
+			m: REAL_64
+			l_new_x, l_new_y: REAL_64
+			l_mod_angle: REAL_64
+			l_pi, l_pi2: REAL_64
+			l_right, l_left, l_bottom, l_top: INTEGER
 		do
-			left := rectangle.point_a_x
-			top := rectangle.point_a_y
-			right := rectangle.point_b_x
-			bottom := rectangle.point_b_y
+			l_left := rectangle.point_a_x
+			l_top := rectangle.point_a_y
+			l_right := rectangle.point_b_x
+			l_bottom := rectangle.point_b_y
 			l_pi := pi
 			l_pi2 := l_pi / 2
-			mod_angle := modulo (an_angle, 2 * l_pi)
-			if mod_angle = 0 then
-				new_x := right
-				new_y := port_y
-			elseif mod_angle = l_pi2 then
-				new_x := port_x
-				new_y := bottom
-			elseif mod_angle = l_pi then
-				new_x := left
-				new_y := port_y
-			elseif mod_angle = 3 * l_pi2 then
-				new_x := port_x
-				new_y := top
+			l_mod_angle := modulo (a_angle, 2 * l_pi)
+
+			if l_mod_angle = 0 then
+				l_new_x := l_right
+				l_new_y := port_y
+			elseif l_mod_angle = l_pi2 then
+				l_new_x := port_x
+				l_new_y := l_bottom
+			elseif l_mod_angle = l_pi then
+				l_new_x := l_left
+				l_new_y := port_y
+			elseif l_mod_angle = 3 * l_pi2 then
+				l_new_x := port_x
+				l_new_y := l_top
 			else
-				m := tangent (mod_angle)
+				m := tangent (l_mod_angle)
 				check
 					m_never_zero: m /= 0.0
 				end
-				new_x := (bottom + m * port_x - port_y) / m
-				w2 := (right - left) / 2
-				if new_x > left and new_x < right then
-					if mod_angle > 0 and mod_angle < l_pi then
+				l_new_x := (l_bottom + m * port_x - port_y) / m
+
+				if l_new_x > l_left and l_new_x < l_right then
+					if l_mod_angle > 0 and l_mod_angle < l_pi then
 						-- intersect with bottom line
-						new_y := bottom
+						l_new_y := l_bottom
 					else
 						-- intersect with top line
-						new_y := top
-						new_x := 2 * port_x - new_x
+						l_new_y := l_top
+						l_new_x := 2 * port_x - l_new_x
 					end
 				else
-					new_y := m * right - m * port_x + port_y
-					if mod_angle > l_pi2 and mod_angle < 3 * l_pi2 then
+					l_new_y := m * l_right - m * port_x + port_y
+					if l_mod_angle > l_pi2 and l_mod_angle < 3 * l_pi2 then
 						-- intersect with left line
-						new_x := left
-						new_y := 2 * port_y - new_y
+						l_new_x := l_left
+						l_new_y := 2 * port_y - l_new_y
 					else
 						-- intersect with right line
-						new_x := right
+						l_new_x := l_right
 					end
 				end
 			end
-			p.set_precise (new_x, new_y)
+			p.set_precise (l_new_x, l_new_y)
 		end
 
 feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 	update
-			-- Some properties of current may have changed.
+			-- <Precursor>
 		local
 			l_min_size: like minimum_size
 		do
@@ -165,12 +165,12 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 feature {NONE} -- Implementation
 
-	set_is_selected (an_is_selected: like is_selected)
-			-- Set `is_selected' to `an_is_selected'.
+	set_is_selected (a_is_selected: like is_selected)
+			-- <Precursor>
 		do
-			if is_selected /= an_is_selected then
-				is_selected := an_is_selected
-				if is_selected then
+			if is_selected /= a_is_selected then
+				is_selected := a_is_selected
+				if a_is_selected then
 					rectangle.set_line_width (rectangle.line_width * 2)
 				else
 					rectangle.set_line_width (rectangle.line_width // 2)
@@ -182,13 +182,13 @@ feature {NONE} -- Implementation
 			-- The rectangle visualising the border of `Current'.
 
 	number_of_figures: INTEGER = 2
-			-- number of figures used to visialize `Current'
+			-- <Precursor>
 			-- (`name_label' and `rectangle').
 
 feature {NONE} -- Obsolete
 
 	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
+			-- <Precursor>
 		do
 			check not_implemented: False then end
 		end

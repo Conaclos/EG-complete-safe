@@ -8,9 +8,7 @@ note
 deferred class
 	EG_XML_STORABLE
 
-inherit
-	ANY
-
+inherit {NONE}
 	XML_CALLBACKS_FILTER_FACTORY
 		export
 			{NONE} all
@@ -18,10 +16,10 @@ inherit
 
 feature -- Access
 
-	xml_element (node: like xml_element): XML_ELEMENT
+	xml_element (a_node: like xml_element): XML_ELEMENT
 			-- Xml node representing `Current's state.
 		require
-			node_not_void: node /= Void
+			a_node_not_void: a_node /= Void
 		deferred
 		ensure
 			Result_not_void: Result /= Void
@@ -37,10 +35,10 @@ feature -- Access
 
 feature -- Element change
 
-	set_with_xml_element (node: like xml_element)
-			-- Retrieve state from `node'.
+	set_with_xml_element (a_node: like xml_element)
+			-- Retrieve state from `a_node'.
 		require
-			node_not_void: node /= Void
+			a_node_not_void: a_node /= Void
 		deferred
 		end
 
@@ -75,7 +73,7 @@ feature {NONE} -- Implementation
 		once
 			create Result.default_create
 		ensure
-			non_void_Xml_routines: Xml_routines /= Void
+			Result_not_void: Result /= Void
 		end
 
 note

@@ -65,7 +65,7 @@ feature {NONE} -- Initialization
 		end
 
 	initialize
-			-- Initialize.
+			-- <Precursor>
 		do
 			Precursor {EG_LINK_FIGURE}
 			if model.is_reflexive then
@@ -78,6 +78,23 @@ feature {NONE} -- Initialization
 				line.enable_end_arrow
 			end
 		end
+
+feature -- Constant
+
+	edge_string: STRING = "EDGE"
+			-- Xml mark representing edge.
+
+	x_pos_string: STRING = "X_POS"
+			-- Xml mark representing x position.
+
+	y_pos_string: STRING = "Y_POS"
+			-- Xml mark representing y position.
+
+	line_width_string: STRING = "LINE_WIDTH"
+			-- Xml mark representing `line_width'.
+
+	line_color_string: STRING = "LINE_COLOR"
+			-- Xml mark representing `line_color'.
 
 feature -- Access
 
@@ -118,26 +135,27 @@ feature -- Access
 		end
 
 	line_width: INTEGER
+			-- Line width.
 		do
 			Result := line.line_width
 		end
 
 	edges_count: INTEGER
+			-- Edges count.
 		do
 			Result := edge_move_handlers.count
 		end
 
 	foreground_color: EV_COLOR
+			-- Foreground color.
 		do
 			Result := line.foreground_color
 		end
 
-	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state.
+	xml_element (a_node: like xml_element): XML_ELEMENT
+			-- <Precursor>
 		local
-			edge_xml_element, edges: like xml_element
-			l_points: like point_array
-			i, nb: INTEGER
+			l_edge_xml_element, l_edges: like xml_element
 			l_item: EV_COORDINATE
 			l_x_pos_string: STRING
 			l_y_pos_string: STRING
@@ -150,23 +168,20 @@ feature -- Access
 			l_y_pos_string := y_pos_string
 			l_xml_routines := xml_routines
 			l_xml_namespace := xml_namespace
-			Result := Precursor {EG_LINK_FIGURE} (node)
-			create edges.make (Result, once "EDGES", xml_namespace)
-			from
-				l_points := line.point_array
-				i := 1
-				nb := l_points.count - 1
-			until
-				i >= nb
+			Result := Precursor {EG_LINK_FIGURE} (a_node)
+			create l_edges.make (Result, once "EDGES", xml_namespace)
+
+			across
+				line.point_array as it
 			loop
-				l_item := l_points.item (i)
-				create edge_xml_element.make (edges, edge_string, l_xml_namespace)
-				edge_xml_element.put_last (l_xml_routines.xml_node (edge_xml_element, l_x_pos_string, l_item.x.out))
-				edge_xml_element.put_last (l_xml_routines.xml_node (edge_xml_element, l_y_pos_string, l_item.y.out))
-				edges.put_last (edge_xml_element)
-				i := i + 1
+				l_item := it.item
+				create l_edge_xml_element.make (l_edges, edge_string, l_xml_namespace)
+				l_edge_xml_element.put_last (l_xml_routines.xml_node (l_edge_xml_element, l_x_pos_string, l_item.x.out))
+				l_edge_xml_element.put_last (l_xml_routines.xml_node (l_edge_xml_element, l_y_pos_string, l_item.y.out))
+				l_edges.put_last (l_edge_xml_element)
 			end
-			Result.put_last (edges)
+
+			Result.put_last (l_edges)
 			Result.put_last (l_xml_routines.xml_node (Result, line_width_string, line_width.out))
 			Result.put_last (l_xml_routines.xml_node (Result, line_color_string,
 				l_foreground_color.red_8_bit.out + ";" +
@@ -174,33 +189,27 @@ feature -- Access
 				l_foreground_color.blue_8_bit.out))
 		end
 
-	edge_string: STRING = "EDGE"
-	x_pos_string: STRING = "X_POS"
-	y_pos_string: STRING = "Y_POS"
-	line_width_string: STRING = "LINE_WIDTH"
-	line_color_string: STRING = "LINE_COLOR"
-
-	set_with_xml_element (node: like xml_element)
-			-- Retrive state from `node'.
+	set_with_xml_element (a_node: like xml_element)
+			-- <Precursor>
 		local
 			l_cursor: XML_COMPOSITE_CURSOR
-			ax, ay: INTEGER
+			l_x, l_y: INTEGER
 			l_x_pos_string, l_y_pos_string: STRING
 			l_xml_routines: like xml_routines
 			l_edges_count: INTEGER
 		do
-			Precursor {EG_LINK_FIGURE} (node)
+			Precursor {EG_LINK_FIGURE} (a_node)
 			l_x_pos_string := x_pos_string
 			l_y_pos_string := y_pos_string
 			l_xml_routines := xml_routines
 
 			reset
 			if
-				attached {like xml_element} node.item_for_iteration as edges
+				attached {like xml_element} a_node.item_for_iteration as edges
 				and then attached source as l_source
 				and then attached target as l_target
 			then
-				node.forth
+				a_node.forth
 				l_cursor := edges.new_cursor
 				l_cursor.start
 				line.point_array.item (0).set (l_source.port_x, l_source.port_y)
@@ -209,16 +218,16 @@ feature -- Access
 					if not l_cursor.after then
 						if attached {like xml_element} l_cursor.item as l_item then
 							l_item.start
-							ax := l_xml_routines.xml_integer (l_item, l_x_pos_string)
-							ay := l_xml_routines.xml_integer (l_item, l_y_pos_string)
-							line.point_array.item (1).set (ax, ay)
+							l_x := l_xml_routines.xml_integer (l_item, l_x_pos_string)
+							l_y := l_xml_routines.xml_integer (l_item, l_y_pos_string)
+							line.point_array.item (1).set (l_x, l_y)
 						end
 						l_cursor.forth
 						if attached {like xml_element} l_cursor.item as l_item then
 							l_item.start
-							ax := l_xml_routines.xml_integer (l_item, l_x_pos_string)
-							ay := l_xml_routines.xml_integer (l_item, l_y_pos_string)
-							line.point_array.item (2).set (ax, ay)
+							l_x := l_xml_routines.xml_integer (l_item, l_x_pos_string)
+							l_y := l_xml_routines.xml_integer (l_item, l_y_pos_string)
+							line.point_array.item (2).set (l_x, l_y)
 						end
 					end
 				else
@@ -230,22 +239,22 @@ feature -- Access
 							l_item.start
 							l_edges_count := edges_count
 							add_point_between (l_edges_count + 1, l_edges_count + 2)
-							ax := l_xml_routines.xml_integer (l_item, l_x_pos_string)
-							ay := l_xml_routines.xml_integer (l_item, l_y_pos_string)
+							l_x := l_xml_routines.xml_integer (l_item, l_x_pos_string)
+							l_y := l_xml_routines.xml_integer (l_item, l_y_pos_string)
 							l_edges_count := edges_count
-							set_i_th_point_position (l_edges_count + 1, ax, ay)
+							set_i_th_point_position (l_edges_count + 1, l_x, l_y)
 						end
 						l_cursor.forth
 					end
 				end
 				line.point_array.item (line.point_array.count - 1).set (l_target.port_x, l_target.port_y)
-				set_line_width (l_xml_routines.xml_integer (node, once "LINE_WIDTH"))
-				set_foreground_color (l_xml_routines.xml_color (node, once "LINE_COLOR"))
+				set_line_width (l_xml_routines.xml_integer (a_node, once "LINE_WIDTH"))
+				set_foreground_color (l_xml_routines.xml_color (a_node, once "LINE_COLOR"))
 			end
 		end
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'.
+			-- <Precursor>
 		do
 			Result := "EG_POLYLINE_LINK_FIGURE"
 		end
@@ -253,11 +262,13 @@ feature -- Access
 feature -- Status report
 
 	is_start_arrow: BOOLEAN
+			-- Is start arrow?
 		do
 			Result := line.is_start_arrow
 		end
 
 	is_end_arrow: BOOLEAN
+			-- Is end arrow?
 		do
 			Result := line.is_end_arrow
 		end
@@ -281,7 +292,7 @@ feature -- Status settings
 feature -- Element change
 
 	recycle
-			-- Free `Current's recources.
+			-- <Precursor>
 		do
 			Precursor {EG_LINK_FIGURE}
 			line.pointer_button_press_actions.prune_all (agent pointer_button_pressed_on_a_line)
@@ -309,16 +320,16 @@ feature -- Element change
 			set: foreground_color = a_color
 		end
 
-	set_i_th_point_position (i: INTEGER; ax, ay: INTEGER)
-			-- Set position of `i'-th point to (`ax', `ay').
+	set_i_th_point_position (i: INTEGER; a_x, a_y: INTEGER)
+			-- Set position of `i'-th point to (`a_x', `a_y').
 		require
-			valid_index: i > 1 and i < edges_count + 2
+			valid_index: 1 < i and i < edges_count + 2
 		do
-			line.set_i_th_point_position (i, ax, ay)
-			edge_move_handlers.i_th (i - 1).set_point_position (ax, ay)
+			line.set_i_th_point_position (i, a_x, a_y)
+			edge_move_handlers.i_th (i - 1).set_point_position (a_x, a_y)
 			request_update
 		ensure
-			set: i_th_point_x (i) = ax and i_th_point_y (i) = ay
+			set: i_th_point_x (i) = a_x and i_th_point_y (i) = a_y
 		end
 
 	add_point_between (i, j: INTEGER)
@@ -393,7 +404,7 @@ feature -- Element change
 			until
 				n >= nb
 			loop
-				if n /= i - 1 then
+				if n /= (i - 1) then
 					l_point_array.put (l_point_array.item (n), m)
 					m := m + 1
 				end
@@ -438,7 +449,7 @@ feature -- Element change
 feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 	update
-			-- Some properties may have changed.
+			-- <Precursor>
 		local
 			nx, ny: INTEGER
 		do
@@ -452,7 +463,7 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 			else
 				nx := source.port_x
 				ny := source.port_y
-				if nx /= line.i_th_point_x (1) or else ny /= line.i_th_point_y (1) then
+				if nx /= line.i_th_point_x (1) or ny /= line.i_th_point_y (1) then
 					line.set_i_th_point_position (1, nx, ny)
 					line.set_i_th_point_position (line.point_count, nx, ny)
 					line.set_i_th_point_position (2, nx + 150, ny - 50)
@@ -473,12 +484,12 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 feature {NONE} -- Implementation
 
-	set_is_selected (an_is_selected: like is_selected)
-			-- Set `is_selected' to `an_is_selected'.
+	set_is_selected (a_is_selected: like is_selected)
+			-- <Precursor>
 		do
-			if is_selected /= an_is_selected then
-				is_selected := an_is_selected
-				if is_selected then
+			if is_selected /= a_is_selected then
+				is_selected := a_is_selected
+				if a_is_selected then
 					line.set_line_width (line.line_width * 2)
 				else
 					line.set_line_width (line.line_width // 2)
@@ -486,31 +497,31 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	edge_moved (a_point: EV_COORDINATE; ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
-			-- `a_point' was moved for `ax', `ay'.
+	edge_moved (a_point: EV_COORDINATE; a_x, a_y: INTEGER; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER)
+			-- `a_point' was moved for `a_x', `a_y'.
 		do
-			a_point.set_precise (a_point.x_precise + ax, a_point.y_precise + ay)
+			a_point.set_precise (a_point.x_precise + a_x, a_point.y_precise + a_y)
 			request_update
 		end
 
-	edge_start (an_edge: EG_EDGE)
-			-- User starts to move `an_edge'.
+	edge_start (a_edge: EG_EDGE)
+			-- User starts to move `a_edge'.
 		require
-			an_edge_not_void: an_edge /= Void
+			an_edge_not_void: a_edge /= Void
 		do
 		end
 
-	edge_end (an_edge: EG_EDGE)
-			-- User ends to move `an_edge'.
+	edge_end (a_edge: EG_EDGE)
+			-- User ends to move `a_edge'.
 		require
-			an_edge_not_void: an_edge /= Void
+			an_edge_not_void: a_edge /= Void
 		do
 		end
 
 	set_start_point_to_edge
 			-- Set the start point such that it is element of the edge of the source figure.
 		local
-			l_angle: DOUBLE
+			l_angle: REAL_64
 			l_pa: like point_array
 			p1: EV_COORDINATE
 		do
@@ -523,7 +534,7 @@ feature {NONE} -- Implementation
 	set_end_point_to_edge
 			-- Set the end point such that it is element of the edge of the target figure.
 		local
-			l_angle: DOUBLE
+			l_angle: REAL_64
 			l_count: INTEGER
 			l_pa: like point_array
 			p: EV_COORDINATE
@@ -540,7 +551,7 @@ feature {NONE} -- Implementation
 		require
 			no_edges: edges_count = 0
 		local
-			l_angle: DOUBLE
+			l_angle: REAL_64
 			l_point_array: like point_array
 		do
 			l_point_array := line.point_array
@@ -550,7 +561,7 @@ feature {NONE} -- Implementation
 			source.update_edge_point (l_point_array.item (1), l_angle)
 		end
 
-	pointer_button_pressed_on_a_line (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
+	pointer_button_pressed_on_a_line (a_x, a_y, a_button: INTEGER; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER)
 			-- User pressed on `line'.
 		local
 			i, nb: INTEGER
@@ -560,7 +571,7 @@ feature {NONE} -- Implementation
 			p, q: EV_COORDINATE
 			new_handler: EG_EDGE
 		do
-			if button = 1 and not is_on_edge (ax, ay) and source /= target then
+			if a_button = 1 and not is_on_edge (a_x, a_y) and source /= target then
 				from
 					l_point_array := line.point_array
 					point_found := False
@@ -572,17 +583,17 @@ feature {NONE} -- Implementation
 				loop
 					p := l_point_array.item (i)
 					q := l_point_array.item (i + 1)
-					point_found := point_on_segment (ax, ay, p.x_precise, p.y_precise, q.x_precise, q.y_precise, lw)
+					point_found := point_on_segment (a_x, a_y, p.x_precise, p.y_precise, q.x_precise, q.y_precise, lw)
 					i := i + 1
 				end
 				if point_found then
 					add_point_between (i, i + 1)
 					new_handler := edge_move_handlers.i_th (i)
-					set_i_th_point_position (i + 1, ax, ay)
+					set_i_th_point_position (i + 1, a_x, a_y)
 					new_handler.show
-					new_handler.on_start_resizing (ax, ay, button, x_tilt, y_tilt, pressure, screen_x, screen_y)
+					new_handler.on_start_resizing (a_x, a_y, a_button, a_x_tilt, a_y_tilt, a_pressure, a_screen_x, a_screen_y)
 					check
-						new_handle_at_ax_ay: edge_move_handlers.i_th (i).point_x = ax and edge_move_handlers.i_th (i).point_y = ay
+						new_handle_at_ax_ay: edge_move_handlers.i_th (i).point_x = a_x and edge_move_handlers.i_th (i).point_y = a_y
 					end
 				end
 			end
@@ -601,14 +612,14 @@ feature {NONE} -- Implementation
 			create Result.make_with_pixmap (pix_map, pix_map.width // 2, pix_map.height // 2)
 		end
 
-	is_on_edge (ax, ay: INTEGER): BOOLEAN
-			-- is position `ax', `ay' on an edge?
+	is_on_edge (a_x, a_y: INTEGER): BOOLEAN
+			-- is position `a_x', `a_y' on an edge?
 		do
-			Result := across edge_move_handlers as it some it.item.first.position_on_figure (ax, ay) end
+			Result := across edge_move_handlers as it some it.item.first.position_on_figure (a_x, a_y) end
 		end
 
 	on_is_directed_change
-			-- `model'.`is_directed' changed.
+			-- <Precursor>
 		do
 			if model.is_directed then
 				line.enable_end_arrow
@@ -620,9 +631,6 @@ feature {NONE} -- Implementation
 
 	line: EV_MODEL_POLYLINE
 			-- The polyline visualizing the link.
---			
---	reflexive_distance: INTEGER
---			-- Distance from the border of the linkable figure if `is_reflexive'.
 
 feature {EG_FIGURE_WORLD} -- Implementation
 
@@ -633,7 +641,7 @@ feature {EG_FIGURE_WORLD} -- Implementation
 feature {NONE} -- Obsolete
 
 	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
+			-- <Precursor>
 		do
 			check not_implemented: False then end
 		end

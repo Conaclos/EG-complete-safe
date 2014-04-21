@@ -43,14 +43,20 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	center_attraction: INTEGER
+	center_attraction: INTEGER assign set_center_attraction
+			-- Attraction of the center in percent.
 
-	stiffness: INTEGER
+	stiffness: INTEGER assign set_stiffness
+			-- Stiffness in percent.
 
-	electrical_repulsion: INTEGER
+	electrical_repulsion: INTEGER assign set_electrical_repulsion
+			-- Electrical repulsion in percent.
 
-	energy_tolerance: DOUBLE
+	energy_tolerance: REAL_64
 			-- Algorithm variables.
+		obsolete
+			"Unused."
+		attribute end
 
 	center_x: INTEGER
 			-- Abscissa position of the center.
@@ -60,17 +66,17 @@ feature -- Access
 
 	stop_actions: EV_NOTIFY_ACTION_SEQUENCE
 
-	move_threshold: DOUBLE
+	move_threshold: REAL_64
 			-- Stop layouting and call `stop_actions' if no node moved
 			-- for more then `move_threshold'.
 
 feature -- Access
 
-	fence: detachable EV_RECTANGLE
+	fence: detachable EV_RECTANGLE assign set_fence
 			-- Fence to keep nodes in (optional, Void if no fence).
 
 	is_stopped: BOOLEAN
-
+			-- Is stopped?
 
 feature -- Element change
 
@@ -82,7 +88,7 @@ feature -- Element change
 			set: fence = a_fence
 		end
 
-	set_move_threshold (d: DOUBLE)
+	set_move_threshold (d: like move_threshold)
 			-- Set `move_threshold' to `d'.
 		do
 			move_threshold := d
@@ -115,7 +121,7 @@ feature -- Basic operations
 			end
 		end
 
-	set_center_attraction (a_value: INTEGER)
+	set_center_attraction (a_value: like center_attraction)
 			-- Set `center_attraction' value in percentage of maximum.
 		require
 			valid_value: 0 <= a_value and a_value <= 100
@@ -125,7 +131,7 @@ feature -- Basic operations
 			set: center_attraction = a_value
 		end
 
-	set_stiffness (a_value: INTEGER)
+	set_stiffness (a_value: like stiffness)
 			-- Set `stiffness' value in percentage of maximum.
 		require
 			valid_value: 0 <= a_value and a_value <= 100
@@ -135,7 +141,7 @@ feature -- Basic operations
 			set: stiffness = a_value
 		end
 
-	set_electrical_repulsion (a_value: INTEGER)
+	set_electrical_repulsion (a_value: like electrical_repulsion)
 			-- Set `electrical_repulsion' value in percentage of maximum.
 		require
 			valid_value: 0 <= a_value and a_value <= 100
@@ -172,12 +178,12 @@ feature -- Basic operations
 		end
 
 	layout
-			-- Arrange the elements in `graph'.
+			-- <Precursor>
 		do
 			if not is_stopped then
 				max_move := 0.0
-				internal_center_attraction := (center_attraction / 50) --/ (world.scale_factor ^ 2)
-				internal_stiffness := (0.01 + stiffness / 300) --/ (world.scale_factor ^ 2)
+				internal_center_attraction := center_attraction / 50
+				internal_stiffness := 0.01 + stiffness / 300
 				internal_electrical_repulsion := (1 + electrical_repulsion * 200) * (world.scale_factor ^ 1.5)
 				layout_linkables (world.nodes, 1, void)
 				if max_move < move_threshold * world.scale_factor ^ 0.5  then
@@ -189,24 +195,38 @@ feature -- Basic operations
 
 feature {NONE} -- Implementation
 
-	ground_tolerance: DOUBLE = 2.0
-	previous_total_energy: DOUBLE
-	total_energy: DOUBLE
-	internal_center_attraction: DOUBLE
-	internal_stiffness: DOUBLE
-	internal_electrical_repulsion: DOUBLE
+	ground_tolerance: REAL_64 = 2.0
 
-	max_move: DOUBLE
+	previous_total_energy: REAL_64
+		obsolete
+			"Unused. [04-2014]"
+		attribute end
+
+	total_energy: REAL_64
+		obsolete
+			"Unused. [04-2014]"
+		attribute end
+
+	internal_center_attraction: REAL_64
+	internal_stiffness: REAL_64
+	internal_electrical_repulsion: REAL_64
+
+	max_move: REAL_64
 			-- Maximal move in x and y direction of a node.
 
-	tolerance: DOUBLE = 0.001
+	tolerance: REAL_64 = 0.001
+			-- Tolerance.
+
 	math: DOUBLE_MATH
 			-- Math functions.
+		obsolete
+			"Unused. [04-2014]"
 		once
 			create Result
 		end
 
-	link_weight (a_link: EG_LINK_FIGURE): DOUBLE
+	link_weight (a_link: EG_LINK_FIGURE): REAL_64
+			-- Weight of `a_link'
 		do
 			Result := 0.25 / world.scale_factor
 		end
@@ -214,14 +234,14 @@ feature {NONE} -- Implementation
 	layout_linkables (a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]; a_level: INTEGER; a_cluster: detachable EG_CLUSTER_FIGURE)
 			-- arrange `linkables'.
 		local
-			l_distance, l_force: DOUBLE
+			l_distance, l_force: REAL_64
 			l_item: EG_LINKABLE_FIGURE
 			l_other: EG_LINKABLE_FIGURE
-			move: DOUBLE
+			move: REAL_64
 			px, py: INTEGER
 			opx, opy: INTEGER
 			l_edge: EG_LINK_FIGURE
-			l_weight: DOUBLE
+			l_weight: REAL_64
 		do
 			if not is_stopped then
 				across
@@ -289,7 +309,7 @@ feature {NONE} -- Implementation
 	repulse (a_node, a_other: EG_LINKABLE_FIGURE)
 			-- Get the electrical repulsion between all nodes, including those that are not adjacent.
 		local
-			l_distance, l_force: DOUBLE
+			l_distance, l_force: REAL_64
 			npx, npy, opx, opy: INTEGER
 		do
 			if a_node /= a_other then
@@ -306,10 +326,10 @@ feature {NONE} -- Implementation
 	attract_connected (a_node: EG_LINKABLE_FIGURE; a_edge: EG_LINK_FIGURE)
 			-- Get the spring force between all of its adjacent nodes.
 		local
-			l_distance: DOUBLE
+			l_distance: REAL_64
 			l_other: EG_LINKABLE_FIGURE
-			l_weight: DOUBLE
-			npx, npy, opx, opy: DOUBLE
+			l_weight: REAL_64
+			npx, npy, opx, opy: REAL_64
 		do
 			l_other := a_edge.neighbor_of (a_node)
 			if l_other.is_show_requested then
@@ -331,14 +351,14 @@ feature {NONE} -- Implementation
 			a_linkables_not_void: a_linkables /= Void
 			a_node_is_shown_requested: a_node.is_show_requested
 		local
-			l_initial_energy, l_dt, l_energy: DOUBLE
+			l_initial_energy, l_dt, l_energy: REAL_64
 			i: INTEGER
 			l_other: like a_node
 			l_edge: EG_LINK_FIGURE
-			l_distance, l_distance2: DOUBLE
-			npx, npy: DOUBLE
+			l_distance, l_distance2: REAL_64
+			npx, npy: REAL_64
 			ox, oy, px, py: INTEGER
-			l_weight: DOUBLE
+			l_weight: REAL_64
 		do
 			l_dt := a_node.dt * 2
 			a_node.set_dt (l_dt)
@@ -353,7 +373,7 @@ feature {NONE} -- Implementation
 				a_linkables as it
 			loop
 				l_other := it.item
-				if a_node /= l_other and l_other.is_show_requested then --and then l_item.has_visible_link then
+				if a_node /= l_other and l_other.is_show_requested then
 					ox := l_other.port_x
 					oy := l_other.port_y
 					l_energy :=  l_energy + internal_electrical_repulsion / distance (npx, npy, ox, oy).max (0.0001)
@@ -367,7 +387,7 @@ feature {NONE} -- Implementation
 				l_edge := it.item
 				if l_edge.is_show_requested then
 					l_other := l_edge.neighbor_of (a_node)
-					if l_other.is_show_requested then -- and then l_other.has_visible_link then
+					if l_other.is_show_requested then
 						ox := l_other.port_x
 						oy := l_other.port_y
 						l_weight := internal_stiffness * link_weight (l_edge)
@@ -398,7 +418,7 @@ feature {NONE} -- Implementation
 			a_node.set_dt (l_dt)
 		end
 
-	node_energy (a_node: EG_LINKABLE_FIGURE; a_dt: DOUBLE; a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]): DOUBLE
+	node_energy (a_node: EG_LINKABLE_FIGURE; a_dt: REAL_64; a_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]): REAL_64
 		require
 			a_node_not_void: a_node /= Void
 			a_linkables_not_void: a_linkables /= Void
@@ -406,8 +426,8 @@ feature {NONE} -- Implementation
 		local
 			l_other: like a_node
 			l_edge: EG_LINK_FIGURE
-			l_distance: DOUBLE
-			npx, npy: DOUBLE
+			l_distance: REAL_64
+			npx, npy: REAL_64
 		do
 			npx := a_node.port_x + a_dt * a_node.dx
 			npy := a_node.port_y + a_dt * a_node.dy
@@ -416,7 +436,7 @@ feature {NONE} -- Implementation
 				a_linkables as it
 			loop
 				l_other := it.item
-				if l_other /= a_node and then l_other.is_show_requested then --and then a_other.has_visible_link then
+				if l_other /= a_node and then l_other.is_show_requested then
 					Result :=  Result + internal_electrical_repulsion / distance (npx, npy, l_other.port_x, l_other.port_y).max (0.0001)
 				end
 			end
@@ -427,13 +447,18 @@ feature {NONE} -- Implementation
 				l_edge := it.item
 				if l_edge.is_show_requested then
 					l_other := l_edge.neighbor_of (a_node)
-					if l_other.is_show_requested then-- and then a_other.has_visible_link then
+					if l_other.is_show_requested then
 						l_distance := distance (npx, npy, l_other.port_x, l_other.port_y)
 						Result := Result + internal_stiffness * link_weight (l_edge) * l_distance * l_distance / 2
 					end
 				end
 			end
 		end
+
+invariant
+	valid_center_attraction: 0 <= center_attraction and center_attraction <= 100
+	valid_electrical_repulsion: 0 <= electrical_repulsion and electrical_repulsion <= 100
+	valid_stiffness: 0 <= stiffness and stiffness <= 100
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

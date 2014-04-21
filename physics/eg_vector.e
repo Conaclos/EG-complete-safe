@@ -15,7 +15,7 @@ inherit
 feature -- Basic operations
 
 	scalar_product alias "|*" (other: G): like Current
-			-- Scalar product between `Current' and other.
+			-- Scalar product between `Current' and `other'.
 		deferred
 		end
 

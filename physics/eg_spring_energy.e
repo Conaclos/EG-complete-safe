@@ -17,7 +17,7 @@ class
 	EG_SPRING_ENERGY
 
 inherit
-	EG_PARTICLE_SIMULATION_BH [DOUBLE]
+	EG_PARTICLE_SIMULATION_BH [REAL_64]
 		redefine
 			particle_type
 		end
@@ -37,14 +37,17 @@ create
 
 feature {NONE} -- Implementation
 
-	npx, npy: DOUBLE
-			-- Position of a particle with dt.
+	npx: REAL_64
+			-- X position of a particle with dt.
 
-	external_force (a_node: like particle_type): DOUBLE
+	npy: REAL_64
+			-- Y position of a particle with dt.
+
+	external_force (a_node: like particle_type): REAL_64
 			-- External force for `a_node'. (attraction to center of universe)
 			-- Warning: side-effect query.
 		local
-			l_dt: DOUBLE
+			l_dt: REAL_64
 		do
 			l_dt := a_node.dt
 			npx := a_node.port_x + l_dt * a_node.dx
@@ -55,48 +58,41 @@ feature {NONE} -- Implementation
 			npy_set: npy = a_node.port_y + a_node.dt * a_node.dy
 		end
 
-	nearest_neighbor_force (a_node: like particle_type): DOUBLE
-			-- Get the spring force between all of `a_node's adjacent nodes.
+	nearest_neighbor_force (a_node: like particle_type): REAL_64
+			-- Spring force between all of `a_node's adjacent nodes.
 		local
-			i, nb: INTEGER
-			links: ARRAYED_LIST [EG_LINK_FIGURE]
 			l_other: like a_node
 			l_edge: EG_LINK_FIGURE
-			l_distance: DOUBLE
+			l_distance: REAL_64
 		do
-			from
-				links := a_node.links
-				i := 1
-				nb := links.count
-			until
-				i > nb
+			across
+				a_node.links as it
 			loop
-				l_edge := links.i_th (i)
+				l_edge := it.item
 				if l_edge.is_show_requested then
 					l_other := l_edge.neighbor_of (a_node)
 					if l_other.is_show_requested then
 						l_distance := distance (npx, npy, l_other.port_x, l_other.port_y)
-						Result := Result + stiffness * link_stiffness (l_edge) * (l_distance^2) / 2
+						Result := Result + stiffness * link_stiffness (l_edge) * (l_distance ^ 2) / 2
 					end
 				end
-				i := i + 1
 			end
 		end
 
-	n_body_force (a_node, an_other: EG_PARTICLE): DOUBLE
-			-- Get the electrical repulsion between all nodes, including those that are not adjacent.
+	n_body_force (a_node, a_other: EG_PARTICLE): REAL_64
+			-- Electrical repulsion between all nodes, including those that are not adjacent.
 		do
-			if a_node /= an_other then
-				Result := electrical_repulsion * an_other.mass / distance (npx, npy, an_other.x, an_other.y).max (0.0001)
+			if a_node /= a_other then
+				Result := electrical_repulsion * a_other.mass / distance (npx, npy, a_other.x, a_other.y).max (0.0001)
 			end
 		end
 
 feature {NONE} -- Implementation
 
 	particle_type: EG_LINKABLE_FIGURE
-			-- Type of particle
+			-- <Precursor>
 		do
-			check anchor_type_only: False then end
+			check callable: False then end
 		end
 
 note

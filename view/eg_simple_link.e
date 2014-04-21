@@ -62,7 +62,7 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	xml_node_name: STRING
-			-- Name of `xml_element'.
+			-- <Precursor>
 		do
 			Result := "EG_SIMPLE_LINK"
 		end
@@ -88,10 +88,10 @@ feature -- Element change
 feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 	update
-			-- Some properties may have changed.
+			-- <Precursor>
 		local
 			p1, p2: EV_COORDINATE
-			l_angle: DOUBLE
+			l_angle: REAL_64
 			source_size: EV_RECTANGLE
 		do
 			if not model.is_reflexive then
@@ -124,7 +124,7 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 feature {NONE} -- Implementation
 
 	set_is_selected (a_is_selected: like is_selected)
-			-- Set `is_selected' to `a_is_selected'.
+			-- <Precursor>
 		do
 			is_selected := a_is_selected
 		end
@@ -136,7 +136,7 @@ feature {NONE} -- Implementation
 			-- The ellipse used when link `is_reflexive'.
 
 	on_is_directed_change
-			-- `model'.`is_directed' changed.
+			-- <Precursor>
 		do
 			if model.is_directed then
 				line.enable_end_arrow
@@ -150,7 +150,7 @@ feature {NONE} -- Implementation
 feature {NONE} -- Obsolete
 
 	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
+			-- <Precursor>
 		do
 			check not_implemented: False then end
 		end

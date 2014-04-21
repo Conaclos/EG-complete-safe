@@ -18,14 +18,14 @@ inherit
 			create_interface_objects
 		end
 
-	EV_SHARED_APPLICATION
-		export
-			{NONE} all
+	EG_XML_STORABLE
 		undefine
 			default_create
 		end
 
-	EG_XML_STORABLE
+	EV_SHARED_APPLICATION
+		export
+			{NONE} all
 		undefine
 			default_create
 		end
@@ -63,16 +63,6 @@ feature {NONE} -- Initialization
 			xml_routines.reset_valid_tags
 			real_grid_x := default_grid_x
 			real_grid_y := default_grid_y
-		end
-
-	make_with_model (a_model: like model)
-			-- Create a view for `a_model' using EG_SIMPLE_FACTORY.
-		require
-			a_model_not_void: a_model /= Void
-		do
-			make_with_model_and_factory (a_model, create {EG_SIMPLE_FACTORY})
-		ensure
-			set: model = a_model
 		end
 
 	make_with_model_and_factory (a_model: like model; a_factory: like factory)
@@ -124,6 +114,16 @@ feature {NONE} -- Initialization
 			factory_set: factory = a_factory
 		end
 
+	make_with_model (a_model: like model)
+			-- Create a view for `a_model' using EG_SIMPLE_FACTORY.
+		require
+			a_model_not_void: a_model /= Void
+		do
+			make_with_model_and_factory (a_model, create {EG_SIMPLE_FACTORY})
+		ensure
+			set: model = a_model
+		end
+
 feature -- Status Report
 
 	has_linkable_figure (a_linkable: EG_LINKABLE): BOOLEAN
@@ -154,12 +154,10 @@ feature -- Status Report
 
 	has_cluster_figure (a_cluster: EG_CLUSTER): BOOLEAN
 			-- Does `a_cluster' have a view in `Current'?
-		obsolete
-			"Use `has_linkable_figure' instead; [04-2014]"
 		require
 			a_cluster_not_void: a_cluster /= Void
 		do
-			Result := has_linkable_figure (a_cluster)
+			Result := attached {EG_CLUSTER_FIGURE} linkables_to_figures.item (a_cluster)
 		end
 
 	is_multiple_selection_enabled: BOOLEAN
@@ -234,7 +232,7 @@ feature -- Access
 	selected_figures: ARRAYED_LIST [EG_FIGURE]
 			-- All currently selected figures.
 
-	scale_factor: DOUBLE
+	scale_factor: REAL_64
 			-- `Current' has been scaled for `scale_factor'
 
 	root_clusters: ARRAYED_LIST [EG_CLUSTER_FIGURE]
@@ -315,7 +313,7 @@ feature -- Status settings
 feature -- List change
 
 	wipe_out
-			-- Remove all items.
+			-- <Precursor>
 		do
 			Precursor {EV_MODEL_WORLD}
 			across
@@ -366,6 +364,8 @@ feature -- Element change
 
 	set_factory (a_factory: like factory)
 			-- Set `factory' to `a_factory'.
+		obsolete
+			"Use `make_with_model_and_factory' instead; [04-2014]"
 		require
 			a_factory_not_Void: a_factory /= Void
 		do
@@ -378,18 +378,16 @@ feature -- Element change
 	select_displayed_nodes
 			-- Select all displayed nodes on the diagram.
 		local
-			i: INTEGER
+			l_item: EG_LINKABLE_FIGURE
 		do
-			from
-				i  := nodes.count
-			until
-				i = 0
+			across
+				nodes as it
 			loop
-				if nodes [i].is_show_requested and then not selected_figures.has (nodes [i]) then
-					selected_figures.extend (nodes [i])
-					set_figure_selection_state (nodes [i], True)
+				l_item := it.item
+				if l_item.is_show_requested and not selected_figures.has (l_item) then
+					selected_figures.extend (l_item)
+					set_figure_selection_state (l_item, True)
 				end
-				i := i - 1
 			end
 		end
 
@@ -433,6 +431,8 @@ feature -- Element change
 			a_link_not_void: a_link /= Void
 			model_has_link: model.has_link (a_link)
 			not_has_a_link: not has_link_figure (a_link)
+			has_source_figure: has_linkable_figure (a_link.source)
+			has_target_figure: has_linkable_figure (a_link.target)
 		local
 			link_figure: EG_LINK_FIGURE
 		do
@@ -451,7 +451,7 @@ feature -- Element change
 				figure_added (link_figure)
 			end
 		ensure
-			has_a_link: has_linkable_figure (a_link.source) and has_linkable_figure (a_link.target) implies has_link_figure (a_link)
+			has_a_link: has_link_figure (a_link)
 		end
 
 	add_cluster (a_cluster: EG_CLUSTER)
@@ -459,11 +459,10 @@ feature -- Element change
 		require
 			a_cluster_not_void: a_cluster /= Void
 			model_has_cluster: model.has_cluster (a_cluster)
-			not_has_a_cluster: not has_linkable_figure (a_cluster)
+			not_has_a_cluster: not has_cluster_figure (a_cluster)
 			a_cluster.flat_linkables.for_all (agent has_linkable_figure)
 		local
 			cluster_figure: EG_CLUSTER_FIGURE
-			l_model: EG_CLUSTER
 		do
 			cluster_figure := factory.new_cluster_figure (a_cluster)
 			extend (cluster_figure)
@@ -474,8 +473,7 @@ feature -- Element change
 			across
 				a_cluster.linkables as it
 			loop
-				l_model := cluster_figure.model
-				l_model.linkable_add_actions.call ([it.item])
+				cluster_figure.model.linkable_add_actions.call ([it.item])
 			end
 
 			cluster_figure.request_update
@@ -483,7 +481,7 @@ feature -- Element change
 			linkables_to_figures.put (cluster_figure, a_cluster)
 			figure_added (cluster_figure)
 		ensure
-			has_cluster: has_linkable_figure (a_cluster)
+			has_cluster: has_cluster_figure (a_cluster)
 		end
 
 	remove_link (a_link: EG_LINK)
@@ -586,52 +584,40 @@ feature -- Element change
 				figure_removed (cluster_figure)
 			end
 		ensure
-			not_has_cluster: not has_linkable_figure (a_cluster)
+			not_has_cluster: not has_cluster_figure (a_cluster)
 			selected_figures_in_world: selected_figures_in_world
 		end
 
 	update
 			-- Update all figures with `is_update_required' in `Current'.
 		local
-			l_linkables: ARRAYED_LIST [EG_LINKABLE_FIGURE]
-			i, nb: INTEGER
 			l_item: EG_FIGURE
-			l_links: ARRAYED_LIST [EG_LINK_FIGURE]
 			l_link: EG_LINK_FIGURE
 		do
-			from
-				l_linkables := root_cluster
-				i := 1
-				nb := l_linkables.count
-			until
-				i > nb
+			across
+				root_cluster as it
 			loop
-				l_item := l_linkables.i_th (i)
+				l_item := it.item
 				if attached {EG_CLUSTER_FIGURE} l_item as l_cluster and then l_cluster.is_update_required then
 					update_cluster (l_cluster)
 				end
 				if l_item.is_update_required then
 					l_item.update
 				end
-				i := i + 1
 			end
-			from
-				l_links := links
-				i := 1
-				nb := l_links.count
-			until
-				i > nb
+
+			across
+				links as it
 			loop
-				l_link := l_links.i_th (i)
+				l_link := it.item
 				if l_link.is_update_required then
 					l_link.update
 				end
-				i := i + 1
 			end
 		end
 
-	scale (a_scale: DOUBLE)
-			-- Scale to x and y direction for `a_scale'.
+	scale (a_scale: REAL_64)
+			-- <Precursor>
 		local
 			l_scale: REAL
 		do
@@ -653,7 +639,7 @@ feature -- Element change
 feature -- Visitor
 
 	process (v: EG_FIGURE_VISITOR)
-			-- Visitor feature.
+			-- <Precursor>
 		do
 			v.process_figure_world (Current)
 		end
@@ -679,15 +665,14 @@ feature -- Save/Restore
 			-- Reload former state of `Current'.
 		require
 			f_not_Void: f /= Void
-		local
-			diagram_input: detachable XML_DOCUMENT
 		do
-			diagram_input := Xml_routines.deserialize_document_with_path (f.path)
-			if diagram_input /= Void then
+			if
+				attached Xml_routines.deserialize_document_with_path (f.path) as l_diagram_input
+			then
 				check
-					valid_xml: diagram_input.root_element.has_same_name (xml_node_name)
+					valid_xml: l_diagram_input.root_element.has_same_name (xml_node_name)
 				end
-				if attached {like xml_element} diagram_input.root_element.first as view_input then
+				if attached {like xml_element} l_diagram_input.root_element.first as view_input then
 					xml_routines.valid_tags_read
 					view_input.start
 					set_with_xml_element (view_input)
@@ -696,13 +681,13 @@ feature -- Save/Restore
 		end
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'.
+			-- <Precursor>
 		do
 			Result := "EG_FIGURE_WORLD"
 		end
 
 	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state
+			-- <Precursor>
 		local
 			fig: like xml_element
 			l_item: EG_FIGURE
@@ -735,21 +720,21 @@ feature -- Save/Restore
 			Result := node
 		end
 
-	set_with_xml_element (node: like xml_element)
-			-- Retrieve state from `node'.
+	set_with_xml_element (a_node: like xml_element)
+			-- <Precursor>
 		local
-			sf: DOUBLE
+			sf: REAL_64
 			l_node: EG_LINKABLE_FIGURE
 			l_link: EG_LINK_FIGURE
 			l_cluster: EG_LINKABLE_FIGURE
 		do
-			sf := xml_routines.xml_double (node, "SCALE_FACTOR")
+			sf := xml_routines.xml_double (a_node, "SCALE_FACTOR")
 			if sf = 0.0 then
 				sf := 1.0
 			end
 			scale (sf / scale_factor)
-			if attached {like xml_element} node.item_for_iteration as l_xml_element then
-				node.forth
+			if attached {like xml_element} a_node.item_for_iteration as l_xml_element then
+				a_node.forth
 				across
 					l_xml_element as it
 				loop
@@ -819,10 +804,14 @@ feature {EG_FIGURE, EG_LAYOUT, EG_FIGURE_VISITOR} -- Implementation
 			"Use `linkables_to_figures' and `links_to_figures' instaed; [04-2014]"
 		do
 			create Result.make (linkables_to_figures.count + links_to_figures.count)
-			across linkables_to_figures as it loop
+			across
+				linkables_to_figures as it
+			loop
 				Result.put (it.item, it.key)
 			end
-			across links_to_figures as it loop
+			across
+				links_to_figures as it
+			loop
 				Result.put (it.item, it.key)
 			end
 		end
@@ -857,7 +846,7 @@ feature {NONE} -- Implementation
 			-- Insert `a_cluster' to view and all its containing subclusters (recursive).
 		require
 			a_cluster_not_void: a_cluster /= Void
-			not_has_cluster: not has_linkable_figure (a_cluster)
+			not_has_cluster: not has_cluster_figure (a_cluster)
 			non_linkable_already_part_of_view: not a_cluster.flat_linkables.there_exists (agent has_linkable_figure)
 		do
 			across
@@ -873,7 +862,7 @@ feature {NONE} -- Implementation
 			end
 			add_cluster (a_cluster)
 		ensure
-			has_cluster: has_linkable_figure (a_cluster)
+			has_cluster: has_cluster_figure (a_cluster)
 			all_linkables_part_of_view: a_cluster.flat_linkables.for_all (agent has_linkable_figure)
 		end
 
@@ -889,7 +878,7 @@ feature {NONE} -- Implementation
 	selected_figure: detachable EV_MODEL
 			-- The figure the user clicked on. (Void if none).
 
-	on_pointer_button_press (figure: EG_LINKABLE_FIGURE; ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
+	on_pointer_button_press (figure: EG_LINKABLE_FIGURE; ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: REAL_64; screen_x, screen_y: INTEGER)
 			-- Pointer button was pressed on `figure'.
 		require
 			figure_not_void: figure /= Void
@@ -929,35 +918,29 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	on_linkable_move (figure: EG_LINKABLE_FIGURE; ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
+	on_linkable_move (figure: EG_LINKABLE_FIGURE; ax, ay: INTEGER; x_tilt, y_tilt, pressure: REAL_64; screen_x, screen_y: INTEGER)
 			-- `figure' was moved for `ax' `ay'.
 			-- | Move all `selected_figures' as well.
 		require
 			figure_not_void: figure /= Void
 		local
-			l_selected_figures: like selected_figures
 			l_item: EG_FIGURE
-			i, nb: INTEGER
 		do
-			if not attached {EG_CLUSTER_FIGURE} figure and then not selected_figures.is_empty then
+			if not attached {EG_CLUSTER_FIGURE} figure and not selected_figures.is_empty then
 				check
 					when_figures_selected_move_only_a_selected_figure: selected_figures.has (figure)
 				end
-				from
-					l_selected_figures := selected_figures
-					i := 1
-					nb := l_selected_figures.count
-				until
-					i > nb
+
+				across
+					selected_figures as it
 				loop
-					l_item := l_selected_figures.i_th (i)
+					l_item := it.item
 					if l_item /= figure then
 						l_item.set_point_position (l_item.point_x + ax, l_item.point_y + ay)
 						if attached {EG_LINKABLE_FIGURE} l_item as l_linkable then
 							l_linkable.set_is_fixed (True)
 						end
 					end
-					i := i + 1
 				end
 			end
 		end
@@ -968,7 +951,7 @@ feature {NONE} -- Implementation
 	is_figure_moved: BOOLEAN
 			-- Is a figure moved?
 
-	on_pointer_button_press_on_world (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
+	on_pointer_button_press_on_world (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: REAL_64; screen_x, screen_y: INTEGER)
 			-- Pointer button was pressed somewhere in the world.
 			-- | Used for starting multiple selection.
 		local
@@ -999,10 +982,11 @@ feature {NONE} -- Implementation
 			figure_was_selected := False
 		end
 
-	on_pointer_motion_on_world (ax, ay: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
+	on_pointer_motion_on_world (ax, ay: INTEGER; x_tilt, y_tilt, pressure: REAL_64; screen_x, screen_y: INTEGER)
 			-- Pointer was moved in world.
 		local
 			l_bbox, l_tmp_bbox: EV_RECTANGLE
+			l_item: EG_LINKABLE_FIGURE
 		do
 			if attached multi_select_rectangle as l_rect then
 				l_rect.set_point_b_position (ax, ay)
@@ -1014,21 +998,23 @@ feature {NONE} -- Implementation
 				across
 					nodes as it
 				loop
-					if it.item.is_show_requested then
-						it.item.update_rectangle_to_bounding_box (l_tmp_bbox)
-						if l_tmp_bbox.intersects (l_bbox) then
-							if not it.item.is_selected then
-								selected_figures.extend (it.item)
-								set_figure_selection_state (it.item, True)
-								figure_was_selected := True
-							end
+					l_item := it.item
+					if l_item.is_show_requested then
+						l_item.update_rectangle_to_bounding_box (l_tmp_bbox)
+						if
+							l_tmp_bbox.intersects (l_bbox) and
+							not l_item.is_selected
+						then
+							selected_figures.extend (l_item)
+							set_figure_selection_state (it.item, True)
+							figure_was_selected := True
 						end
 					end
 				end
 			end
 		end
 
-	on_pointer_button_release_on_world (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: DOUBLE; screen_x, screen_y: INTEGER)
+	on_pointer_button_release_on_world (ax, ay, button: INTEGER; x_tilt, y_tilt, pressure: REAL_64; screen_x, screen_y: INTEGER)
 			-- Pointer was released over world.
 		do
 			if attached multi_select_rectangle as l_rect then
@@ -1057,6 +1043,9 @@ feature {NONE} -- Implementation
 				a_figure.scale (scale_factor)
 				a_figure.request_update
 			end
+		ensure
+			links_to_figures_unchanged: links_to_figures ~ old links_to_figures
+			linkables_to_figures_unchanged: linkables_to_figures ~ old linkables_to_figures
 		end
 
 	figure_removed (a_figure: EG_FIGURE)
@@ -1067,19 +1056,19 @@ feature {NONE} -- Implementation
 			a_figure.recycle
 		end
 
-	update_cluster (cluster: EG_CLUSTER_FIGURE)
+	update_cluster (a_cluster: EG_CLUSTER_FIGURE)
 			-- Update all figures with `is_update_required' in `cluster'.
 		require
-			cluster_not_void: cluster /= Void
+			cluster_not_void: a_cluster /= Void
 		local
 			i: INTEGER
 		do
 			from
-				i := cluster.count
+				i := a_cluster.count
 			until
 				i < 1
 			loop
-				if attached {EG_FIGURE} cluster [i] as l_fig then
+				if attached {EG_FIGURE} a_cluster [i] as l_fig then
 					if attached {EG_CLUSTER_FIGURE} l_fig as l_cluster and then l_cluster.is_update_required then
 						update_cluster (l_cluster)
 					end
@@ -1095,8 +1084,10 @@ feature {NONE} -- Implementation
 
 	node_type: EG_NODE
 			-- Type for nodes.
+		require
+			callable: False
 		do
-			check valid_call: False then end
+			check callable: False then end
 		end
 
 	new_filled_list (n: INTEGER): like Current

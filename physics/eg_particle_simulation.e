@@ -82,8 +82,8 @@ feature {NONE}
 			Result_exists: Result /= Void
 		end
 
-	n_body_force (a_particle, an_other: EG_PARTICLE): G
-			-- Force between `a_particle' and `an_other' particle.
+	n_body_force (a_particle, a_other: EG_PARTICLE): G
+			-- Force between `a_particle' and `a_other' particle.
 		deferred
 		ensure
 			Result_exists: Result /= Void
@@ -101,9 +101,9 @@ feature {NONE} -- Implementation
 	particle_type: EG_PARTICLE
 			-- Type of particles.
 		require
-			not_callable: False
+			callable: False
 		do
-			check anchor_type_only: False then end
+			check callable: False then end
 		end
 
 invariant

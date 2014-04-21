@@ -37,7 +37,7 @@ feature {NONE} -- Initialization
 		require
 			a_model_not_void: a_model /= Void
 		do
-			create node_figure -- Satisfy invariant
+			create node_figure
 
 			model := a_model
 			default_create
@@ -48,100 +48,100 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	model: EG_NODE
-			-- Model `Current' is a view for.
+			-- <Precursor>
 
 	port_x: INTEGER
-			-- x position where links are starting.
+			-- <Precursor>
 		do
 			Result := point_x
 		end
 
 	port_y: INTEGER
-			-- y position where links are starting.
+			-- <Precursor>
 		do
 			Result := point_y
 		end
 
 	size: EV_RECTANGLE
-			-- Size of `Current'.
+			-- <Precursor>
 		do
 			Result := node_figure.bounding_box
 		end
 
 	height: INTEGER
-			-- Height in pixels.
+			-- <Precursor>
 		do
 			Result := node_figure.radius2 * 2
 		end
 
 	width: INTEGER
-			-- Width in pixels.
+			-- <Precursor>
 		do
 			Result := node_figure.radius1 * 2
 		end
 
 	xml_node_name: STRING
-			-- Name of `xml_element'.
+			-- <Precursor>
 		do
 			Result := "EG_SIMPLE_NODE"
 		end
 
 feature -- Element change
 
-	update_edge_point (p: EV_COORDINATE; an_angle: DOUBLE)
+	update_edge_point (p: EV_COORDINATE; a_angle: REAL_64)
 			-- Set `p' position such that it is on a point on the edge of `Current'.
 		local
-			ax, ay, l: DOUBLE
+			l_x, l_y, l: REAL_64
 			a, b: INTEGER
 		do
 				-- Some explanation for those you have forgotten about their math classes.
 				-- We have two equations:
 				-- 1 - the ellipse: x^2/a^2 + y^2/b^2 = 1
-				-- 2 - the line which has an angle `an_angle': y = tan(an_angle) * x
+				-- 2 - the line which has an angle `a_angle': y = tan(an_angle) * x
 				--
 				-- The solution of the problem is to find the point (x, y) which is
 				-- common to both equations (1) and (2). Because `tangent' only applies for
 				-- angle values between ]-pi / 2, pi / 2 [, we have to get the result
 				-- for the other quadrant of the ellipse by mirroring the value of x
 				-- and of y.
-				-- With `l = tan(an_angle)', we can write the following equivalences:
+				-- With `l = tan(a_angle)', we can write the following equivalences:
 				-- x^2/a^2 + y^2/b^2 = 1 <=> x^2/a^2 + (l^2*x^2)/b^2 = 1
 				-- x^2/a^2 + y^2/b^2 = 1 <=> x^2*b^2 + l^2*x^2*a^2 = a^2*b^2
 				-- x^2/a^2 + y^2/b^2 = 1 <=> x^2*(b^2 + l^2*a^2) = a^2*b^2
 				-- x^2/a^2 + y^2/b^2 = 1 <=> x^2 = a^2*b^2 / (b^2 + l^2*a^2)
 				-- x^2/a^2 + y^2/b^2 = 1 <=> x = a*b / sqrt(b^2 + l^2*a^2)
-			l := tangent (an_angle)
+			l := tangent (a_angle)
 			a := node_figure.radius1
 			b := node_figure.radius2
 			if a = 0 and b = 0 then
-				ax := 0
-				ay := 0
+				l_x := 0
+				l_y := 0
 			else
-				ax := (a * b) / sqrt (b^2 + l^2 * a^2)
-				ay := l * ax
+				l_x := (a * b) / sqrt (b^2 + l^2 * a^2)
+				l_y := l * l_x
 
-				if cosine (an_angle) < 0 then
+				if cosine (a_angle) < 0 then
 						-- When we are in ]pi/2, 3*pi/2[, then we need to reverse
 						-- the coordinates. It looks strange like that, but don't forget
-						-- that although `ax' is always positive, `ay' might be negative depending
+						-- that although `l_x' is always positive, `l_y' might be negative depending
 						-- on the sign of `l'. This is why we need to reverse both coordinates,
-						-- but because we also need to reverse the `ay' value because in a figure world
-						-- the `ay' coordinates go down and not up, the effect is null, thus no operation
-						-- on `ay'.
-					ax := -ax
+						-- but because we also need to reverse the `l_y' value because in a figure world
+						-- the `l_y' coordinates go down and not up, the effect is null, thus no operation
+						-- on `l_y'.
+					l_x := - l_x
 				else
 						-- We need to reverse the y value, because in a figure world, the y coordinates
 						-- go down and not up.
-					ay := -ay
+					l_y := - l_y
 				end
 			end
-			p.set_precise (port_x + ax, port_y - ay)
+			p.set_precise (port_x + l_x, port_y - l_y)
 		end
 
 feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 	update
-			-- Some properties may have changed.
+			-- <Precursor>
 		do
 			if is_label_shown then
 				name_label.set_point_position (point_x + figure_size // 2, point_y + figure_size // 2)
@@ -151,12 +151,12 @@ feature {EG_FIGURE, EG_FIGURE_WORLD} -- Update
 
 feature {NONE} -- Implementation
 
-	set_is_selected (an_is_selected: like is_selected)
-			-- Set `is_selected' to `an_is_selected'.
+	set_is_selected (a_is_selected: like is_selected)
+			-- <Precursor>
 		do
-			if is_selected /= an_is_selected then
-				is_selected := an_is_selected
-				if is_selected then
+			if is_selected /= a_is_selected then
+				is_selected := a_is_selected
+				if a_is_selected then
 					node_figure.set_line_width (node_figure.line_width * 2)
 				else
 					node_figure.set_line_width (node_figure.line_width // 2)
@@ -171,7 +171,7 @@ feature {NONE} -- Implementation
 		end
 
 	color: EV_COLOR
-			-- color of figure.
+			-- Color of figure.
 		once
 			create Result.make_with_rgb (1,0,0)
 		ensure
@@ -182,13 +182,13 @@ feature {NONE} -- Implementation
 			-- The figure visualizing `Current'.
 
 	number_of_figures: INTEGER = 2
-			-- Number of figures used to visualize `Current'
+			-- <Precursor>
 			-- (`name_label' and `node_figure').
 
 feature {NONE} -- Obsolete
 
 	new_filled_list (n: INTEGER): like Current
-			-- New list with `n' elements.
+			-- <Precursor>
 		do
 			check not_implemented: False then end
 		end

@@ -19,17 +19,17 @@ inherit
 create
 	make
 
-create {EG_EDGE}
-	make_filled
-
 feature {NONE} -- Initialization
 
-	make (owner: like corresponding_line)
+	make (a_owner: attached like corresponding_line)
 			-- Create a move handle used to move the edges (the black circle).
 			-- | If you change this you might also have to change the drawers in EG_FIGURE_DRAWER.
+		require
+			a_owner_not_void: a_owner /= Void
 		local
 			dot: EV_MODEL_DOT
 		do
+			corresponding_line := a_owner
 			default_create
 			create dot
 			dot.set_line_width (10)
@@ -37,23 +37,21 @@ feature {NONE} -- Initialization
 			set_pointer_style (default_pixmaps.sizeall_cursor)
 			set_pebble (Current)
 			disable_always_shown
-			corresponding_line := owner
 			set_center
-		end
-
-	new_filled_list (n: INTEGER): like Current
-			-- <Precursor>
-		do
-			create Result.make (Void)
+		ensure
+			corresponding_line_set: corresponding_line = a_owner
 		end
 
 feature -- Access
 
+	corresponding_line: EG_POLYLINE_LINK_FIGURE
+			-- Line `Current' is part of.
+
 	corresponding_point: detachable EV_COORDINATE
 			-- Point on line `Current' is an edge handler for.
-
-	corresponding_line: detachable EG_POLYLINE_LINK_FIGURE
-			-- Line `Current' is part of.
+		note
+			option: stable
+		attribute end
 
 feature {EG_POLYLINE_LINK_FIGURE} -- Element change
 
@@ -65,6 +63,14 @@ feature {EG_POLYLINE_LINK_FIGURE} -- Element change
 			corresponding_point := a_corresponding_point
 		ensure
 			corresponding_point_assigned: corresponding_point = a_corresponding_point
+		end
+
+feature {NONE} -- Obsolete
+
+	new_filled_list (n: INTEGER): like Current
+			-- <Precursor>
+		do
+			check not_implemented: False then end
 		end
 
 note

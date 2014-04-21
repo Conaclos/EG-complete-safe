@@ -76,13 +76,13 @@ feature -- Access
 		end
 
 	one: like Current
-			-- Neutral element for "*" and "/".
+			-- <Precursor>
 		do
 			create Result.make (x.one, y.one)
 		end
 
 	zero: like Current
-			-- Neutral element for "+" and "-".
+			-- <Precursor>
 		do
 			create Result.make (x.zero, y.zero)
 		end
@@ -90,13 +90,13 @@ feature -- Access
 feature -- Status report
 
 	divisible (other: like Current): BOOLEAN
-			-- May current object be divided by `other'?
+			-- <Precursor>
 		do
 			Result := False
 		end
 
 	exponentiable (other: NUMERIC): BOOLEAN
-			-- May current object be elevated to the power `other'?
+			-- <Precursor>
 		do
 			Result := True
 		end
@@ -112,43 +112,43 @@ feature -- Status report
 feature -- Basic operations
 
 	plus alias "+" (other: like Current): like Current
-			-- Sum with `other' (commutative).
+			-- <Precursor>
 		do
 			create Result.make (x + other.x, y + other.y)
 		end
 
 	minus alias "-" (other: like Current): like Current
-			-- Result of subtracting `other'.
+			-- <Precursor>
 		do
 			create Result.make (x - other.x, y - other.y)
 		end
 
 	product alias "*" (other: like Current): like Current
-			-- Product by `other'.
+			-- <Precursor>
 		do
 			check not_implemented: False then end
 		end
 
 	quotient alias "/" (other: like Current): like Current
-			-- Division by `other'.
+			-- <Precursor>
 		do
 			check not_implemented: False then end
 		end
 
 	identity alias "+": like Current
-			-- Unary plus.
+			-- <Precursor>
 		do
 			create Result.make (x, y)
 		end
 
 	opposite alias "-": like Current
-			-- Unary minus.
+			-- <Precursor>
 		do
 			create Result.make (-x, -y)
 		end
 
 	scalar_product alias "|*" (other: G): like Current
-			-- Scalar product between `Current' and other.
+			-- <Precursor>
 		do
 			create Result.make (x * other, y * other)
 		end

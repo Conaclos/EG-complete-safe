@@ -23,7 +23,7 @@ inherit
 feature {NONE} -- Initialization
 
 	initialize
-			-- Initialize `Current' (synchronize with `model').
+			-- <Precursor>
 		do
 			Precursor {EG_FIGURE}
 			model.is_directed_change_actions.extend (agent on_is_directed_change)
@@ -47,7 +47,7 @@ feature -- Access
 			-- target of `Current'.
 
 	model: EG_LINK
-			-- The model for `Current'.
+			-- <Precursor>
 
 	neighbor_of (a_item: like source): like source
 			-- Neighbor of `a_item'.
@@ -63,13 +63,13 @@ feature -- Access
 			result_definition: Result = (if a_item = source then target else source end)
 		end
 
-	xml_element (node: like xml_element): XML_ELEMENT
-			-- Xml node representing `Current's state.
+	xml_element (a_node: like xml_element): XML_ELEMENT
+			-- <Precursor>
 		local
 			l_model: like model
 		do
 			l_model := model
-			Result := Precursor {EG_FIGURE} (node)
+			Result := Precursor {EG_FIGURE} (a_node)
 			if attached l_model.source.link_name as l_link_name then
 				Result.add_attribute (once "SOURCE", xml_namespace, l_link_name)
 			end
@@ -80,7 +80,7 @@ feature -- Access
 		end
 
 	set_with_xml_element (node: like xml_element)
-			-- Retrive state from `node'.
+			-- <Precursor>
 		do
 			node.forth
 			node.forth
@@ -91,7 +91,7 @@ feature -- Access
 	is_directed_string: STRING = "IS_DIRECTED"
 
 	xml_node_name: STRING
-			-- Name of the node returned by `xml_element'.
+			-- <Precursor>
 		do
 			Result := once "EG_LINK_FIGURE"
 		end
@@ -99,7 +99,7 @@ feature -- Access
 feature -- Element change
 
 	recycle
-			-- Free `Current's resources.
+			-- <Precursor>
 		do
 			Precursor {EG_FIGURE}
 			model.is_directed_change_actions.extend (agent on_is_directed_change)
@@ -108,7 +108,7 @@ feature -- Element change
 feature -- Visitor
 
 	process (a_visitor: EG_FIGURE_VISITOR)
-			-- Visitor feature.
+			-- <Precursor>
 		do
 			a_visitor.process_link_figure (Current)
 		end
@@ -116,7 +116,7 @@ feature -- Visitor
 feature {NONE} -- Implementation
 
 	on_is_directed_change
-			-- `model'.`is_directed' changed
+			-- `model'.`is_directed' changed.
 		deferred
 		end
 

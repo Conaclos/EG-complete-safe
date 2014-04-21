@@ -14,8 +14,7 @@ feature -- Access
 			-- World `Current' is a factory for.
 		note
 			option: stable
-		attribute
-		end
+		attribute end
 
 	new_node_figure (a_node: EG_NODE): EG_LINKABLE_FIGURE
 			-- Create a node figure for `a_node'
@@ -44,17 +43,11 @@ feature -- Access
 			result_not_void: Result /= Void
 		end
 
-	model_from_xml (node: like xml_element_type): detachable EG_ITEM
-			-- Create an EG_ITEM from `node' if possible.
+	model_from_xml (a_node: like xml_element_type): detachable EG_ITEM
+			-- Create an EG_ITEM from `a_node' if possible.
 		require
-			node_not_void: node /= Void
+			node_not_void: a_node /= Void
 		deferred
-		end
-
-	xml_element_type: XML_ELEMENT
-			-- Element type for compilation purpose.
-		do
-			check should_not_be_used: False then end
 		end
 
 feature {EG_FIGURE_WORLD} -- Implementation
@@ -78,7 +71,7 @@ feature {NONE} -- Implementation
 		do
 			if world /= Void then
 				across
-					world.attached_model.flat_nodes as it
+					world.model.flat_nodes as it
 				until
 					Result /= Void
 				loop
@@ -86,9 +79,10 @@ feature {NONE} -- Implementation
 						Result := it.item
 					end
 				end
+
 				if Result = Void then
 					across
-						world.attached_model.flat_clusters as it
+						world.model.flat_clusters as it
 					until
 						Result /= Void
 					loop
@@ -98,6 +92,14 @@ feature {NONE} -- Implementation
 					end
 				end
 			end
+		end
+
+	xml_element_type: XML_ELEMENT
+			-- Element type for compilation purpose.
+		require
+			callable: False
+		do
+			check callable: False then end
 		end
 
 note

@@ -9,12 +9,15 @@ note
 class
 	EG_FORCE_DIRECTED_PHYSICS_PROPERTIES
 
+create
+	default_create
+
 feature -- Access
 
-	electrical_repulsion: DOUBLE
+	electrical_repulsion: REAL_64 assign set_electrical_repulsion
 			-- Repulsion between particles in the system.
 
-	stiffness: DOUBLE
+	stiffness: REAL_64 assign set_stiffness
 			-- Stiffness of all links connecting particles.
 
 	center_x: INTEGER
@@ -23,12 +26,12 @@ feature -- Access
 	center_y: INTEGER
 			-- Y position of the center.
 
-	center_attraction: DOUBLE
+	center_attraction: REAL_64 assign set_center_attraction
 			-- Attraction of the center for particles.
 
 feature -- Element change
 
-	set_center_attraction (a_value: DOUBLE)
+	set_center_attraction (a_value: like center_attraction)
 			-- Set `center_attraction' to `a_value'.
 		require
 			valid_value: a_value >= 0.0
@@ -38,7 +41,7 @@ feature -- Element change
 			set: center_attraction = a_value
 		end
 
-	set_stiffness (a_value: DOUBLE)
+	set_stiffness (a_value: like stiffness)
 			-- Set `stiffness' to `a_value'.
 		require
 			valid_value: a_value >= 0.0
@@ -48,7 +51,7 @@ feature -- Element change
 			set: stiffness = a_value
 		end
 
-	set_electrical_repulsion (a_value: DOUBLE)
+	set_electrical_repulsion (a_value: like electrical_repulsion)
 			-- Set `electrical_repulsion' to `a_value'.
 		require
 			valid_value: a_value >= 0.0
@@ -69,11 +72,16 @@ feature -- Element change
 
 feature {NONE} -- Implementation
 
-	link_stiffness (a_link: EG_LINK_FIGURE): DOUBLE
+	link_stiffness (a_link: EG_LINK_FIGURE): REAL_64
 			-- Striffness of `a_link'.
 		do
 			Result := 1.0
 		end
+
+invariant
+	valid_electrical_repulsion: electrical_repulsion >= 0.0
+	valid_stiffness: stiffness >= 0.0
+	valid_center_attraction: center_attraction >= 0.0
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
