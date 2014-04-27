@@ -518,9 +518,14 @@ feature {NONE} -- Implementation
 			l_pa := line.point_array
 			p1 := l_pa.item (1)
 
-			check source /= Void then -- Implied by `source_attached'
+			if source /= Void then
 				an_angle := line_angle (source.port_x, source.port_y, p1.x_precise, p1.y_precise)
 				source.update_edge_point (l_pa.item (0), an_angle)
+			else
+					-- Per precondition `source_attached'
+				check
+					source_attached: False
+				end
 			end
 		end
 
@@ -538,9 +543,14 @@ feature {NONE} -- Implementation
 			l_count := l_pa.count
 			p := l_pa.item (l_count - 2)
 
-			check target /= Void then -- Implied by `target_attached'			
+			if target /= Void then
 				an_angle := line_angle (target.port_x, target.port_y, p.x_precise, p.y_precise)
 				target.update_edge_point (l_pa.item (l_count - 1), an_angle)
+			else
+					-- Per precondition `target_attached'
+				check
+					target_attached: False
+				end
 			end
 		end
 
@@ -555,11 +565,16 @@ feature {NONE} -- Implementation
 			l_point_array: like point_array
 		do
 			l_point_array := line.point_array
-			check source /= Void and target /= Void then -- Implied by `source_attached' and `target_attached'
+			if source /= Void and target /= Void then -- Implied by `source_attached' and `target_attached'
 				an_angle := line_angle (source.port_x, source.port_y, target.port_x, target.port_y)
 				source.update_edge_point (l_point_array.item (0), an_angle)
 				an_angle := pi + an_angle
 				source.update_edge_point (l_point_array.item (1), an_angle)
+			else
+					-- Per preconditions `source_attached' and `target_attached'
+				check
+					source_and_target_attached: False
+				end
 			end
 		end
 

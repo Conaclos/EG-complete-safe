@@ -280,7 +280,8 @@ feature -- Element change
 
 invariant
 	leaf_has_particle_inner_nodes_do_not: is_leaf = (particle /= Void)
-	is_leaf_implies_has_particle: is_leaf implies attached (attached particle as l_particle and then region.has_x_y (l_particle.x, l_particle.y))
+	leaf_has_no_childe: is_leaf = (childe_sw = Void and childe_se = Void and childe_ne = Void and childe_nw = Void)
+	is_leaf_implies_has_particle: is_leaf implies (attached particle as l_particle and then region.has_x_y (l_particle.x, l_particle.y))
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
