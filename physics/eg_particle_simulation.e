@@ -28,6 +28,8 @@ feature {NONE} -- Initialization
 
 	make_with_particles (a_particles: like particles)
 			-- Make an EG_PARTICLE_SIMULATION with `a_particles' interacting with each other.
+		obsolete
+			"Use directly `set_particles' and `default_create'. [04-2014]"
 		require
 			a_particles_not_void: a_particles /= Void
 			not_empty: not a_particles.is_empty
@@ -42,6 +44,8 @@ feature -- Access
 
 	force (a_particle: like particle_type): G
 			-- The force affecting `a_particle'.
+		require
+			a_particle_attached: a_particle /= Void
 		do
 			Result := external_force (a_particle) + nearest_neighbor_force (a_particle) + n_body_force_solver (a_particle)
 		ensure
@@ -59,17 +63,19 @@ feature -- Element change.
 			-- Set `particles' to `a_particles'.
 		require
 			a_particles_not_void: a_particles /= Void
-			not_empty: not a_particles.is_empty
+			a_particles_not_empty: not a_particles.is_empty
 		do
 			particles := a_particles
 		ensure
 			set: particles = a_particles
 		end
 
-feature {NONE}
+feature {NONE} -- Implementation
 
 	external_force (a_particle: like particle_type): G
 			-- Initial force for `a_particle'.
+		require
+			a_particle_attached: a_particle /= Void
 		deferred
 		ensure
 			Result_exists: Result /= Void
@@ -77,6 +83,8 @@ feature {NONE}
 
 	nearest_neighbor_force (a_particle: like particle_type): G
 			-- Force between `a_particle' and its neighbors.
+		require
+			a_particle_attached: a_particle /= Void
 		deferred
 		ensure
 			Result_exists: Result /= Void
@@ -84,6 +92,9 @@ feature {NONE}
 
 	n_body_force (a_particle, a_other: EG_PARTICLE): G
 			-- Force between `a_particle' and `a_other' particle.
+		require
+			a_particle_attached: a_particle /= Void
+			a_other_attached: a_other /= Void
 		deferred
 		ensure
 			Result_exists: Result /= Void
@@ -91,12 +102,14 @@ feature {NONE}
 
 	n_body_force_solver (a_particle: EG_PARTICLE): G
 			-- Solve n_nody_force for `a_particle'.
+		require
+			a_particle_attached: a_particle /= Void
 		deferred
 		ensure
 			Result_exists: Result /= Void
 		end
 
-feature {NONE} -- Implementation
+feature {NONE} -- Anchor
 
 	particle_type: EG_PARTICLE
 			-- Type of particles.

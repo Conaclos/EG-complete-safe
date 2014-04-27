@@ -238,8 +238,9 @@ feature -- Element change
 			from
 				l_clusters := clusters
 				i := 1
+				nb := l_clusters.count
 			until
-				i > l_clusters.count
+				i > nb
 			loop
 				l_item := l_clusters.i_th (i)
 				if l_item.cluster = Void then
@@ -325,7 +326,7 @@ feature {EG_ITEM} -- Implementation
 			end
 		end
 
-feature {NONE} -- Implementation
+feature {NONE} -- Anchor
 
 	node_type: EG_NODE
 			-- Type of nodes in `nodes'.

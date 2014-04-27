@@ -19,6 +19,8 @@ feature {NONE} -- Initialization
 
 	make (a_x, a_y: INTEGER; a_mass: like mass)
 			-- Make a particle with `a_mass' at position (`a_x', `a_y').
+		require
+			a_mass_not_negative: a_mass >= 0
 		do
 			internal_x := a_x
 			internal_y := a_y
@@ -81,7 +83,8 @@ feature {NONE} -- Implementation
 			-- Internal `y' position.
 
 invariant
-	
+	mass_not_negative: mass >= 0.0
+
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"

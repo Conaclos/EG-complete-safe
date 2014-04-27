@@ -20,6 +20,9 @@ inherit
 create
 	make_with_model
 
+create {EG_LINKABLE_FIGURE}
+	make_resized_from
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -32,7 +35,7 @@ feature {NONE} -- Initialization
 			set_center
 		end
 
-	make_with_model (a_model: EG_NODE)
+	make_with_model (a_model: like model)
 			-- Create a EG_SIMPLE_NODE using `a_model'.
 		require
 			a_model_not_void: a_model /= Void
@@ -43,6 +46,17 @@ feature {NONE} -- Initialization
 			default_create
 			initialize
 			update
+		end
+
+	make_resized_from (a_other: like Current; n: INTEGER)
+			-- Create a EG_SIMPLE_NODE using `a_other'
+			-- and resize the freshly created area with a count of `n'.
+		do
+			make_with_model (a_other.model)
+			area_v2 := area_v2.resized_area (n)
+		ensure
+			same_model: model = a_other.model
+			area_count: area_v2.count = n
 		end
 
 feature -- Access
@@ -185,12 +199,10 @@ feature {NONE} -- Implementation
 			-- <Precursor>
 			-- (`name_label' and `node_figure').
 
-feature {NONE} -- Obsolete
-
 	new_filled_list (n: INTEGER): like Current
 			-- <Precursor>
 		do
-			check not_implemented: False then end
+			create Result.make_resized_from (Current, n)
 		end
 
 invariant

@@ -27,6 +27,9 @@ inherit
 create
 	make
 
+create {EG_POLYLINE_LINK_FIGURE}
+	make_resized_from
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -49,7 +52,7 @@ feature {NONE} -- Initialization
 		end
 
 	make (a_model: like model; a_source, a_target: like source)
-			-- Make a polyline link using `a_model'.
+			-- Make a polyline link using `a_model', `a_source' and `a_target'.
 		require
 			a_model_not_void: a_model /= Void
 		do
@@ -77,6 +80,18 @@ feature {NONE} -- Initialization
 			if model.is_directed then
 				line.enable_end_arrow
 			end
+		end
+
+	make_resized_from (a_other: like Current; n: INTEGER)
+			-- Make a polyline link using `a_other'
+			-- and resize the freshly created area with a count of `n'.
+		do
+			make (a_other.model, a_other.source, a_other.target)
+			area_v2 := area_v2.resized_area (n)
+		ensure
+			same_model: model = a_other.model
+			same_source_and_target: source = a_other.source and target = a_other.target
+			area_count: area_v2.count = n
 		end
 
 feature -- Constant
@@ -125,13 +140,13 @@ feature -- Access
 	i_th_point_x (i: INTEGER): INTEGER
 			-- x position of `i'-th point.
 		do
-			Result := line.i_th_point_x (i) --point_array.item (i).x
+			Result := line.i_th_point_x (i)
 		end
 
 	i_th_point_y (i: INTEGER): INTEGER
 			-- y position of `i'-th point.
 		do
-			Result := line.i_th_point_y (i) --point_array.item (i).y
+			Result := line.i_th_point_y (i)
 		end
 
 	line_width: INTEGER
@@ -632,21 +647,20 @@ feature {NONE} -- Implementation
 	line: EV_MODEL_POLYLINE
 			-- The polyline visualizing the link.
 
+	new_filled_list (n: INTEGER): like Current
+			-- <Precursor>
+		do
+			create Result.make_resized_from (Current, n)
+		end
+
 feature {EG_FIGURE_WORLD} -- Implementation
 
 	edge_move_handlers: ARRAYED_LIST [EG_EDGE]
 			-- Move handlers for the edges of the polyline.
 			-- start_point and end_point have no move_handlers.
 
-feature {NONE} -- Obsolete
-
-	new_filled_list (n: INTEGER): like Current
-			-- <Precursor>
-		do
-			check not_implemented: False then end
-		end
-
 invariant
+	reflexive_radius_not_negative: reflexive_radius >= 0
 	edge_move_handlers_exists: edge_move_handlers /= Void
 	line_not_void: line /= Void
 

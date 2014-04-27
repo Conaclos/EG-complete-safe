@@ -37,6 +37,10 @@ feature -- Status report
 			Result := source = target
 		end
 
+feature -- Constant
+
+	is_directed_string: STRING = "IS_DIRECTED"
+			-- Xml mark represnting `is_directed'.
 
 feature -- Access
 
@@ -87,8 +91,6 @@ feature -- Access
 			Precursor {EG_FIGURE} (node)
 			model.set_is_directed (xml_routines.xml_boolean (node, is_directed_string))
 		end
-
-	is_directed_string: STRING = "IS_DIRECTED"
 
 	xml_node_name: STRING
 			-- <Precursor>

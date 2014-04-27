@@ -21,14 +21,8 @@ inherit
 		end
 
 	EV_MODEL_DOUBLE_MATH
-		undefine
-			default_create
-		end
 
 	EG_FORCE_DIRECTED_PHYSICS_PROPERTIES
-		undefine
-			default_create
-		end
 
 create
 	make_with_particles
@@ -105,7 +99,7 @@ feature {NONE} -- Implementation
 			end
 		end
 
-feature {NONE} -- Implementation
+feature {NONE} -- Anchor
 
 	particle_type: EG_LINKABLE_FIGURE
 			-- <Precursor>

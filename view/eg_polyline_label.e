@@ -54,7 +54,7 @@ feature -- Access
 			-- Fill it with your labels.
 
 	line_width: INTEGER
-			-- The with of the polyline.
+			-- Width of the polyline.
 		deferred
 		end
 

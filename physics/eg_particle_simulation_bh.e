@@ -32,7 +32,7 @@ deferred class
 inherit
 	EG_PARTICLE_SIMULATION [G]
 		redefine
-			default_create,
+			make_with_particles,
 			set_particles
 		end
 
@@ -40,37 +40,18 @@ inherit {NONE}
 	EV_MODEL_DOUBLE_MATH
 		export
 			{NONE} all
-		undefine
-			default_create
 		end
 
 feature {NONE} -- Initialization
 
-	default_create
-			-- Set `theta' to 0.25.
+	make_with_particles (a_particles: like particles)
+			-- <Precursor>
 		do
 			theta := 0.25
+			set_particles (a_particles)
 		ensure then
-			set: theta = 0.25
-		end
-
-feature -- Element change.
-
-	set_particles (a_particles: like particles)
-			-- Set `particles' to `a_particles' and build `quad_tree'.
-		do
-			Precursor {EG_PARTICLE_SIMULATION} (a_particles)
-			build_quad_tree
-		end
-
-	set_theta (a_theta: like theta)
-			-- Set `theta' to `a_theta'.
-		require
-			a_theta_in_range: 0.0 <= theta and theta <= 1.0
-		do
-			theta := a_theta
-		ensure
-			set: theta = a_theta
+			theta_set: theta = 0.25
+			particles_set: particles = a_particles
 		end
 
 feature -- Access
@@ -83,6 +64,25 @@ feature -- Access
 
 	last_theta_average: REAL_64
 			-- The average theta value on last call to `force'.
+
+feature -- Element change.
+
+	set_particles (a_particles: like particles)
+			-- Set `particles' to `a_particles' and build `quad_tree'.
+		do
+			Precursor (a_particles)
+			build_quad_tree
+		end
+
+	set_theta (a_theta: like theta)
+			-- Set `theta' to `a_theta'.
+		require
+			a_theta_in_range: 0.0 <= theta and theta <= 1.0
+		do
+			theta := a_theta
+		ensure
+			set: theta = a_theta
+		end
 
 feature {NONE} -- Implementation
 

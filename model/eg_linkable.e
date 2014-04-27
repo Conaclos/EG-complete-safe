@@ -43,6 +43,8 @@ feature -- Access
 			-- Links to other EG_LINKABLEs.
 		do
 			Result := internal_links.twin
+		ensure
+			Result_attached: Result /= Void
 		end
 
 feature {EG_LINK} -- Element change

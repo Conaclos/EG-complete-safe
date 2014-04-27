@@ -159,15 +159,11 @@ feature -- Access
 	height: INTEGER
 			-- Height in pixels.
 		deferred
-		ensure
-			result_not_negative: Result >= 0
 		end
 
 	width: INTEGER
 			-- Width in pixels.
 		deferred
-		ensure
-			result_not_negative: Result >= 0
 		end
 
 	minimum_size: EV_RECTANGLE
@@ -183,14 +179,14 @@ feature -- Access
 	number_of_figures: INTEGER
 			-- number of figures used to visialize `Current'.
 		deferred
-		ensure
-			result_greater_equal_zero: Result >= 0
 		end
 
 	links: like internal_links
 			-- Links to other linkables.
 		do
 			Result := internal_links.twin
+		ensure
+			Result_attached: Result /= Void
 		end
 
 feature -- Status settings
@@ -369,10 +365,15 @@ feature {NONE} -- Implementation
 			-- Temporary box used for calculating minimum size.
 		once
 			create Result
+		ensure
+			Result_attached: Result /= Void
 		end
 
 invariant
-	links_not_void: links /= Void
+	internal_links_not_void: internal_links /= Void
+	number_of_figures_not_negative: number_of_figures >= 0
+	height_not_negative: height >= 0
+	width_not_negative: width >= 0
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

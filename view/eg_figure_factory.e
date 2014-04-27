@@ -94,6 +94,8 @@ feature {NONE} -- Implementation
 			end
 		end
 
+feature {NONE} -- Anchor
+
 	xml_element_type: XML_ELEMENT
 			-- Element type for compilation purpose.
 		require

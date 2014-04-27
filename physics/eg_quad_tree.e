@@ -141,6 +141,43 @@ feature -- Access
 			inside: region.has_x_y (Result.x, Result.y)
 		end
 
+feature -- Status report
+
+	has (a_particle: EG_PARTICLE): BOOLEAN
+			-- Is there `a_particle' element in `Current' tree?
+		require
+			a_particle_not_void: a_particle /= Void
+		local
+			px, py: INTEGER
+			hh, hw: INTEGER
+		do
+			px := a_particle.x
+			py := a_particle.y
+			if region.has_x_y (px, py) then
+				if attached particle as l_particle then
+						-- Reached the leaf.
+					Result := l_particle.x = px and l_particle.y = py
+				else
+					hw := (region.width / 2).ceiling
+					hh := (region.height / 2).ceiling
+						-- Look into childrens.
+					if px >= region.left + hw then
+						if py >= region.top + hh then
+							Result := childe_se /= Void and then childe_se.has (a_particle)
+						else
+							Result := childe_ne /= Void and then childe_ne.has (a_particle)
+						end
+					else
+						if py >= region.top + hh then
+							Result := childe_sw /= Void and then childe_sw.has (a_particle)
+						else
+							Result := childe_nw /= Void and then childe_nw.has (a_particle)
+						end
+					end
+				end
+			end
+		end
+
 feature -- Element change
 
 	reset_center_of_mass
@@ -235,47 +272,13 @@ feature -- Element change
 			inserted: has (a_particle)
 		end
 
-	has (a_particle: EG_PARTICLE): BOOLEAN
-			-- Is a particle equal to `a_particle' element of `Current' tree?
-		require
-			a_particle_not_void: a_particle /= Void
-		local
-			px, py: INTEGER
-			hh, hw: INTEGER
-		do
-			px := a_particle.x
-			py := a_particle.y
-			if region.has_x_y (px, py) then
-				if attached particle as l_particle then
-						-- Reached the leaf.
-					Result := l_particle.x = px and l_particle.y = py
-				else
-					hw := (region.width / 2).ceiling
-					hh := (region.height / 2).ceiling
-						-- Look into childrens.
-					if px >= region.left + hw then
-						if py >= region.top + hh then
-							Result := childe_se /= Void and then childe_se.has (a_particle)
-						else
-							Result := childe_ne /= Void and then childe_ne.has (a_particle)
-						end
-					else
-						if py >= region.top + hh then
-							Result := childe_sw /= Void and then childe_sw.has (a_particle)
-						else
-							Result := childe_nw /= Void and then childe_nw.has (a_particle)
-						end
-					end
-				end
-			end
-		end
-
 feature {NONE} -- Implementation
 
 	center_of_mass_particle_cache: detachable like center_of_mass_particle
 		-- Cache storage for `center_of_mass_particle'.
 
 invariant
+	region_attached: region /= Void
 	leaf_has_particle_inner_nodes_do_not: is_leaf = (particle /= Void)
 	leaf_has_no_childe: is_leaf = (childe_sw = Void and childe_se = Void and childe_ne = Void and childe_nw = Void)
 	is_leaf_implies_has_particle: is_leaf implies (attached particle as l_particle and then region.has_x_y (l_particle.x, l_particle.y))

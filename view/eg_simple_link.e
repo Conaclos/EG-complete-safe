@@ -18,6 +18,9 @@ inherit
 create
 	make
 
+create {EG_LINK_FIGURE}
+	make_resized_from
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -59,6 +62,18 @@ feature {NONE} -- Initialization
 			target_set: target = a_target
 		end
 
+	make_resized_from (a_other: like Current; n: INTEGER)
+			-- Make a link using `a_other'
+			-- and resize the freshly created area with a count of `n'.
+		do
+			make (a_other.model, a_other.source, a_other.target)
+			area_v2 := area_v2.resized_area (n)
+		ensure
+			same_model: model = a_other.model
+			same_source_and_target: source = a_other.source and target = a_other.target
+			area_count: area_v2.count = n
+		end
+
 feature -- Access
 
 	xml_node_name: STRING
@@ -67,7 +82,7 @@ feature -- Access
 			Result := "EG_SIMPLE_LINK"
 		end
 
-	arrow_size: INTEGER
+	arrow_size: INTEGER assign set_arrow_size
 			-- Size of the arrow.
 		do
 			Result := line.arrow_size
@@ -75,7 +90,7 @@ feature -- Access
 
 feature -- Element change
 
-	set_arrow_size (i: INTEGER)
+	set_arrow_size (i: like arrow_size)
 			-- Set `arrow_size' to `i'.
 		require
 			i_positive: i > 0
@@ -147,17 +162,16 @@ feature {NONE} -- Implementation
 			line.center_invalidate
 		end
 
-feature {NONE} -- Obsolete
-
 	new_filled_list (n: INTEGER): like Current
 			-- <Precursor>
 		do
-			check not_implemented: False then end
+			create Result.make_resized_from (Current, n)
 		end
 
 invariant
 	line_not_void: line /= Void
 	reflexive_not_void: reflexive /= Void
+	arrow_size_positive: arrow_size > 0
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

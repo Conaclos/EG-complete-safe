@@ -61,7 +61,7 @@ feature -- Status report
 
 feature -- Access
 
-	center_attraction: INTEGER assign set_center_attraction
+	center_attraction: NATURAL_8 assign set_center_attraction
 			-- Attraction of the center in percent.
 
 	center_x: INTEGER
@@ -70,20 +70,20 @@ feature -- Access
 	center_y: INTEGER
 			-- Y position of the center.
 
-	stiffness: INTEGER assign set_stiffness
+	stiffness: NATURAL_8 assign set_stiffness
 			-- Stiffness of the links in percent.
 
-	electrical_repulsion: INTEGER assign set_electrical_repulsion
+	electrical_repulsion: NATURAL_8 assign set_electrical_repulsion
 			-- Electrical repulsion between nodes in percent.
 
 	stop_actions: EV_NOTIFY_ACTION_SEQUENCE
 			-- Called when the layouting stops.
 
-	move_threshold: INTEGER assign set_move_threshold
+	move_threshold: NATURAL assign set_move_threshold
 			-- Call `stop_actions' if no node moved.
 			-- for more then `move_threshold'
 
-	theta: INTEGER assign set_theta
+	theta: NATURAL_8 assign set_theta
 			-- Error variable for Barnes and Hut.
 
 	last_theta_average: REAL_64
@@ -124,7 +124,7 @@ feature -- Element change
 	set_theta (a_theta: like theta)
 			-- Set `theta' to `a_theta'.
 		require
-			valid_value: 0 <= a_theta and a_theta <= 100
+			valid_value: a_theta <= 100
 		do
 			theta := a_theta
 		end
@@ -132,7 +132,7 @@ feature -- Element change
 	set_center_attraction (a_value: like center_attraction)
 			-- Set 'center_attraction' value in percentage of maximum.
 		require
-			valid_value: 0 <= a_value and then a_value <= 100
+			valid_value: a_value <= 100
 		do
 			center_attraction := a_value
 		ensure
@@ -142,7 +142,7 @@ feature -- Element change
 	set_stiffness (a_value: like stiffness)
 			-- Set 'stiffness' value in percentage of maximum.
 		require
-			valid_value: 0 <= a_value and then a_value <= 100
+			valid_value: a_value <= 100
 		do
 			stiffness := a_value
 		ensure
@@ -152,7 +152,7 @@ feature -- Element change
 	set_electrical_repulsion (a_value: like electrical_repulsion)
 			-- Set 'electrical_repulsion' value in percentage of maximum.
 		require
-			valid_value: 0 <= a_value and then a_value <= 100
+			valid_value: a_value <= 100
 		do
 			electrical_repulsion := a_value
 		ensure
@@ -366,11 +366,11 @@ feature {NONE} -- Implementation
 		end
 
 invariant
-	valid_theta: 0 <= theta and theta <= 100
+	valid_theta: theta <= 100
 	positive_last_theta_average: last_theta_average >= 0.0
-	valid_center_attraction: 0 <= center_attraction and center_attraction <= 100
-	valid_electrical_repulsion: 0 <= electrical_repulsion and electrical_repulsion <= 100
-	valid_stiffness: 0 <= stiffness and stiffness <= 100
+	valid_center_attraction: center_attraction <= 100
+	valid_electrical_repulsion: electrical_repulsion <= 100
+	valid_stiffness: stiffness <= 100
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

@@ -27,10 +27,10 @@ feature {NONE} -- Initialization
 	default_create
 			-- Create an EG_FIGURE.
 		do
+			is_center_valid := True
 			create name_label
 			Precursor {EV_MODEL_MOVE_HANDLE}
 			extend (name_label)
-			is_center_valid := True
 		end
 
 	initialize
@@ -54,16 +54,9 @@ feature -- Constant
 			-- Xml mark representing `is_label_shown'.
 
 	name_string: STRING = "NAME"
-			-- Xml mark representing model's name.
+			-- Xml mark representing `model's name.
 
 feature -- Access
-
-	is_storable: BOOLEAN
-			-- Does `Current' need to be persistently stored?
-			-- True by default.
-		do
-			Result := True
-		end
 
 	model: EG_ITEM
 			-- The model for `Current'.
@@ -122,6 +115,13 @@ feature -- Status report
 
 	is_selected: BOOLEAN
 			-- Is `Current' selected?
+
+	is_storable: BOOLEAN
+			-- Does `Current' need to be persistently stored?
+			-- True by default.
+		do
+			Result := True
+		end
 
 	is_label_shown: BOOLEAN
 			-- Is label shown?
@@ -222,7 +222,7 @@ feature {NONE} -- Implementation
 			-- Name was changed in the model.
 		do
 			if attached model.name as l_name then
-				if name_label.text.count = 0 and not is_label_shown then
+				if name_label.text.is_empty and not is_label_shown then
 					name_label.show
 				end
 				set_name_label_text (l_name)
@@ -237,7 +237,7 @@ feature {NONE} -- Implementation
 			-- | Redefine in subclass if you want make changes to the text.
 		require
 			a_text_not_void: a_text /= Void
-			a_text_equal_model_text: attached model as l_model and then l_model.name = a_text
+			a_text_equal_model_text: attached model.name as l_name and then l_name = a_text
 		do
 			name_label.set_text (a_text)
 		end

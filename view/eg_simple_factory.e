@@ -16,22 +16,22 @@ create
 
 feature -- Basic operations
 
-	new_node_figure (a_node: EG_NODE): EG_LINKABLE_FIGURE
+	new_node_figure (a_node: EG_NODE): EG_SIMPLE_NODE
 			-- <Precursor>
 		do
-			create {EG_SIMPLE_NODE} Result.make_with_model (a_node)
+			create Result.make_with_model (a_node)
 		end
 
-	new_cluster_figure (a_cluster: EG_CLUSTER): EG_CLUSTER_FIGURE
+	new_cluster_figure (a_cluster: EG_CLUSTER): EG_SIMPLE_CLUSTER
 		-- <Precursor>
 		do
-			create {EG_SIMPLE_CLUSTER} Result.make_with_model (a_cluster)
+			create Result.make_with_model (a_cluster)
 		end
 
-	new_link_figure (a_link: EG_LINK; a_source, a_target: EG_LINKABLE_FIGURE): EG_LINK_FIGURE
+	new_link_figure (a_link: EG_LINK; a_source, a_target: EG_LINKABLE_FIGURE): EG_SIMPLE_LINK
 			-- <Precursor>
 		do
-			create {EG_SIMPLE_LINK} Result.make (a_link, a_source, a_target)
+			create Result.make (a_link, a_source, a_target)
 		end
 
 	model_from_xml (a_node: like xml_element_type): detachable EG_ITEM

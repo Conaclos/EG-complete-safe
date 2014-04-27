@@ -56,22 +56,22 @@ feature {NONE} -- Implementation
 	boolean_representation (a_boolean: BOOLEAN): STRING
 			-- Optimized string representation of `a_boolean'.
 		do
-			if a_boolean then
-				Result := once "True"
-			else
-				Result := once "False"
-			end
+			Result := a_boolean.out
+		ensure
+			Result_attached: Result /= Void
 		end
 
 	xml_namespace: XML_NAMESPACE
 		once
 			create Result.make_default
+		ensure
+			Result_attached: Result /= Void
 		end
 
 	Xml_routines: XML_GRAPH_ROUTINES
 			-- Access the common xml routines.
 		once
-			create Result.default_create
+			create Result
 		ensure
 			Result_not_void: Result /= Void
 		end

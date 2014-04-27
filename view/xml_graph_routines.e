@@ -107,6 +107,9 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_integer (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): INTEGER
 			-- Find in sub-elememt of `a_elem' integer item with tag `a_name'.
+		require
+			a_elem_attached: a_elem /= Void
+			a_name_attached: a_name /= Void
 		do
 			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text and then l_text.is_integer then
@@ -123,6 +126,9 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_boolean (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): BOOLEAN
 			-- Find in sub-elememt of `a_elem' boolean item with tag `a_name'.
+		require
+			a_elem_attached: a_elem /= Void
+			a_name_attached: a_name /= Void
 		do
 			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text and then l_text.is_boolean then
@@ -139,6 +145,9 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_double (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): REAL_64
 			-- Find in sub-elememt of `a_elem' integer item with tag `a_name'.
+		require
+			a_elem_attached: a_elem /= Void
+			a_name_attached: a_name /= Void
 		do
 			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text and then l_text.is_double then
@@ -155,10 +164,15 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_string (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): detachable STRING
 			-- Find in sub-elememt of `a_elem' string item with tag `a_name'.
+		require
+			a_elem_attached: a_elem /= Void
+			a_name_attached: a_name /= Void
 		do
 			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text then
-					check is_valid_as_string_8: l_text.is_valid_as_string_8 end
+					check
+						is_valid_as_string_8: l_text.is_valid_as_string_8
+					end
 					Result := l_text.to_string_8
 				end
 				valid_tags_read
@@ -166,10 +180,15 @@ feature {EG_XML_STORABLE} -- Processing
 				display_warning_message ({STRING_32} "Element " + a_name.to_string_32 + {STRING_32} " expected but not found.")
 			end
 			a_elem.forth
+		ensure
+			Result_attached: Result /= Void
 		end
 
 	xml_string_32 (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): detachable STRING_32
 			-- Find in sub-elememt of `a_elem' string item with tag `a_name'.
+		require
+			a_elem_attached: a_elem /= Void
+			a_name_attached: a_name /= Void
 		do
 			if attached {like xml_node} a_elem.item_for_iteration as e and then e.has_same_name (a_name) then
 				if attached e.text as l_text then
@@ -184,6 +203,9 @@ feature {EG_XML_STORABLE} -- Processing
 
 	xml_color (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): EV_COLOR
 			-- Find in sub-elememt of `a_elem' color item with tag `a_name'.
+		require
+			a_elem_attached: a_elem /= Void
+			a_name_attached: a_name /= Void
 		local
 			sc1, sc2: INTEGER
 			r, g, b: INTEGER
@@ -223,25 +245,37 @@ feature {EG_XML_STORABLE} -- Processing
 			retry
 		end
 
-	element_by_name (e: like xml_node; n: READABLE_STRING_GENERAL): detachable like xml_node
-			-- Find in sub-elemement of `e' an element with tag `n'.
+	element_by_name (a_elem: like xml_node; a_name: READABLE_STRING_GENERAL): detachable like xml_node
+			-- Find in sub-elemement of `a_elem' an element with tag `a_name'.
 		require
-			e_not_void: e /= Void
+			a_elem_not_void: a_elem /= Void
+			a_name_attached: a_name /= Void
 		do
-			Result := e.element_by_name (n)
+			Result := a_elem.element_by_name (a_name)
 		end
 
 	xml_string_node (a_parent: like xml_node; s: READABLE_STRING_GENERAL): XML_CHARACTER_DATA
 			-- New node with `s' as content.
+		require
+			a_parent_attached: a_parent /= Void
+			s_attached: s /= Void
 		do
 			create Result.make (a_parent, s.to_string_32)
+		ensure
+			Result_attached: Result /= Void
 		end
 
-	xml_node (a_parent: like xml_node; tag_name, content: READABLE_STRING_GENERAL): XML_ELEMENT
+	xml_node (a_parent: like xml_node; a_tag_name, a_content: READABLE_STRING_GENERAL): XML_ELEMENT
 			-- New node with `s' as content and named `tag_name'.
+		require
+			a_parent_attached: a_parent /= Void
+			a_content_attached: a_content /= Void
+			a_tag_name_attached: a_tag_name /= Void
 		do
-			create Result.make (a_parent, tag_name.to_string_32, default_namespace)
-			Result.put_last (xml_string_node (Result, content))
+			create Result.make (a_parent, a_tag_name.to_string_32, default_namespace)
+			Result.put_last (xml_string_node (Result, a_content))
+		ensure
+			Result_attached: Result /= Void
 		end
 
 feature -- Saving
@@ -249,7 +283,7 @@ feature -- Saving
 	save_xml_document (a_file_name: READABLE_STRING_GENERAL; a_doc: XML_DOCUMENT)
 			-- Save `a_doc' in `ptf'.
 		require
-			file_not_void: a_file_name /= Void
+			a_file_name_not_void: a_file_name /= Void
 			file_exists: not a_file_name.is_empty
 		do
 			save_xml_document_with_path (create {PATH}.make_from_string (a_file_name), a_doc)
@@ -258,7 +292,7 @@ feature -- Saving
 	save_xml_document_with_path (a_file_name: PATH; a_doc: XML_DOCUMENT)
 			-- Save `a_doc' in `ptf'.
 		require
-			file_not_void: a_file_name /= Void
+			a_file_name_not_void: a_file_name /= Void
 			file_exists: not a_file_name.is_empty
 		local
 			l_retried: BOOLEAN
@@ -292,7 +326,8 @@ feature -- Deserialization
 			-- serialized in `a_file_path'.
 			-- If deserialization fails, return Void.
 		require
-			valid_file_path: a_file_path /= Void and then not a_file_path.is_empty
+			a_file_path_attached: a_file_path /= Void
+			valid_file_path: not a_file_path.is_empty
 		do
 			Result := deserialize_document_with_path (create {PATH}.make_from_string (a_file_path))
 		end
@@ -302,7 +337,8 @@ feature -- Deserialization
 			-- serialized in `a_file_path'.
 			-- If deserialization fails, return Void.
 		require
-			valid_file_path: a_file_path /= Void and then not a_file_path.is_empty
+			a_file_path_attached: a_file_path /= Void
+			valid_file_path: not a_file_path.is_empty
 		local
 			l_parser: XML_STOPPABLE_PARSER
 			l_tree: XML_CALLBACKS_NULL_FILTER_DOCUMENT
@@ -336,6 +372,8 @@ feature {NONE} -- Implementation
 			-- Default namespace for nodes.
 		once
 			create Result.make_default
+		ensure
+			Result_attached: Result /= Void
 		end
 
 feature {NONE} -- Error management
@@ -343,7 +381,8 @@ feature {NONE} -- Error management
 	display_warning_message (a_warning_msg: READABLE_STRING_GENERAL)
 			-- Display `a_warning_msg' in a warning popup window.
 		require
-			valid_error_message: a_warning_msg /= Void and then not a_warning_msg.is_empty
+			a_warning_msg_attached: a_warning_msg /= Void
+			valid_error_message: not a_warning_msg.is_empty
 		local
 			l_warning_window: EV_WARNING_DIALOG
 		do
@@ -351,28 +390,34 @@ feature {NONE} -- Error management
 			l_warning_window.show
 		end
 
-	display_error_message (an_error_msg: READABLE_STRING_GENERAL)
+	display_error_message (a_error_msg: READABLE_STRING_GENERAL)
 			-- Display `an_error_msg' in an error popup window.
 		require
-			valid_error_message: an_error_msg /= Void and then not an_error_msg.is_empty
+			a_error_msg_attached: a_error_msg /= Void
+			valid_error_message: not a_error_msg.is_empty
 		local
 			l_error_window: EV_ERROR_DIALOG
 		do
-			create l_error_window.make_with_text (an_error_msg)
+			create l_error_window.make_with_text (a_error_msg)
 			l_error_window.show
 		end
 
 	display_warning_message_relative (a_warning_msg: READABLE_STRING_GENERAL; a_parent_window: EV_WINDOW)
 			-- Display `a_warning_msg' in a warning popup window.
 		require
-			valid_error_message: a_warning_msg /= Void and then not a_warning_msg.is_empty
 			non_void_parent_window: a_parent_window /= Void
+			a_warning_msg_attached: a_warning_msg /= Void
+			valid_error_message: not a_warning_msg.is_empty
 		local
 			l_warning_window: EV_WARNING_DIALOG
 		do
 			create l_warning_window.make_with_text (a_warning_msg)
 			l_warning_window.show_modal_to_window (a_parent_window)
 		end
+
+invariant
+	valid_tag_read_actions_attached: valid_tag_read_actions /= Void
+	valid_tags_not_negative: valid_tags >= 0
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

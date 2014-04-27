@@ -123,16 +123,18 @@ feature -- Basic operations
 			create Result.make (x - other.x, y - other.y)
 		end
 
-	product alias "*" (other: like Current): like Current
+	scalar_product alias "*" (other: like Current): like Current
 			-- <Precursor>
 		do
-			check not_implemented: False then end
+			create Result.make (x * other.x, y * other.y)
+		ensure then
+			definition: Result.x = x * other.x and Result.y = y * other.y
 		end
 
 	quotient alias "/" (other: like Current): like Current
 			-- <Precursor>
 		do
-			check not_implemented: False then end
+			check vectors_are_divisible: False then end
 		end
 
 	identity alias "+": like Current
@@ -147,10 +149,12 @@ feature -- Basic operations
 			create Result.make (-x, -y)
 		end
 
-	scalar_product alias "|*" (other: G): like Current
+	product alias "|*" (a_value: G): like Current
 			-- <Precursor>
 		do
-			create Result.make (x * other, y * other)
+			create Result.make (x * a_value, y * a_value)
+		ensure then
+			definition: Result.x = x * a_value and Result.y = y * a_value
 		end
 
 note

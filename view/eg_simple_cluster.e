@@ -19,6 +19,9 @@ inherit
 create
 	make_with_model
 
+create {EG_SIMPLE_CLUSTER}
+	make_resized_from
+
 feature {NONE} -- Initialization
 
 	default_create
@@ -29,7 +32,7 @@ feature {NONE} -- Initialization
 			extend (rectangle)
 		end
 
-	make_with_model (a_model: EG_CLUSTER)
+	make_with_model (a_model: like model)
 			-- Create a cluster using `a_model'.
 		require
 			a_model_not_void: a_model /= Void
@@ -44,6 +47,17 @@ feature {NONE} -- Initialization
 			disable_scaling
 
 			update
+		end
+
+	make_resized_from (a_other: like Current; n: INTEGER)
+			-- Create a cluster using `a_other'
+			-- and resize the freshly created area with a count of `n'.
+		do
+			make_with_model (a_other.model)
+			area_v2 := area_v2.resized_area (n)
+		ensure
+			same_model: model = a_other.model
+			area_count: area_v2.count = n
 		end
 
 feature -- Access
@@ -185,12 +199,10 @@ feature {NONE} -- Implementation
 			-- <Precursor>
 			-- (`name_label' and `rectangle').
 
-feature {NONE} -- Obsolete
-
 	new_filled_list (n: INTEGER): like Current
 			-- <Precursor>
 		do
-			check not_implemented: False then end
+			create Result.make_resized_from (Current, n)
 		end
 
 invariant

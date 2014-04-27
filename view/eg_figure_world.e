@@ -184,10 +184,10 @@ feature -- Access
 		end
 
 	model: EG_GRAPH
-			-- Model for `Current'
+			-- Model for `Current'.
 
 	attached_model: like model
-			-- `model'
+			-- `model'.
 		obsolete
 			"Use `model' instead. [03-2014]"
 		do
@@ -198,7 +198,7 @@ feature -- Access
 			-- Factory used to create new figures.
 
 	attached_factory: like factory
-			-- `factory'
+			-- `factory'.
 		obsolete
 			"Use `factory' instead. [03-2014]"
 		do
@@ -233,7 +233,7 @@ feature -- Access
 			-- All currently selected figures.
 
 	scale_factor: REAL_64
-			-- `Current' has been scaled for `scale_factor'
+			-- `Current' has been scaled for `scale_factor'.
 
 	root_clusters: ARRAYED_LIST [EG_CLUSTER_FIGURE]
 			-- All clusters in `Current' not having a parent.
@@ -253,36 +253,30 @@ feature -- Access
 			Result_not_Void: Result /= Void
 		end
 
-	smallest_common_supercluster (fig1, fig2: EG_LINKABLE_FIGURE): detachable EG_CLUSTER_FIGURE
-			-- Smallest common supercluster of `fig1' and `fig2'.
+	smallest_common_supercluster (a_fig_1, a_fig_2: EG_LINKABLE_FIGURE): detachable EG_CLUSTER_FIGURE
+			-- Smallest common supercluster of `a_fig_1' and `a_fig_2'.
 		require
-			fig1_not_void: fig1 /= Void
-			fig2_not_void: fig2 /= Void
+			fig1_not_void: a_fig_1 /= Void
+			fig2_not_void: a_fig_2 /= Void
 		local
 			p, q: detachable EG_CLUSTER_FIGURE
 		do
-			if fig1.cluster /= Void and then fig2.cluster /= Void then
-				if fig1.cluster = fig2.cluster then
-					Result := fig1.cluster
-				else
-					from
-						p := fig1.cluster
-					until
-						p = Void or else Result /= Void
-					loop
-						from
-							q := fig2.cluster
-						until
-							q = Void or else Result /= Void
-						loop
-							if p = q then
-								Result := p
-							end
-							q := q.cluster
-						end
-						p := p.cluster
+			from
+				p := a_fig_1.cluster
+			until
+				p = Void or Result /= Void
+			loop
+				from
+					q := a_fig_2.cluster
+				until
+					q = Void or Result /= Void
+				loop
+					if p = q then
+						Result := p
 					end
+					q := q.cluster
 				end
+				p := p.cluster
 			end
 		end
 
@@ -449,6 +443,11 @@ feature -- Element change
 
 				links_to_figures.put (link_figure, a_link)
 				figure_added (link_figure)
+			else
+					-- Per precondition `has_source_figure' and `has_target_figure'
+				check
+					has_source_and_target_figures: False
+				end
 			end
 		ensure
 			has_a_link: has_link_figure (a_link)
@@ -1080,7 +1079,7 @@ feature {NONE} -- Implementation
 			end
 		end
 
-feature {NONE} -- Implementation
+feature {NONE} -- Anchor
 
 	node_type: EG_NODE
 			-- Type for nodes.
@@ -1089,6 +1088,8 @@ feature {NONE} -- Implementation
 		do
 			check callable: False then end
 		end
+
+feature {NONE} -- Obsolete
 
 	new_filled_list (n: INTEGER): like Current
 			-- <Precursor>
@@ -1101,8 +1102,10 @@ invariant
 	factory_not_void: factory /= Void
 	links_to_figure_not_void: links_to_figures /= Void
 	linkables_to_figure_not_void: linkables_to_figures /= Void
-	selected_figures_not_void: selected_figures /= Void
 	root_cluster_not_void: root_cluster /= Void
+	clusters_not_void: clusters /= Void
+	nodes_not_void: nodes /= Void
+	links_not_void: links /= Void
 
 note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"

@@ -1,5 +1,5 @@
 note
-	description: "Objects that is a vector containing Gs."
+	description: "Objects that is a vector containing NUMERICs."
 	legal: "See notice at end of class."
 	status: "See notice at end of class."
 	author: "Benno Baumgartner"
@@ -11,11 +11,19 @@ deferred class
 
 inherit
 	NUMERIC
+		rename
+			product as scalar_product alias "*"
+		end
 
 feature -- Basic operations
 
-	scalar_product alias "|*" (other: G): like Current
-			-- Scalar product between `Current' and `other'.
+	scalar_product alias "*" (other: like Current): like Current
+			-- Dot product betwen `Current' and `other'.
+		deferred
+		end
+
+	product alias "|*" (a_value: G): like Current
+			-- Product between `Current' and `a_value'.
 		deferred
 		end
 

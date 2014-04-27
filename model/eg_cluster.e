@@ -173,15 +173,20 @@ feature {EG_GRAPH, EG_FIGURE_WORLD, EG_FIGURE_FACTORY} -- Implementation
 	linkables: ARRAYED_LIST [EG_LINKABLE];
 			-- Linkable elements of `Current'.
 
-feature {NONE} -- Node type
+feature {NONE} -- Anchor
 
 	node_type: EG_NODE
-			-- Anchor type.
+			-- Node type.
 		require
 			callable: False
 		do
 			check callable: False then end
 		end
+
+invariant
+	linkables_attached: linkables /= Void
+	linkable_add_actions_attached: linkable_add_actions /= Void
+	linkable_remove_actions_attached: linkable_remove_actions /= Void
 
 ;note
 	copyright:	"Copyright (c) 1984-2014, Eiffel Software and others"
