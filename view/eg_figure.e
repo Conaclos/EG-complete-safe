@@ -232,7 +232,7 @@ feature {NONE} -- Implementation
 			request_update
 		end
 
-	set_name_label_text (a_text: STRING)
+	set_name_label_text (a_text: READABLE_STRING_GENERAL)
 			-- Set `name_label'.`text' to `a_text'.
 			-- | Redefine in subclass if you want make changes to the text.
 		require
