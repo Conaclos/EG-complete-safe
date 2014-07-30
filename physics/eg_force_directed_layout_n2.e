@@ -13,7 +13,7 @@ class
 	EG_FORCE_DIRECTED_LAYOUT_N2
 
 obsolete
-	"Use EG_FORCE_DIRECTED_LAYOUT instead."
+	"Use EG_FORCE_DIRECTED_LAYOUT instead. [before 2014]"
 
 inherit
 	EG_LAYOUT
@@ -55,7 +55,7 @@ feature -- Access
 	energy_tolerance: REAL_64
 			-- Algorithm variables.
 		obsolete
-			"Unused."
+			"Unused. [before 2014]"
 		attribute end
 
 	center_x: INTEGER

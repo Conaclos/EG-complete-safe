@@ -10,7 +10,7 @@ deferred class
 	EG_PARTICLE_SIMULATION_N2 [G -> NUMERIC]
 
 obsolete
-	"Use EG_PARTICLE_SIMULATION instead."
+	"Use EG_PARTICLE_SIMULATION instead. [before 2014]"
 
 inherit
 	EG_PARTICLE_SIMULATION [G]
