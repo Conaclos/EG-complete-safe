@@ -52,9 +52,6 @@ feature -- Access
 
 	name: detachable STRING
 			-- Name of `Current'.
-		note
-			option: stable
-		attribute end
 
 	name_change_actions: EV_NOTIFY_ACTION_SEQUENCE
 			-- Called when `name' was changed.
