@@ -56,7 +56,11 @@ feature {NONE} -- Implementation
 	boolean_representation (a_boolean: BOOLEAN): STRING
 			-- Optimized string representation of `a_boolean'.
 		do
-			Result := a_boolean.out
+			if a_boolean then
+				Result := "True"
+			else
+				Result := "False"
+			end
 		ensure
 			Result_attached: Result /= Void
 		end
