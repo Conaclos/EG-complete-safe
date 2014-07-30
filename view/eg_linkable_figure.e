@@ -137,16 +137,16 @@ feature -- Access
 	set_with_xml_element (a_node: like xml_element)
 			-- <Precursor>
 		local
-			ax, ay: INTEGER
+			l_x, l_y: INTEGER
 			l_xml_routines: like xml_routines
 		do
 			Precursor {EG_FIGURE} (a_node)
 			l_xml_routines := xml_routines
 			set_is_fixed (l_xml_routines.xml_boolean (a_node, is_fixed_string))
 
-			ax := l_xml_routines.xml_integer (a_node, port_x_string)
-			ay := l_xml_routines.xml_integer (a_node, port_y_string)
-			set_port_position (ax, ay)
+			l_x := l_xml_routines.xml_integer (a_node, port_x_string)
+			l_y := l_xml_routines.xml_integer (a_node, port_y_string)
+			set_port_position (l_x, l_y)
 		end
 
 	size: EV_RECTANGLE
